@@ -26,4 +26,9 @@ x-deck {
 	border: 1px solid red;
 }
 
+#transport {
+	right: 0;
+	width: 100%;
+	text-align: right;
+}
 

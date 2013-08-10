@@ -41,6 +41,7 @@ function onSongDataLoaded(data) {
 	setupDeck(player, deck);
 	setupOSC(gear, player, osc);
 
+	setupKeyboardAndTransport();
 	osc.connect('/');
 
 }
@@ -59,12 +60,22 @@ function setupGearPlayerListeners(gear, player) {
 
 
 function setupOSC(gear, player, osc) {
+
+	var prefix = '\/quneo\/'; // Because I'm lazy.
+
 	// osc.input -> gear
+	osc.on(prefix + 'pads\/(\\d+)\/drum\/pressure', null, function(match, value) {
+		console.log('pad pressure', value, match);
+	});
+	
 	// osc.input -> player
 	//	PLAY -> player.play
+	// osc.on('/quneo/transport/2/note_velocity', 127, play);
+	osc.on(prefix + 'transport\/2\/note_velocity', 127, play);
 	//	STOP -> player.pause
 	// player -> osc.output
 	console.warn('TODO setupOSC');
+
 }
 
 
@@ -73,6 +84,24 @@ function setupDeck(player, deck) {
 	console.warn('TODO setupDeck');
 }
 
+
+function setupKeyboardAndTransport() {
+	// Just in case OSC is not available!
+	$('#play').on('click', play);
+	$('#pause').on('click', pause);
+}
+
+
+function play() {
+	if(!player.isPlaying()) {
+		player.play();
+	}
+}
+
+
+function pause() {
+	player.pause();
+}
 
 module.exports = {
 	start: start
