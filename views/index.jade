@@ -1,0 +1,21 @@
+extend layout
+
+block content
+
+	#rendererContainer
+
+	x-deck
+		x-card
+			header
+				h1 Look at this!
+			p isn't it amazing?!?!
+
+		x-card
+			header
+				h1 I dunno
+			p I'm an skeptic
+	
+	script(src='/js/libs/x-tag/core.js', type='text/javascript')
+	script(src='/js/libs/x-tag/deck.js', type='text/javascript')
+	script(src='/js/main.js', type='text/javascript')
+

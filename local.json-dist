@@ -1,0 +1,9 @@
+{
+    "domain": "http://localhost",
+    "port": 7777,
+    "session_secret": "secret",
+    "session_cookie": "session",
+	"oscServerPort": 9999
+}
+
+

@@ -1,0 +1,29 @@
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+html, body, #wrapper {
+	position: relative;
+	height: 100%;
+	width: 100%;
+}
+
+#wrapper > * {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+#rendererContainer {
+	background: #eee;
+	height: 100%;
+	width: 100%;
+}
+
+x-deck {
+	border: 1px solid red;
+}
+
+
