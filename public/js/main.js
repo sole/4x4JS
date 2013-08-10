@@ -4,6 +4,6 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 	console.log('hey');
 
-	app.init();
+	app.start();
 
 }, false);

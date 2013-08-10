@@ -1,0 +1,15 @@
+{
+	"bpm": 125,
+	"orders": [ 0 ],
+	"channels": [ 1 ],
+	"patterns": [
+		[
+			{
+				"0": {
+					"instrument": 0,
+					"note": "C-4"
+				}
+			}
+		]
+	]
+}
