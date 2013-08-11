@@ -26,8 +26,26 @@ var routeFiltering = function(req, res, next) {
 // Routes
 require('./routes')(app, routeFiltering);
 
-// OSC
 
+// Rebuild song each time the server is fired up
+var Renoise = require('renoise');
+var Orxatron = require('./public/js/Orxatron'); // TODO change this path when moving Orxatron into its own module
+var pd = require('pretty-data').pd;
+var fs = require('fs');
+var dstSong = './public/build/data/song.json';
+
+	
+Renoise.loadAsJSON('./data/song.xrns', function(songJSON) {
+	fs.writeFileSync('tatatata.json', pd.json(songJSON));
+	
+	var convertedSong = Orxatron.DataUtils.renoiseToOrxatron(songJSON);
+	fs.writeFileSync(dstSong, JSON.stringify(convertedSong, null, '\t'));
+
+});
+
+
+
+// OSC
 var oscServer = new osc.Server(oscServerPort, '0.0.0.0');
 
 // Socket.io
