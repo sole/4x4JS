@@ -64,17 +64,30 @@ function setupOSC(gear, player, osc) {
 	var prefix = '\/quneo\/'; // Because I'm lazy.
 
 	// osc.input -> gear
+	// -----------------
 	osc.on(prefix + 'pads\/(\\d+)\/drum\/pressure', null, function(match, value) {
 		console.log('pad pressure', value, match);
 	});
+
+	// TODO: "mixer" -> sample cue points (granular...)
+	// TODO: up/down (left/right) to select which sample to play, and trigger it
 	
+
 	// osc.input -> player
-	//	PLAY -> player.play
-	// osc.on('/quneo/transport/2/note_velocity', 127, play);
+	// -------------------
+	// __ PLAY -> player.play
 	osc.on(prefix + 'transport\/2\/note_velocity', 127, play);
-	//	STOP -> player.pause
+	// __ STOP -> player.pause
+	osc.on(prefix + 'transport\/1\/note_velocity', 127, pause);
+
+
 	// player -> osc.output
+	// --------------------
 	console.warn('TODO setupOSC');
+	// TODO: flash play button to the beat
+	// TODO: flash stop button at 0.5
+	// TODO: use pad columns/grid as pattern/line indicator
+	// TODO: vumeters?
 
 }
 

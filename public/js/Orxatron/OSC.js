@@ -53,7 +53,7 @@ module.exports = function() {
 		
 		var re = new RegExp(address, 'g');
 
-		console.log(address, '->', re);
+		// console.log(address, '->', re);
 		
 		var listener = {
 			regexp: re,
