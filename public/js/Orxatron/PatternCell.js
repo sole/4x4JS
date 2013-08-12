@@ -18,6 +18,8 @@ function PatternCell(data) {
 			scope.noteNumber = null;
 		}
 		scope.instrument = d.instrument !== undefined ? d.instrument : null;
+		scope.volume = d.volume !== undefined ? d.volume : null;
+
 	}
 
 	this.setData = setData;

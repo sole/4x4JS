@@ -99,6 +99,127 @@ try {
 
 
 },{}],3:[function(require,module,exports){
+// Extract relevant information for our purposes only
+function renoiseToOrxatron(json) {
+	var j = {};
+	var song = json.RenoiseSong;
+
+	j.bpm = song.GlobalSongData.BeatsPerMin;
+	j.orders = [];
+
+	// Order list
+	var entries = song.PatternSequence.SequenceEntries.SequenceEntry;
+
+	// It's an array -> more than one entry
+	if(entries.indexOf) {
+		entries.forEach(function(entry) {
+			j.orders.push(entry.Pattern | 0);
+		});
+	} else {
+		if(entries.Pattern !== undefined) {
+			j.orders.push(entry.Pattern | 0);
+		}
+	}
+
+	// find out how many tracks and how many columns per track
+	var patterns = song.PatternPool.Patterns.Pattern;
+	var tracksSettings = [];
+
+	patterns.forEach(function(pattern) {
+
+		var tracks = pattern.Tracks.PatternTrack;
+
+		tracks.forEach(function(track, trackIndex) {
+
+			var lines = track.Lines && track.Lines.Line ? track.Lines.Line : [];
+			
+			if(tracksSettings[trackIndex] === undefined) {
+				tracksSettings[trackIndex] = 0;
+			}
+
+			lines.forEach(function(line) {
+				var noteColumns = line.NoteColumns.NoteColumn;
+				var numColumns;
+
+				if(noteColumns.indexOf) {
+					numColumns = noteColumns.length;
+				} else {
+					numColumns = 1;
+				}
+
+				tracksSettings[trackIndex] = Math.max(numColumns, tracksSettings[trackIndex]);
+			});
+
+		});
+
+	});
+
+	j.tracks = tracksSettings;
+
+	// Now extract notes and stuff we care about
+	j.patterns = [];
+
+	patterns.forEach(function(pattern) {
+		var p = {};
+		var data = [];
+		
+		p.tracks = data;
+		p.rows = pattern.NumberOfLines | 0;
+		
+		var tracks = pattern.Tracks.PatternTrack;
+
+		tracks.forEach(function(track, trackIndex) {
+
+			var lines = track.Lines && track.Lines.Line ? track.Lines.Line : [];
+			var trackData = [];
+
+			lines.forEach(function(line) {
+				var rowNumber = line.$.index | 0;
+				var noteColumns = line.NoteColumns.NoteColumn;
+				var lineData = {
+					row: rowNumber,
+					columns: []
+				};
+				
+				if(noteColumns.indexOf === undefined) {
+					noteColumns = [ noteColumns ];
+				}
+
+				noteColumns.forEach(function(column, columnIndex) {
+					var columnData = {};
+					
+					columnData.note = column.Note || null;
+
+					// TODO when instrument is ..
+					columnData.instrument = column.Instrument | 0;
+
+					if(column.Volume !== undefined && column.Volume !== '..') {
+						columnData.volume = column.Volume | 0;
+					}
+
+					lineData.columns.push(columnData);
+				});
+				
+				trackData.push(lineData);
+
+			});
+
+			p.tracks.push(trackData);
+
+		});
+		
+		j.patterns.push(p);
+	});
+
+
+	return j;
+}
+
+module.exports = {
+	renoiseToOrxatron: renoiseToOrxatron
+};
+
+},{}],4:[function(require,module,exports){
 module.exports = function() {
 	var socket;
 	var listeners = [];
@@ -169,13 +290,14 @@ module.exports = function() {
 	
 };
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 module.exports = {
+	DataUtils: require('./DataUtils'),
 	Player: require('./Player'),
 	OSC: require('./OSC')
 };
 
-},{"./OSC":3,"./Player":7}],5:[function(require,module,exports){
+},{"./DataUtils":3,"./OSC":4,"./Player":8}],6:[function(require,module,exports){
 var Line = require('./TrackLine');
 var StringFormat = require('stringformat.js');
 
@@ -255,7 +377,7 @@ function Pattern(rows, tracksConfig) {
 
 module.exports = Pattern;
 
-},{"./TrackLine":8,"stringformat.js":2}],6:[function(require,module,exports){
+},{"./TrackLine":9,"stringformat.js":2}],7:[function(require,module,exports){
 var StringFormat = require('stringformat.js');
 var MIDIUtils = require('midiutils');
 
@@ -276,6 +398,8 @@ function PatternCell(data) {
 			scope.noteNumber = null;
 		}
 		scope.instrument = d.instrument !== undefined ? d.instrument : null;
+		scope.volume = d.volume !== undefined ? d.volume : null;
+
 	}
 
 	this.setData = setData;
@@ -303,7 +427,7 @@ function PatternCell(data) {
 
 module.exports = PatternCell;
 
-},{"midiutils":1,"stringformat.js":2}],7:[function(require,module,exports){
+},{"midiutils":1,"stringformat.js":2}],8:[function(require,module,exports){
 var Pattern = require('./Pattern');
 
 function Player() {
@@ -358,25 +482,22 @@ function Player() {
 		scope.patterns = [];
 		data.patterns.forEach(function(pp) {
 			var pattern = new Pattern(pp.rows, tracks);
-			var patternData = pp.data;
 
-			for(var rowNumber in patternData) {
-
-				var rowData = patternData[rowNumber];
-				console.log('row data', rowData);
-
-				rowData.forEach(function(trackData, trackIndex) {
-
-					var patternTrackLine = pattern.get(rowNumber, trackIndex);
-					var trackNumColumns = tracks[trackIndex];
-					console.log('track #', trackIndex, trackNumColumns);
-					for(var i = 0; i < trackNumColumns; i++) {
-						patternTrackLine.cells[i].setData(trackData[i]);
-					}
+			pp.tracks.forEach(function(lines, trackIndex) {
 				
+				lines.forEach(function(line) {
+					
+					var patternTrackLine = pattern.get(line.row, trackIndex);
+
+					line.columns.forEach(function(column, columnIndex) {
+
+						patternTrackLine.cells[columnIndex].setData(column);
+					
+					});
+
 				});
-			}
-			
+
+			});
 
 			scope.patterns.push(pattern);
 		});
@@ -411,7 +532,7 @@ function Player() {
 
 module.exports = Player;
 
-},{"./Pattern":5}],8:[function(require,module,exports){
+},{"./Pattern":6}],9:[function(require,module,exports){
 var Cell = require('./PatternCell');
 
 function TrackLine(numColumns) {
@@ -427,7 +548,7 @@ function TrackLine(numColumns) {
 
 module.exports = TrackLine;
 
-},{"./PatternCell":6}],9:[function(require,module,exports){
+},{"./PatternCell":7}],10:[function(require,module,exports){
 var renderer,
 	deck;
 
@@ -550,7 +671,7 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":4}],10:[function(require,module,exports){
+},{"./Orxatron/":5}],11:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -558,5 +679,5 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":9}]},{},[10])
+},{"./app":10}]},{},[11])
 ;

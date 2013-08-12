@@ -92,7 +92,9 @@ function renoiseToOrxatron(json) {
 					// TODO when instrument is ..
 					columnData.instrument = column.Instrument | 0;
 
-					columnData.volume = column.Volume !== undefined ? column.Volume : null;
+					if(column.Volume !== undefined && column.Volume !== '..') {
+						columnData.volume = column.Volume | 0;
+					}
 
 					lineData.columns.push(columnData);
 				});

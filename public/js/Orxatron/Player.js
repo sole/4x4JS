@@ -52,25 +52,22 @@ function Player() {
 		scope.patterns = [];
 		data.patterns.forEach(function(pp) {
 			var pattern = new Pattern(pp.rows, tracks);
-			var patternData = pp.data;
 
-			for(var rowNumber in patternData) {
-
-				var rowData = patternData[rowNumber];
-				console.log('row data', rowData);
-
-				rowData.forEach(function(trackData, trackIndex) {
-
-					var patternTrackLine = pattern.get(rowNumber, trackIndex);
-					var trackNumColumns = tracks[trackIndex];
-					console.log('track #', trackIndex, trackNumColumns);
-					for(var i = 0; i < trackNumColumns; i++) {
-						patternTrackLine.cells[i].setData(trackData[i]);
-					}
+			pp.tracks.forEach(function(lines, trackIndex) {
 				
+				lines.forEach(function(line) {
+					
+					var patternTrackLine = pattern.get(line.row, trackIndex);
+
+					line.columns.forEach(function(column, columnIndex) {
+
+						patternTrackLine.cells[columnIndex].setData(column);
+					
+					});
+
 				});
-			}
-			
+
+			});
 
 			scope.patterns.push(pattern);
 		});
