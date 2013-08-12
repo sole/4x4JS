@@ -49,6 +49,9 @@ function renoiseToOrxatron(json) {
 				tracksSettings[trackIndex] = Math.max(numColumns, tracksSettings[trackIndex]);
 			});
 
+			// But there's always a minimum of one column per track
+			tracksSettings[trackIndex] = Math.max(1, tracksSettings[trackIndex]);
+
 		});
 
 	});
