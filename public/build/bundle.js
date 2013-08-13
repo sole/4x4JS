@@ -468,7 +468,6 @@ function Player() {
 
 	// This "unpacks" the song data, which only specifies non null values
 	this.loadSong = function(data) {
-		console.warn('TODO load song', data);
 
 		scope.bpm = data.bpm || DEFAULT_BPM;
 
@@ -503,7 +502,6 @@ function Player() {
 
 			scope.patterns.push(pattern);
 		});
-
 
 		scope.patterns.forEach(function(pat, idx) {
 			console.log('Pattern #', idx);
@@ -551,7 +549,8 @@ function TrackLine(numColumns) {
 module.exports = TrackLine;
 
 },{"./PatternCell":7}],10:[function(require,module,exports){
-var renderer,
+var audioContext,
+	renderer,
 	deck;
 
 var Orxatron = require('./Orxatron/'),
@@ -582,12 +581,11 @@ function start() {
 
 function onSongDataLoaded(data) {
 
-	console.log('song', data);
-
 	player.loadSong(data);
 	player.buildEvents();
 
-	gear = initialiseGear();
+	audioContext = new AudioContext();
+	gear = initialiseGear(audioContext);
 	player.gear = gear; // TODO setter?
 
 	setupGearPlayerListeners(gear, player);
@@ -600,9 +598,24 @@ function onSongDataLoaded(data) {
 }
 
 
-function initialiseGear() {
+function initialiseGear(audioContext) {
 	console.warn('TODO initialiseGear');
-	return [];
+	var g = [];
+	// Audio gear
+	// ----------
+	// TODO pads
+	var Colchonator = require('./gear/Colchonator');
+	var pads = new Colchonator(audioContext);
+	g.push(pads);
+
+	// TODO bass
+	// TODO drum machine
+	
+	// GFX gear
+	// --------
+	// TODO gfx gear!
+	
+	return g;
 }
 
 
@@ -673,7 +686,102 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":5}],11:[function(require,module,exports){
+},{"./Orxatron/":5,"./gear/Colchonator":11}],11:[function(require,module,exports){
+function Colchonator(audioContext, options) {
+	// input (?)
+	//--> No, because it's a Source (?)
+	// output -> gainnode output
+	// x notes polyphony
+	// noise (+param)
+	// envelope -> audioGain audioparam (?)
+	// noteOn, noteOff
+	
+	options = options || {};
+
+	var numVoices = options.numVoices || 3;
+	var voices = [];
+	var outputGain = audioContext.createGain();
+
+	function makeVoice() {
+		return {
+			timestamp: Date.now(),
+			oscillator: audioContext.createOscillator()
+		};
+	}
+
+	function getFreeVoice() {
+		
+		var freeVoice;
+
+		if(voices.length === numVoices) {
+
+			// get the oldest one, probably stop it, and recreate it
+			var oldest = voices[0];
+			var oldestIndex = 0;
+
+			for(var i = 1; i < voices.length; i++) {
+				var v = voices[i];
+				if(v.timestamp < oldest.timestamp) {
+					oldest = v;
+					oldestIndex = i;
+				}
+			}
+
+			oldest.oscillator.stop();
+
+			freeVoice = makeVoice();
+			voices[oldestIndex] = freeVoice;
+
+		} else {
+
+			// just get a new voice, and store it in the voices array
+
+			freeVoice = makeVoice();
+			voices.push(freeVoice);
+
+		}
+
+		return freeVoice;
+
+	}
+
+	function getVoiceByFrequency(frequency) {
+		for(var i = 0; i < voices.length; i++) {
+			var v = voices[i];
+			if( (v.oscillator.frequency - frequency) < 0.001 ) {
+				return v;
+			}
+		}
+	}
+
+	// ~~~
+
+	this.output = outputGain;
+
+	this.noteOn = function(frequency) {
+		var voice = getFreeVoice();
+		voice.oscillator.frequency.value = frequency;
+		voice.oscillator.start();
+	};
+
+	this.noteOff = function(frequency) {
+		var voice = getVoiceByFrequency();
+		if(voice) {
+			// If a voice with that frequency is found, stop it
+			voice.oscillator.stop();
+		} else {
+			// Otherwise try to stop ALL voices
+			voices.forEach(function(v) {
+				v.oscillator.stop();
+			});
+		}
+	};
+
+}
+
+module.exports = Colchonator;
+
+},{}],12:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -681,5 +789,5 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":10}]},{},[11])
+},{"./app":10}]},{},[12])
 ;

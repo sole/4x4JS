@@ -36,7 +36,6 @@ function Player() {
 
 	// This "unpacks" the song data, which only specifies non null values
 	this.loadSong = function(data) {
-		console.warn('TODO load song', data);
 
 		scope.bpm = data.bpm || DEFAULT_BPM;
 
@@ -71,7 +70,6 @@ function Player() {
 
 			scope.patterns.push(pattern);
 		});
-
 
 		scope.patterns.forEach(function(pat, idx) {
 			console.log('Pattern #', idx);

@@ -1,4 +1,5 @@
-var renderer,
+var audioContext,
+	renderer,
 	deck;
 
 var Orxatron = require('./Orxatron/'),
@@ -29,12 +30,11 @@ function start() {
 
 function onSongDataLoaded(data) {
 
-	console.log('song', data);
-
 	player.loadSong(data);
 	player.buildEvents();
 
-	gear = initialiseGear();
+	audioContext = new AudioContext();
+	gear = initialiseGear(audioContext);
 	player.gear = gear; // TODO setter?
 
 	setupGearPlayerListeners(gear, player);
@@ -47,9 +47,24 @@ function onSongDataLoaded(data) {
 }
 
 
-function initialiseGear() {
+function initialiseGear(audioContext) {
 	console.warn('TODO initialiseGear');
-	return [];
+	var g = [];
+	// Audio gear
+	// ----------
+	// TODO pads
+	var Colchonator = require('./gear/Colchonator');
+	var pads = new Colchonator(audioContext);
+	g.push(pads);
+
+	// TODO bass
+	// TODO drum machine
+	
+	// GFX gear
+	// --------
+	// TODO gfx gear!
+	
+	return g;
 }
 
 
