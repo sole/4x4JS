@@ -6,6 +6,7 @@ function OscillatorVoice(context, options) {
 	options = options || {};
 
 	var portamento = options.portamento !== undefined ? options.portamento : true;
+	var waveType = options.waveType || OscillatorVoice.WAVE_TYPE_SQUARE;
 
 	this.output = gain;
 
@@ -15,8 +16,11 @@ function OscillatorVoice(context, options) {
 			this.noteOff(0);
 		}
 
+		// The oscillator node is recreated here "on demand",
+		// and all the parameters are set too.
 		if(internalOscillator === null) {
 			internalOscillator = context.createOscillator();
+			internalOscillator.type = waveType;
 			internalOscillator.connect(gain);
 		}
 		
@@ -33,5 +37,10 @@ function OscillatorVoice(context, options) {
 		internalOscillator = null;
 	};
 }
+
+OscillatorVoice.WAVE_TYPE_SINE = 'sine';
+OscillatorVoice.WAVE_TYPE_SQUARE = 'square';
+OscillatorVoice.WAVE_TYPE_SAWTOOTH = 'sawtooth';
+OscillatorVoice.WAVE_TYPE_TRIANGLE = 'triangle';
 
 module.exports = OscillatorVoice;

@@ -2,30 +2,45 @@ var OscillatorVoice = require('./OscillatorVoice');
 var MIDIUtils = require('midiutils');
 
 function Bajotron(audioContext, options) {
+
+	var i;
 	
 	options = options || {};
+
+	var numVoices = 2; // TODO unhardcode?
 	var portamento = options.portamento !== undefined ? options.portamento : false;
 	var octaves = options.octaves || [0, 1];
+	var waveType = options.waveType || OscillatorVoice.WAVE_TYPE_SQUARE;
+
+	// if wave type was a single string constant, build an array with that value
+	if( Object.prototype.toString.call( waveType ) !== '[object Array]' ) {
+		var waveTypes = [];
+		for(i = 0; i < numVoices; i++) {
+			waveTypes.push(waveType);
+		}
+		waveType = waveTypes;
+	}
 
 	var gain = audioContext.createGain();
+	this.output = gain;
 
 	var voices = [];
-	for(var i = 0; i < 2; i++) {
+	for(i = 0; i < numVoices; i++) {
+		
 		var voice = new OscillatorVoice(audioContext, {
-			portamento: portamento
+			portamento: portamento,
+			waveType: waveType[i]
 		});
 		voice.output.connect(gain);
 		voices.push(voice);
 	}
 
-	this.output = gain;
-
+	
 	this.noteOn = function(note /* TODO , volume */) {
 		voices.forEach(function(voice, index) {
 			var frequency = MIDIUtils.noteNumberToFrequency( note + octaves[index] * 12 );
 			voice.noteOn(frequency);
 		});
-		//voice.noteOn(frequency);
 	};
 
 	this.noteOff = function() {

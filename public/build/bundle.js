@@ -610,7 +610,7 @@ function initialiseGear(audioContext) {
 
 	// TODO bass
 	var Bajotron = require('./gear/Bajotron');
-	var bass = new Bajotron(audioContext, { portamento: true });
+	var bass = new Bajotron(audioContext, { portamento: true, waveType: ['square', 'triangle'] });
 	g.push(bass);
 
 	// TODO drum machine
@@ -628,7 +628,7 @@ function initialiseGear(audioContext) {
 
 	setInterval(function() {
 		var noteNumber = 48 + (Math.random() * 10) | 0;
-		//bass.noteOn(noteNumber);
+		// bass.noteOn(noteNumber);
 	}, 1000);
 
 	// GFX gear
@@ -711,30 +711,45 @@ var OscillatorVoice = require('./OscillatorVoice');
 var MIDIUtils = require('midiutils');
 
 function Bajotron(audioContext, options) {
+
+	var i;
 	
 	options = options || {};
+
+	var numVoices = 2; // TODO unhardcode?
 	var portamento = options.portamento !== undefined ? options.portamento : false;
 	var octaves = options.octaves || [0, 1];
+	var waveType = options.waveType || OscillatorVoice.WAVE_TYPE_SQUARE;
+
+	// if wave type was a single string constant, build an array with that value
+	if( Object.prototype.toString.call( waveType ) !== '[object Array]' ) {
+		var waveTypes = [];
+		for(i = 0; i < numVoices; i++) {
+			waveTypes.push(waveType);
+		}
+		waveType = waveTypes;
+	}
 
 	var gain = audioContext.createGain();
+	this.output = gain;
 
 	var voices = [];
-	for(var i = 0; i < 2; i++) {
+	for(i = 0; i < numVoices; i++) {
+		
 		var voice = new OscillatorVoice(audioContext, {
-			portamento: portamento
+			portamento: portamento,
+			waveType: waveType[i]
 		});
 		voice.output.connect(gain);
 		voices.push(voice);
 	}
 
-	this.output = gain;
-
+	
 	this.noteOn = function(note /* TODO , volume */) {
 		voices.forEach(function(voice, index) {
 			var frequency = MIDIUtils.noteNumberToFrequency( note + octaves[index] * 12 );
 			voice.noteOn(frequency);
 		});
-		//voice.noteOn(frequency);
 	};
 
 	this.noteOff = function() {
@@ -753,6 +768,7 @@ function OscillatorVoice(context, options) {
 	options = options || {};
 
 	var portamento = options.portamento !== undefined ? options.portamento : true;
+	var waveType = options.waveType || OscillatorVoice.WAVE_TYPE_SQUARE;
 
 	this.output = gain;
 
@@ -762,8 +778,11 @@ function OscillatorVoice(context, options) {
 			this.noteOff(0);
 		}
 
+		// The oscillator node is recreated here "on demand",
+		// and all the parameters are set too.
 		if(internalOscillator === null) {
 			internalOscillator = context.createOscillator();
+			internalOscillator.type = waveType;
 			internalOscillator.connect(gain);
 		}
 		
@@ -780,6 +799,11 @@ function OscillatorVoice(context, options) {
 		internalOscillator = null;
 	};
 }
+
+OscillatorVoice.WAVE_TYPE_SINE = 'sine';
+OscillatorVoice.WAVE_TYPE_SQUARE = 'square';
+OscillatorVoice.WAVE_TYPE_SAWTOOTH = 'sawtooth';
+OscillatorVoice.WAVE_TYPE_TRIANGLE = 'triangle';
 
 module.exports = OscillatorVoice;
 
