@@ -610,7 +610,7 @@ function initialiseGear(audioContext) {
 
 	// TODO bass
 	var Bajotron = require('./gear/Bajotron');
-	var bass = new Bajotron(audioContext);
+	var bass = new Bajotron(audioContext, { portamento: true });
 	g.push(bass);
 
 	// TODO drum machine
@@ -621,9 +621,14 @@ function initialiseGear(audioContext) {
 	});
 
 	// This is ULTRA CREEPY
-	setInterval(function() {
-		bass.noteOff();
+	/*setInterval(function() {
+		// bass.noteOff();
 		bass.noteOn(440 + Math.random() * 1000);
+	}, 1000);*/
+
+	setInterval(function() {
+		var noteNumber = 48 + (Math.random() * 10) | 0;
+		//bass.noteOn(noteNumber);
 	}, 1000);
 
 	// GFX gear
@@ -703,19 +708,33 @@ module.exports = {
 
 },{"./Orxatron/":5,"./gear/Bajotron":11}],11:[function(require,module,exports){
 var OscillatorVoice = require('./OscillatorVoice');
+var MIDIUtils = require('midiutils');
 
-function Bajotron(audioContext) {
+function Bajotron(audioContext, options) {
 	
-	var voice = new OscillatorVoice(audioContext);
+	options = options || {};
+	var portamento = options.portamento !== undefined ? options.portamento : false;
+	var octaves = options.octaves || [0, 1];
+
 	var gain = audioContext.createGain();
 
-	voice.output.connect(gain);
-	console.log('does this even work?');
+	var voices = [];
+	for(var i = 0; i < 2; i++) {
+		var voice = new OscillatorVoice(audioContext, {
+			portamento: portamento
+		});
+		voice.output.connect(gain);
+		voices.push(voice);
+	}
 
 	this.output = gain;
 
-	this.noteOn = function(frequency /* TODO , volume */) {
-		voice.noteOn(frequency);
+	this.noteOn = function(note /* TODO , volume */) {
+		voices.forEach(function(voice, index) {
+			var frequency = MIDIUtils.noteNumberToFrequency( note + octaves[index] * 12 );
+			voice.noteOn(frequency);
+		});
+		//voice.noteOn(frequency);
 	};
 
 	this.noteOff = function() {
@@ -725,21 +744,32 @@ function Bajotron(audioContext) {
 
 module.exports = Bajotron;
 
-},{"./OscillatorVoice":12}],12:[function(require,module,exports){
-function OscillatorVoice(context /* TODO options */) {
+},{"./OscillatorVoice":12,"midiutils":1}],12:[function(require,module,exports){
+function OscillatorVoice(context, options) {
 
 	var internalOscillator = null;
 	var gain = context.createGain();
 
+	options = options || {};
+
+	var portamento = options.portamento !== undefined ? options.portamento : true;
+
 	this.output = gain;
 
 	this.noteOn = function(frequency, when) {
+
+		if(!portamento) {
+			this.noteOff(0);
+		}
+
 		if(internalOscillator === null) {
 			internalOscillator = context.createOscillator();
 			internalOscillator.connect(gain);
 		}
+		
 		internalOscillator.frequency.value = frequency;
 		internalOscillator.start(when);
+
 	};
 
 	this.noteOff = function(when) {
