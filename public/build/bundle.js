@@ -604,13 +604,28 @@ function initialiseGear(audioContext) {
 	// Audio gear
 	// ----------
 	// TODO pads
-	var Colchonator = require('./gear/Colchonator');
-	var pads = new Colchonator(audioContext);
-	g.push(pads);
+	// var Colchonator = require('./gear/Colchonator');
+	// var pads = new Colchonator(audioContext);
+	// g.push(pads);
 
 	// TODO bass
+	var Bajotron = require('./gear/Bajotron');
+	var bass = new Bajotron(audioContext);
+	g.push(bass);
+
 	// TODO drum machine
 	
+	// TODO tmp, should have some postpro+comp etc
+	g.forEach(function(instrument) {
+		instrument.output.connect(audioContext.destination);
+	});
+
+	// This is ULTRA CREEPY
+	setInterval(function() {
+		bass.noteOff();
+		bass.noteOn(440 + Math.random() * 1000);
+	}, 1000);
+
 	// GFX gear
 	// --------
 	// TODO gfx gear!
@@ -686,102 +701,59 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":5,"./gear/Colchonator":11}],11:[function(require,module,exports){
-function Colchonator(audioContext, options) {
-	// input (?)
-	//--> No, because it's a Source (?)
-	// output -> gainnode output
-	// x notes polyphony
-	// noise (+param)
-	// envelope -> audioGain audioparam (?)
-	// noteOn, noteOff
+},{"./Orxatron/":5,"./gear/Bajotron":11}],11:[function(require,module,exports){
+var OscillatorVoice = require('./OscillatorVoice');
+
+function Bajotron(audioContext) {
 	
-	options = options || {};
+	var voice = new OscillatorVoice(audioContext);
+	var gain = audioContext.createGain();
 
-	var numVoices = options.numVoices || 3;
-	var voices = [];
-	var outputGain = audioContext.createGain();
+	voice.output.connect(gain);
+	console.log('does this even work?');
 
-	function makeVoice() {
-		return {
-			timestamp: Date.now(),
-			oscillator: audioContext.createOscillator()
-		};
-	}
+	this.output = gain;
 
-	function getFreeVoice() {
-		
-		var freeVoice;
-
-		if(voices.length === numVoices) {
-
-			// get the oldest one, probably stop it, and recreate it
-			var oldest = voices[0];
-			var oldestIndex = 0;
-
-			for(var i = 1; i < voices.length; i++) {
-				var v = voices[i];
-				if(v.timestamp < oldest.timestamp) {
-					oldest = v;
-					oldestIndex = i;
-				}
-			}
-
-			oldest.oscillator.stop();
-
-			freeVoice = makeVoice();
-			voices[oldestIndex] = freeVoice;
-
-		} else {
-
-			// just get a new voice, and store it in the voices array
-
-			freeVoice = makeVoice();
-			voices.push(freeVoice);
-
-		}
-
-		return freeVoice;
-
-	}
-
-	function getVoiceByFrequency(frequency) {
-		for(var i = 0; i < voices.length; i++) {
-			var v = voices[i];
-			if( (v.oscillator.frequency - frequency) < 0.001 ) {
-				return v;
-			}
-		}
-	}
-
-	// ~~~
-
-	this.output = outputGain;
-
-	this.noteOn = function(frequency) {
-		var voice = getFreeVoice();
-		voice.oscillator.frequency.value = frequency;
-		voice.oscillator.start();
+	this.noteOn = function(frequency /* TODO , volume */) {
+		voice.noteOn(frequency);
 	};
 
-	this.noteOff = function(frequency) {
-		var voice = getVoiceByFrequency();
-		if(voice) {
-			// If a voice with that frequency is found, stop it
-			voice.oscillator.stop();
-		} else {
-			// Otherwise try to stop ALL voices
-			voices.forEach(function(v) {
-				v.oscillator.stop();
-			});
-		}
+	this.noteOff = function() {
+		voice.noteOff();
 	};
-
 }
 
-module.exports = Colchonator;
+module.exports = Bajotron;
 
-},{}],12:[function(require,module,exports){
+},{"./OscillatorVoice":12}],12:[function(require,module,exports){
+function OscillatorVoice(context /* TODO options */) {
+
+	var internalOscillator = null;
+	var gain = context.createGain();
+
+	this.output = gain;
+
+	this.noteOn = function(frequency, when) {
+		if(internalOscillator === null) {
+			internalOscillator = context.createOscillator();
+			internalOscillator.connect(gain);
+		}
+		internalOscillator.frequency.value = frequency;
+		internalOscillator.start(when);
+	};
+
+	this.noteOff = function(when) {
+		if(internalOscillator === null) {
+			return;
+		}
+		internalOscillator.stop(when);
+		internalOscillator = null;
+	};
+}
+
+module.exports = OscillatorVoice;
+
+},{}],13:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -789,5 +761,5 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":10}]},{},[12])
+},{"./app":10}]},{},[13])
 ;

@@ -53,13 +53,28 @@ function initialiseGear(audioContext) {
 	// Audio gear
 	// ----------
 	// TODO pads
-	var Colchonator = require('./gear/Colchonator');
-	var pads = new Colchonator(audioContext);
-	g.push(pads);
+	// var Colchonator = require('./gear/Colchonator');
+	// var pads = new Colchonator(audioContext);
+	// g.push(pads);
 
 	// TODO bass
+	var Bajotron = require('./gear/Bajotron');
+	var bass = new Bajotron(audioContext);
+	g.push(bass);
+
 	// TODO drum machine
 	
+	// TODO tmp, should have some postpro+comp etc
+	g.forEach(function(instrument) {
+		instrument.output.connect(audioContext.destination);
+	});
+
+	// This is ULTRA CREEPY
+	setInterval(function() {
+		bass.noteOff();
+		bass.noteOn(440 + Math.random() * 1000);
+	}, 1000);
+
 	// GFX gear
 	// --------
 	// TODO gfx gear!
