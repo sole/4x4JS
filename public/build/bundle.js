@@ -610,7 +610,7 @@ function initialiseGear(audioContext) {
 
 	// TODO bass
 	var Bajotron = require('./gear/Bajotron');
-	var bass = new Bajotron(audioContext, { portamento: true, waveType: ['square', 'triangle'] });
+	var bass = new Bajotron(audioContext, { portamento: false, waveType: ['square', 'triangle'] });
 	g.push(bass);
 
 	// TODO drum machine
@@ -626,10 +626,17 @@ function initialiseGear(audioContext) {
 		bass.noteOn(440 + Math.random() * 1000);
 	}, 1000);*/
 
+	/*setInterval(function() {
+		var noteNumber = 32 + (Math.random() * 10) | 0;
+		bass.noteOn(noteNumber);
+	}, 1000);*/
+
+	var lastNote = 0;
 	setInterval(function() {
-		var noteNumber = 48 + (Math.random() * 10) | 0;
-		// bass.noteOn(noteNumber);
-	}, 1000);
+		var noteNumber = 32 + lastNote * 12;
+		bass.noteOn(noteNumber);
+		lastNote = lastNote === 0 ? 1 : 0;
+	}, 250);
 
 	// GFX gear
 	// --------
@@ -706,9 +713,31 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":5,"./gear/Bajotron":11}],11:[function(require,module,exports){
-var OscillatorVoice = require('./OscillatorVoice');
+},{"./Orxatron/":5,"./gear/Bajotron":12}],11:[function(require,module,exports){
+function ADSR(audioContext, param, attack, decay, sustain, release) {
+
+	this.beginAttack = function() {
+		var now = audioContext.currentTime;
+		param.cancelScheduledValues(now);
+		param.setValueAtTime(0, now);
+		param.linearRampToValueAtTime(1, now + attack);
+		param.linearRampToValueAtTime(sustain, now + attack + decay);
+	};
+
+	this.beginRelease = function() {
+		var now = audioContext.currentTime;
+		param.cancelScheduledValues(value);
+		param.linearRampToValueAtTime(0, now + release);
+	};
+
+}
+
+module.exports = ADSR;
+
+},{}],12:[function(require,module,exports){
 var MIDIUtils = require('midiutils');
+var OscillatorVoice = require('./OscillatorVoice');
+var ADSR = require('./ADSR.js');
 
 function Bajotron(audioContext, options) {
 
@@ -731,6 +760,10 @@ function Bajotron(audioContext, options) {
 	}
 
 	var gain = audioContext.createGain();
+	gain.gain.value = 0.1;
+
+	var adsr = new ADSR(audioContext, gain.gain, 0.2, 0.1, 0.05, 0.0);
+
 	this.output = gain;
 
 	var voices = [];
@@ -740,12 +773,25 @@ function Bajotron(audioContext, options) {
 			portamento: portamento,
 			waveType: waveType[i]
 		});
+
 		voice.output.connect(gain);
 		voices.push(voice);
 	}
 
 	
 	this.noteOn = function(note /* TODO , volume */) {
+
+		adsr.beginAttack();
+
+		/*var numMessages = 5, rate = 1000 / numMessages;
+		var interv = setInterval(function chivato() {
+			numMessages--;
+			if(numMessages < 0) {
+				clearInterval(interv);
+			}
+			console.log(gain.gain.value);
+		}, rate);*/
+
 		voices.forEach(function(voice, index) {
 			var frequency = MIDIUtils.noteNumberToFrequency( note + octaves[index] * 12 );
 			voice.noteOn(frequency);
@@ -753,13 +799,14 @@ function Bajotron(audioContext, options) {
 	};
 
 	this.noteOff = function() {
+		adsr.beginRelease();
 		voice.noteOff();
 	};
 }
 
 module.exports = Bajotron;
 
-},{"./OscillatorVoice":12,"midiutils":1}],12:[function(require,module,exports){
+},{"./ADSR.js":11,"./OscillatorVoice":13,"midiutils":1}],13:[function(require,module,exports){
 function OscillatorVoice(context, options) {
 
 	var internalOscillator = null;
@@ -807,7 +854,7 @@ OscillatorVoice.WAVE_TYPE_TRIANGLE = 'triangle';
 
 module.exports = OscillatorVoice;
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -815,5 +862,5 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":10}]},{},[13])
+},{"./app":10}]},{},[14])
 ;

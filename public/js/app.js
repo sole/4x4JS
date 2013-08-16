@@ -59,7 +59,7 @@ function initialiseGear(audioContext) {
 
 	// TODO bass
 	var Bajotron = require('./gear/Bajotron');
-	var bass = new Bajotron(audioContext, { portamento: true, waveType: ['square', 'triangle'] });
+	var bass = new Bajotron(audioContext, { portamento: false, waveType: ['square', 'triangle'] });
 	g.push(bass);
 
 	// TODO drum machine
@@ -75,10 +75,17 @@ function initialiseGear(audioContext) {
 		bass.noteOn(440 + Math.random() * 1000);
 	}, 1000);*/
 
+	/*setInterval(function() {
+		var noteNumber = 32 + (Math.random() * 10) | 0;
+		bass.noteOn(noteNumber);
+	}, 1000);*/
+
+	var lastNote = 0;
 	setInterval(function() {
-		var noteNumber = 48 + (Math.random() * 10) | 0;
-		// bass.noteOn(noteNumber);
-	}, 1000);
+		var noteNumber = 32 + lastNote * 12;
+		bass.noteOn(noteNumber);
+		lastNote = lastNote === 0 ? 1 : 0;
+	}, 250);
 
 	// GFX gear
 	// --------

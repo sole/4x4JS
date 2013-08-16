@@ -1,5 +1,6 @@
-var OscillatorVoice = require('./OscillatorVoice');
 var MIDIUtils = require('midiutils');
+var OscillatorVoice = require('./OscillatorVoice');
+var ADSR = require('./ADSR.js');
 
 function Bajotron(audioContext, options) {
 
@@ -23,6 +24,9 @@ function Bajotron(audioContext, options) {
 
 	var gain = audioContext.createGain();
 	gain.gain.value = 0.1;
+
+	var adsr = new ADSR(audioContext, gain.gain, 0.2, 0.1, 0.05, 0.0);
+
 	this.output = gain;
 
 	var voices = [];
@@ -40,22 +44,16 @@ function Bajotron(audioContext, options) {
 	
 	this.noteOn = function(note /* TODO , volume */) {
 
-		// Envelope
-		var gainMax = 0.1;
-		var now = audioContext.currentTime;
-		gain.gain.cancelScheduledValues(now);
-		gain.gain.setValueAtTime(0, now);
-		gain.gain.setValueAtTime(gainMax, now + 0.1);
-		gain.gain.setValueAtTime(0, now + 0.5);
+		adsr.beginAttack();
 
-		var numMessages = 3, rate = 1000 / numMessages;
+		/*var numMessages = 5, rate = 1000 / numMessages;
 		var interv = setInterval(function chivato() {
 			numMessages--;
 			if(numMessages < 0) {
 				clearInterval(interv);
 			}
 			console.log(gain.gain.value);
-		}, rate);
+		}, rate);*/
 
 		voices.forEach(function(voice, index) {
 			var frequency = MIDIUtils.noteNumberToFrequency( note + octaves[index] * 12 );
@@ -64,6 +62,7 @@ function Bajotron(audioContext, options) {
 	};
 
 	this.noteOff = function() {
+		adsr.beginRelease();
 		voice.noteOff();
 	};
 }
