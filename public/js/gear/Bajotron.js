@@ -22,6 +22,7 @@ function Bajotron(audioContext, options) {
 	}
 
 	var gain = audioContext.createGain();
+	gain.gain.value = 0.1;
 	this.output = gain;
 
 	var voices = [];
@@ -31,12 +32,31 @@ function Bajotron(audioContext, options) {
 			portamento: portamento,
 			waveType: waveType[i]
 		});
+
 		voice.output.connect(gain);
 		voices.push(voice);
 	}
 
 	
 	this.noteOn = function(note /* TODO , volume */) {
+
+		// Envelope
+		var gainMax = 0.1;
+		var now = audioContext.currentTime;
+		gain.gain.cancelScheduledValues(now);
+		gain.gain.setValueAtTime(0, now);
+		gain.gain.setValueAtTime(gainMax, now + 0.1);
+		gain.gain.setValueAtTime(0, now + 0.5);
+
+		var numMessages = 3, rate = 1000 / numMessages;
+		var interv = setInterval(function chivato() {
+			numMessages--;
+			if(numMessages < 0) {
+				clearInterval(interv);
+			}
+			console.log(gain.gain.value);
+		}, rate);
+
 		voices.forEach(function(voice, index) {
 			var frequency = MIDIUtils.noteNumberToFrequency( note + octaves[index] * 12 );
 			voice.noteOn(frequency);
