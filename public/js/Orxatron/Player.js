@@ -1,3 +1,4 @@
+var EventDispatcher = require('./libs/EventDispatcher');
 var Pattern = require('./Pattern');
 
 function Player() {
@@ -19,6 +20,7 @@ function Player() {
 	this.repeat = true;
 	this.finished = false;
 
+	this.tracksConfig = [];
 	this.voices = [];
 	this.patterns = [];
 	this.orders = [];
@@ -26,11 +28,18 @@ function Player() {
 	this.nextEventPosition = 0;
 	this.timePosition = 0;
 
+	EventDispatcher.call(that);
+
 	// ~~~
 
 	function updateRowTiming() {
 		secondsPerRow = 60.0 / (that.linesPerBeat * that.bpm);
 		secondsPerTick = secondsPerRow / that.ticksPerLine;
+	}
+
+	function addEvent(type, params) {
+		var ev = new PlayerEvent(type, params);
+		that.eventsList.push(ev);
 	}
 
 	// This "unpacks" the song data, which only specifies non null values
@@ -45,6 +54,7 @@ function Player() {
 
 		// Tracks config
 		var tracks = data.tracks.slice(0);
+		that.tracksConfig = tracks;
 
 		// (packed) patterns
 		that.patterns = [];
@@ -83,20 +93,52 @@ function Player() {
 		that.nextEventPosition = 0;
 		that.timePosition = 0;
 
+		var numTracks = that.tracksConfig.length;
 		var orderIndex = 0;
+		var timestamp = 0;
 
 		while(orderIndex < that.orders.length) {
 			
 			var patternIndex = that.orders[orderIndex];
 			var pattern = that.patterns[patternIndex];
 
-			// PlayerEvent
-			// or different events:
-			// patternchange, rowchange, ... ?
+			addEvent( EVENT_ORDER_CHANGE, { timestamp: timestamp, order: orderIndex, pattern: patternIndex, row: 0 } );
 
+			addEvent( EVENT_PATTERN_CHANGE, { timestamp: timestamp, order: orderIndex, pattern: patternIndex, row: 0 } );
+
+			for( var i = 0; i < pattern.numLines; i++ ) {
+
+				addEvent( EVENT_ROW_CHANGE, { timestamp: timestamp, row: i, order: orderIndex, pattern: patternIndex } );
+
+				for( var j = 0; j < numTracks; j++ ) {
+
+					var line = pattern.get(i, j);
+					var cells = line.cells;
+
+					cells.forEach(function(cell) {
+
+						if(cell.noteNumber) {
+
+							addEvent( EVENT_NOTE_ON, { timestamp: timestamp, note: cell.note, noteNumber: cell.noteNumber, instrument: cell.instrument, volume: cell.volume, order: orderIndex, pattern: patternIndex, row: i, track: j } );
+
+						}
+
+					});
+
+				}
+
+
+				timestamp += secondsPerRow;
+
+			}
+			
 			orderIndex++;
 		}
 
+		// TMP
+		that.eventsList.forEach(function(ev, idx) {
+			console.log(idx, ev.timestamp, ev.type, ev.order, ev.pattern, ev.row);
+		});
 
 	};
 
@@ -115,5 +157,23 @@ function Player() {
 	};
 
 }
+
+function PlayerEvent(type, properties) {
+
+	this.type = type;
+
+	properties = properties || {};
+
+	for(var p in properties) {
+		this[p] = properties[p];
+	}
+
+}
+
+EVENT_ORDER_CHANGE = 'order_change';
+EVENT_PATTERN_CHANGE = 'pattern_change';
+EVENT_ROW_CHANGE = 'row_change';
+EVENT_NOTE_ON = 'note_on';
+
 
 module.exports = Player;

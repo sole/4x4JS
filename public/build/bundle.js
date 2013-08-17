@@ -430,13 +430,14 @@ function PatternCell(data) {
 module.exports = PatternCell;
 
 },{"midiutils":1,"stringformat.js":2}],8:[function(require,module,exports){
+var EventDispatcher = require('./libs/EventDispatcher');
 var Pattern = require('./Pattern');
 
 function Player() {
 
 	'use strict';
 
-	var scope = this,
+	var that = this,
 		secondsPerRow,
 		secondsPerTick,
 		_isPlaying = false,
@@ -451,36 +452,44 @@ function Player() {
 	this.repeat = true;
 	this.finished = false;
 
+	this.tracksConfig = [];
 	this.voices = [];
 	this.patterns = [];
 	this.orders = [];
 	this.eventsList = [];
 	this.nextEventPosition = 0;
 	this.timePosition = 0;
-	this.position = 0;
+
+	EventDispatcher.call(that);
 
 	// ~~~
 
 	function updateRowTiming() {
-		secondsPerRow = 60.0 / (scope.linesPerBeat * scope.bpm);
-		secondsPerTick = secondsPerRow / scope.ticksPerLine;
+		secondsPerRow = 60.0 / (that.linesPerBeat * that.bpm);
+		secondsPerTick = secondsPerRow / that.ticksPerLine;
+	}
+
+	function addEvent(type, params) {
+		var ev = new PlayerEvent(type, params);
+		that.eventsList.push(ev);
 	}
 
 	// This "unpacks" the song data, which only specifies non null values
 	this.loadSong = function(data) {
 
-		scope.bpm = data.bpm || DEFAULT_BPM;
+		that.bpm = data.bpm || DEFAULT_BPM;
 
 		updateRowTiming();
 
 		// Orders
-		scope.orders = data.orders.slice(0);
+		that.orders = data.orders.slice(0);
 
 		// Tracks config
 		var tracks = data.tracks.slice(0);
+		that.tracksConfig = tracks;
 
 		// (packed) patterns
-		scope.patterns = [];
+		that.patterns = [];
 		data.patterns.forEach(function(pp) {
 			var pattern = new Pattern(pp.rows, tracks);
 
@@ -500,10 +509,10 @@ function Player() {
 
 			});
 
-			scope.patterns.push(pattern);
+			that.patterns.push(pattern);
 		});
 
-		scope.patterns.forEach(function(pat, idx) {
+		that.patterns.forEach(function(pat, idx) {
 			console.log('Pattern #', idx);
 			console.log(pat.toString());
 		});
@@ -512,6 +521,57 @@ function Player() {
 
 	this.buildEvents = function() {
 		console.warn('TODO build events');
+		that.eventsList = [];
+		that.nextEventPosition = 0;
+		that.timePosition = 0;
+
+		var numTracks = that.tracksConfig.length;
+		var orderIndex = 0;
+		var timestamp = 0;
+
+		while(orderIndex < that.orders.length) {
+			
+			var patternIndex = that.orders[orderIndex];
+			var pattern = that.patterns[patternIndex];
+
+			addEvent( EVENT_ORDER_CHANGE, { timestamp: timestamp, order: orderIndex, pattern: patternIndex, row: 0 } );
+
+			addEvent( EVENT_PATTERN_CHANGE, { timestamp: timestamp, order: orderIndex, pattern: patternIndex, row: 0 } );
+
+			for( var i = 0; i < pattern.numLines; i++ ) {
+
+				addEvent( EVENT_ROW_CHANGE, { timestamp: timestamp, row: i, order: orderIndex, pattern: patternIndex } );
+
+				for( var j = 0; j < numTracks; j++ ) {
+
+					var line = pattern.get(i, j);
+					var cells = line.cells;
+
+					cells.forEach(function(cell) {
+
+						if(cell.noteNumber) {
+
+							addEvent( EVENT_NOTE_ON, { timestamp: timestamp, note: cell.note, noteNumber: cell.noteNumber, instrument: cell.instrument, volume: cell.volume, order: orderIndex, pattern: patternIndex, row: i, track: j } );
+
+						}
+
+					});
+
+				}
+
+
+				timestamp += secondsPerRow;
+
+			}
+			
+			orderIndex++;
+		}
+
+		// TMP
+		that.eventsList.forEach(function(ev, idx) {
+			console.log(idx, ev.timestamp, ev.type, ev.order, ev.pattern, ev.row);
+		});
+
 	};
 
 	this.play = function() {
@@ -530,9 +590,27 @@ function Player() {
 
 }
 
+function PlayerEvent(type, properties) {
+
+	this.type = type;
+
+	properties = properties || {};
+
+	for(var p in properties) {
+		this[p] = properties[p];
+	}
+
+}
+
+EVENT_ORDER_CHANGE = 'order_change';
+EVENT_PATTERN_CHANGE = 'pattern_change';
+EVENT_ROW_CHANGE = 'row_change';
+EVENT_NOTE_ON = 'note_on';
+
+
 module.exports = Player;
 
-},{"./Pattern":6}],9:[function(require,module,exports){
+},{"./Pattern":6,"./libs/EventDispatcher":10}],9:[function(require,module,exports){
 var Cell = require('./PatternCell');
 
 function TrackLine(numColumns) {
@@ -549,6 +627,104 @@ function TrackLine(numColumns) {
 module.exports = TrackLine;
 
 },{"./PatternCell":7}],10:[function(require,module,exports){
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
+
+var EventDispatcher = function () {
+
+	this.addEventListener = EventDispatcher.prototype.addEventListener;
+	this.hasEventListener = EventDispatcher.prototype.hasEventListener;
+	this.removeEventListener = EventDispatcher.prototype.removeEventListener;
+	this.dispatchEvent = EventDispatcher.prototype.dispatchEvent;
+
+};
+
+EventDispatcher.prototype = {
+
+	constructor: EventDispatcher,
+
+	addEventListener: function ( type, listener ) {
+
+		if ( this._listeners === undefined ) this._listeners = {};
+
+		var listeners = this._listeners;
+
+		if ( listeners[ type ] === undefined ) {
+
+			listeners[ type ] = [];
+
+		}
+
+		if ( listeners[ type ].indexOf( listener ) === - 1 ) {
+
+			listeners[ type ].push( listener );
+
+		}
+
+	},
+
+	hasEventListener: function ( type, listener ) {
+
+		if ( this._listeners === undefined ) return false;
+
+		var listeners = this._listeners;
+
+		if ( listeners[ type ] !== undefined && listeners[ type ].indexOf( listener ) !== - 1 ) {
+
+			return true;
+
+		}
+
+		return false;
+
+	},
+
+	removeEventListener: function ( type, listener ) {
+
+		if ( this._listeners === undefined ) return;
+
+		var listeners = this._listeners;
+		var index = listeners[ type ].indexOf( listener );
+
+		if ( index !== - 1 ) {
+
+			listeners[ type ].splice( index, 1 );
+
+		}
+
+	},
+
+	dispatchEvent: function ( event ) {
+
+		if ( this._listeners === undefined ) return;
+
+		var listeners = this._listeners;
+		var listenerArray = listeners[ event.type ];
+
+		if ( listenerArray !== undefined ) {
+
+			event.target = this;
+
+			for ( var i = 0, l = listenerArray.length; i < l; i ++ ) {
+
+				listenerArray[ i ].call( this, event );
+
+			}
+
+		}
+
+	}
+
+};
+
+try {
+module.exports = EventDispatcher;
+} catch( e ) {
+	// muettttte!! *_*
+}
+
+},{}],11:[function(require,module,exports){
 var audioContext,
 	renderer,
 	deck;
@@ -631,12 +807,12 @@ function initialiseGear(audioContext) {
 		bass.noteOn(noteNumber);
 	}, 1000);*/
 
-	var lastNote = 0;
+	/*var lastNote = 0;
 	setInterval(function() {
 		var noteNumber = 32 + lastNote * 12;
 		bass.noteOn(noteNumber);
 		lastNote = lastNote === 0 ? 1 : 0;
-	}, 250);
+	}, 250);*/
 
 	// GFX gear
 	// --------
@@ -713,7 +889,7 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":5,"./gear/Bajotron":12}],11:[function(require,module,exports){
+},{"./Orxatron/":5,"./gear/Bajotron":13}],12:[function(require,module,exports){
 function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 	this.beginAttack = function() {
@@ -734,7 +910,7 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 module.exports = ADSR;
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 var MIDIUtils = require('midiutils');
 var OscillatorVoice = require('./OscillatorVoice');
 var ADSR = require('./ADSR.js');
@@ -760,7 +936,6 @@ function Bajotron(audioContext, options) {
 	}
 
 	var gain = audioContext.createGain();
-	gain.gain.value = 0.1;
 
 	var adsr = new ADSR(audioContext, gain.gain, 0.2, 0.1, 0.05, 0.0);
 
@@ -806,7 +981,7 @@ function Bajotron(audioContext, options) {
 
 module.exports = Bajotron;
 
-},{"./ADSR.js":11,"./OscillatorVoice":13,"midiutils":1}],13:[function(require,module,exports){
+},{"./ADSR.js":12,"./OscillatorVoice":14,"midiutils":1}],14:[function(require,module,exports){
 function OscillatorVoice(context, options) {
 
 	var internalOscillator = null;
@@ -854,7 +1029,7 @@ OscillatorVoice.WAVE_TYPE_TRIANGLE = 'triangle';
 
 module.exports = OscillatorVoice;
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -862,5 +1037,5 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":10}]},{},[14])
+},{"./app":11}]},{},[15])
 ;
