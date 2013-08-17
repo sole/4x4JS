@@ -4,7 +4,7 @@ function Player() {
 
 	'use strict';
 
-	var scope = this,
+	var that = this,
 		secondsPerRow,
 		secondsPerTick,
 		_isPlaying = false,
@@ -25,30 +25,29 @@ function Player() {
 	this.eventsList = [];
 	this.nextEventPosition = 0;
 	this.timePosition = 0;
-	this.position = 0;
 
 	// ~~~
 
 	function updateRowTiming() {
-		secondsPerRow = 60.0 / (scope.linesPerBeat * scope.bpm);
-		secondsPerTick = secondsPerRow / scope.ticksPerLine;
+		secondsPerRow = 60.0 / (that.linesPerBeat * that.bpm);
+		secondsPerTick = secondsPerRow / that.ticksPerLine;
 	}
 
 	// This "unpacks" the song data, which only specifies non null values
 	this.loadSong = function(data) {
 
-		scope.bpm = data.bpm || DEFAULT_BPM;
+		that.bpm = data.bpm || DEFAULT_BPM;
 
 		updateRowTiming();
 
 		// Orders
-		scope.orders = data.orders.slice(0);
+		that.orders = data.orders.slice(0);
 
 		// Tracks config
 		var tracks = data.tracks.slice(0);
 
 		// (packed) patterns
-		scope.patterns = [];
+		that.patterns = [];
 		data.patterns.forEach(function(pp) {
 			var pattern = new Pattern(pp.rows, tracks);
 
@@ -68,10 +67,10 @@ function Player() {
 
 			});
 
-			scope.patterns.push(pattern);
+			that.patterns.push(pattern);
 		});
 
-		scope.patterns.forEach(function(pat, idx) {
+		that.patterns.forEach(function(pat, idx) {
 			console.log('Pattern #', idx);
 			console.log(pat.toString());
 		});
@@ -80,6 +79,25 @@ function Player() {
 
 	this.buildEvents = function() {
 		console.warn('TODO build events');
+		that.eventsList = [];
+		that.nextEventPosition = 0;
+		that.timePosition = 0;
+
+		var orderIndex = 0;
+
+		while(orderIndex < that.orders.length) {
+			
+			var patternIndex = that.orders[orderIndex];
+			var pattern = that.patterns[patternIndex];
+
+			// PlayerEvent
+			// or different events:
+			// patternchange, rowchange, ... ?
+
+			orderIndex++;
+		}
+
+
 	};
 
 	this.play = function() {
