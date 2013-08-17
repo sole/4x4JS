@@ -24,7 +24,7 @@ function Bajotron(audioContext, options) {
 
 	var gain = audioContext.createGain();
 
-	var adsr = new ADSR(audioContext, gain.gain, 0.2, 0.1, 0.05, 0.0);
+	var adsr = new ADSR(audioContext, gain.gain, 0.1, 0.1, 0.05, 0.0);
 
 	this.output = gain;
 
@@ -44,7 +44,7 @@ function Bajotron(audioContext, options) {
 	this.noteOn = function(note, volume, when) {
 
 		volume = volume !== undefined ? volume : 1.0;
-		when = when !== undefined ? when : 0.0;
+		when = when !== undefined ? when : 0;
 
 		adsr.beginAttack(when);
 
@@ -55,8 +55,10 @@ function Bajotron(audioContext, options) {
 	};
 
 	this.noteOff = function() {
+
 		adsr.beginRelease();
 		voice.noteOff();
+
 	};
 }
 

@@ -69,25 +69,29 @@ function Player() {
 
 
 
-	var frameLength = 1000 / 2; // TODO move up (?)
+	var frameLength = 1000 / 20; // TODO move up (?)
 
 	function requestAuditionFrame(callback) {
 
+		//console.log('requestAuditionFrame');
 		var timeout = setTimeout(callback, frameLength);
 		return timeout;
 
 	}
 
 	function updateFrame(t /*, frameLength */) {
+		
+		clearTimeout(frameUpdateId);
 
 		// var now = t !== undefined ? t : Date.now(), // TODO maybe use ctx.currTime
 		var now = that.timePosition,
-			frameEnd = now + frameLength,
+			frameLengthSeconds = frameLength * 0.001,
+			frameEnd = now + frameLengthSeconds, // frameLength is in ms
 			segmentStart = now,
 			currentEvent,
 			currentEventStart;
 
-		console.log('update audio frame', now);
+		// console.log('update audio frame', now, frameLength);
 
 		if( that.finished && that.repeat ) {
 			that.jumpToOrder( 0, 0 );
@@ -103,7 +107,7 @@ function Player() {
 			currentEvent = that.eventsList[ that.nextEventPosition ];
 			currentEventStart = loopStart + currentEvent.timestamp;
 
-			console.log('current event', currentEvent, that.nextEventPosition);
+			// console.log('current event', currentEvent, that.nextEventPosition);
 
 			if(currentEventStart > frameEnd) {
 				break;
@@ -130,7 +134,7 @@ function Player() {
 					if(voice) {
 						voice.noteOn(currentEvent.noteNumber, 1.0, timeUntilEvent);
 					} else {
-						console.error("Attempting to call undefined voice", currentEvent.instrument);
+						console.log("Attempting to call undefined voice", currentEvent.instrument);
 					}
 
 				}
@@ -140,8 +144,12 @@ function Player() {
 
 		} while ( that.nextEventPosition < that.eventsList.length );
 
+		that.timePosition += frameLengthSeconds;
+
 		// schedule next
-		frameUpdateId = requestAuditionFrame(updateFrame);
+		if(!that.finished) {
+			frameUpdateId = requestAuditionFrame(updateFrame);
+		}
 
 	}
 
@@ -238,9 +246,9 @@ function Player() {
 		}
 
 		// TMP
-		that.eventsList.forEach(function(ev, idx) {
+		/*that.eventsList.forEach(function(ev, idx) {
 			console.log(idx, ev.timestamp, ev.type, ev.order, ev.pattern, ev.row);
-		});
+		});*/
 
 	};
 

@@ -1,7 +1,8 @@
 function ADSR(audioContext, param, attack, decay, sustain, release) {
 
-	this.beginAttack = function() {
-		var now = audioContext.currentTime;
+	this.beginAttack = function(when) {
+		when = when !== undefined ? when : 0;
+		var now = audioContext.currentTime + when;
 		param.cancelScheduledValues(now);
 		param.setValueAtTime(0, now);
 		param.linearRampToValueAtTime(1, now + attack);
