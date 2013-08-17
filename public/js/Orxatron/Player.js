@@ -9,7 +9,9 @@ function Player() {
 		secondsPerRow,
 		secondsPerTick,
 		_isPlaying = false,
-		DEFAULT_BPM = 100;
+		DEFAULT_BPM = 100,
+		frameUpdateId = null,
+		loopStart = 0;
 
 	this.bpm = DEFAULT_BPM;
 	this.linesPerBeat = 4;
@@ -21,7 +23,7 @@ function Player() {
 	this.finished = false;
 
 	this.tracksConfig = [];
-	this.voices = [];
+	this.gear = [];
 	this.patterns = [];
 	this.orders = [];
 	this.eventsList = [];
@@ -40,6 +42,107 @@ function Player() {
 	function addEvent(type, params) {
 		var ev = new PlayerEvent(type, params);
 		that.eventsList.push(ev);
+	}
+
+	function changeToRow( value ) {
+		var previousValue = that.currentRow;
+
+		that.currentRow = value;
+		that.dispatchEvent({ type: 'rowChanged', row: value, previousRow: previousValue, pattern: that.currentPattern, order: that.currentOrder });
+	}
+
+	function changeToPattern( value ) {
+		var previousValue = that.currentPattern;
+
+		that.currentPattern = value;
+		that.dispatchEvent({ type: 'patternChanged', pattern: value, previousPattern: previousValue, order: that.currentOrder, row: that.currentRow });
+	}
+
+	function changeToOrder( value ) {
+		var previousValue = that.currentOrder;
+
+		that.currentOrder = value;
+		that.dispatchEvent({ type: 'orderChanged', order: value, previousOrder: previousValue, pattern: that.currentPattern, row: that.currentRow });
+
+		changeToPattern( that.orders[ value ] );
+	}
+
+
+
+	var frameLength = 1000 / 2; // TODO move up (?)
+
+	function requestAuditionFrame(callback) {
+
+		var timeout = setTimeout(callback, frameLength);
+		return timeout;
+
+	}
+
+	function updateFrame(t /*, frameLength */) {
+
+		// var now = t !== undefined ? t : Date.now(), // TODO maybe use ctx.currTime
+		var now = that.timePosition,
+			frameEnd = now + frameLength,
+			segmentStart = now,
+			currentEvent,
+			currentEventStart;
+
+		console.log('update audio frame', now);
+
+		if( that.finished && that.repeat ) {
+			that.jumpToOrder( 0, 0 );
+			that.finished = false;
+		}
+
+		if( that.nextEventPosition === that.eventsList.length ) {
+			return;
+		}
+
+		do {
+
+			currentEvent = that.eventsList[ that.nextEventPosition ];
+			currentEventStart = loopStart + currentEvent.timestamp;
+
+			console.log('current event', currentEvent, that.nextEventPosition);
+
+			if(currentEventStart > frameEnd) {
+				break;
+			}
+
+			// Not scheduling things we left behind
+			// TODO probably think about this
+			// an idea: creating ghost silent nodes to play something and
+			// listen to their ended event to trigger ours
+			if(currentEventStart >= now) {
+				var timeUntilEvent = currentEventStart - now;
+				
+				if(currentEvent.type === EVENT_ORDER_CHANGE) {
+
+					changeToOrder( currentEvent.order );
+
+				} else if( currentEvent.type === EVENT_ROW_CHANGE ) {
+
+					changeToRow( currentEvent.row );
+
+				} else if( currentEvent.type === EVENT_NOTE_ON ) {
+					// note on -> gear -> schedule note on
+					var voice = that.gear[currentEvent.instrument];
+					if(voice) {
+						voice.noteOn(currentEvent.noteNumber, 1.0, timeUntilEvent);
+					} else {
+						console.error("Attempting to call undefined voice", currentEvent.instrument);
+					}
+
+				}
+			}
+
+			that.nextEventPosition++;
+
+		} while ( that.nextEventPosition < that.eventsList.length );
+
+		// schedule next
+		frameUpdateId = requestAuditionFrame(updateFrame);
+
 	}
 
 	// This "unpacks" the song data, which only specifies non null values
@@ -88,7 +191,6 @@ function Player() {
 	};
 
 	this.buildEvents = function() {
-		console.warn('TODO build events');
 		that.eventsList = [];
 		that.nextEventPosition = 0;
 		that.timePosition = 0;
@@ -143,8 +245,17 @@ function Player() {
 	};
 
 	this.play = function() {
+
 		console.warn('TODO play');
 		_isPlaying = true;
+
+		updateFrame();
+		
+	};
+
+	this.stop = function() {
+		loopStart = 0;
+		that.jumpToOrder(0, 0);
 	};
 
 	this.isPlaying = function() {
@@ -154,6 +265,11 @@ function Player() {
 	this.pause = function() {
 		console.warn('TODO pause');
 		_isPlaying = false;
+		clearTimeout(frameUpdateId);
+	};
+
+	this.jumpToOrder = function(order, row) {
+		console.warn('TODO Player jumpToOrder');
 	};
 
 }

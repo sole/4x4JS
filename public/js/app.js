@@ -6,6 +6,7 @@ var Orxatron = require('./Orxatron/'),
 	gear;
 
 function start() {
+
 	console.log('app start, yo!');
 
 	var rendererContainer = document.getElementById('rendererContainer');
@@ -25,6 +26,7 @@ function start() {
 
 	player = new Orxatron.Player();
 	osc = new Orxatron.OSC();
+
 }
 
 

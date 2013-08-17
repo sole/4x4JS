@@ -41,22 +41,16 @@ function Bajotron(audioContext, options) {
 	}
 
 	
-	this.noteOn = function(note /* TODO , volume */) {
+	this.noteOn = function(note, volume, when) {
 
-		adsr.beginAttack();
+		volume = volume !== undefined ? volume : 1.0;
+		when = when !== undefined ? when : 0.0;
 
-		/*var numMessages = 5, rate = 1000 / numMessages;
-		var interv = setInterval(function chivato() {
-			numMessages--;
-			if(numMessages < 0) {
-				clearInterval(interv);
-			}
-			console.log(gain.gain.value);
-		}, rate);*/
+		adsr.beginAttack(when);
 
 		voices.forEach(function(voice, index) {
 			var frequency = MIDIUtils.noteNumberToFrequency( note + octaves[index] * 12 );
-			voice.noteOn(frequency);
+			voice.noteOn(frequency, when);
 		});
 	};
 
