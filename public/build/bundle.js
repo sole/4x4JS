@@ -978,7 +978,7 @@ function initialiseGear(audioContext) {
 	var Mixer = require('./gear/Mixer');
 	var mixer = new Mixer(audioContext);
 	mixer.output.connect(audioContext.destination);
-	mixer.setGain(0.25);
+	mixer.setGlobalGain(0.25);
 	
 	// 0 / BASS 
 	var Bajotron = require('./gear/Bajotron');
@@ -1000,6 +1000,7 @@ function initialiseGear(audioContext) {
 	g.forEach(function(instrument, index) {
 		mixer.plug(index, instrument.output);
 	});
+	mixer.setChannelGain(1, 0.5);
 
 	// This is ULTRA CREEPY
 	/*setInterval(function() {
@@ -1422,8 +1423,12 @@ function Mixer(audioContext) {
 		audioOutput.connect(faderInput);
 	};
 
-	this.setGain = function(value) {
+	this.setGlobalGain = function(value) {
 		output.gain.value = value;
+	};
+
+	this.setChannelGain = function(channelNumber, value) {
+		channels[channelNumber].setGain(value);
 	};
 }
 

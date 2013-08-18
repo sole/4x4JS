@@ -31,8 +31,12 @@ function Mixer(audioContext) {
 		audioOutput.connect(faderInput);
 	};
 
-	this.setGain = function(value) {
+	this.setGlobalGain = function(value) {
 		output.gain.value = value;
+	};
+
+	this.setChannelGain = function(channelNumber, value) {
+		channels[channelNumber].setGain(value);
 	};
 }
 
