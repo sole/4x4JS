@@ -37,7 +37,7 @@ function OscillatorVoice(context, options) {
 		if(internalOscillator === null) {
 			return;
 		}
-		internalOscillator.stop(when);
+		internalOscillator.stop(when + context.currentTime);
 		internalOscillator = null;
 		this.active = false;
 
