@@ -36,6 +36,11 @@ function renoiseToOrxatron(json) {
 				tracksSettings[trackIndex] = 0;
 			}
 
+			// Just one line
+			if(lines.forEach === undefined) {
+				lines = [ lines ];
+			}
+
 			lines.forEach(function(line) {
 				var noteColumns = line.NoteColumns.NoteColumn;
 				var numColumns;
@@ -74,6 +79,11 @@ function renoiseToOrxatron(json) {
 
 			var lines = track.Lines && track.Lines.Line ? track.Lines.Line : [];
 			var trackData = [];
+
+			// Just one line
+			if(lines.forEach === undefined) {
+				lines = [ lines ];
+			}
 
 			lines.forEach(function(line) {
 				var rowNumber = line.$.index | 0;
