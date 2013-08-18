@@ -54,10 +54,12 @@ function Bajotron(audioContext, options) {
 		});
 	};
 
-	this.noteOff = function() {
+	this.noteOff = function(when, note) {
 
-		adsr.beginRelease();
-		voice.noteOff();
+		// Because this is a monophonic instrument, `note` is quietly ignored
+
+		adsr.beginRelease(when);
+		voice.noteOff(when + adsr.release);
 
 	};
 }

@@ -36,7 +36,7 @@ var dstSong = './public/build/data/song.json';
 
 	
 Renoise.loadAsJSON('./data/song.xrns', function(songJSON) {
-	// fs.writeFileSync('tatatata.json', pd.json(songJSON));
+	fs.writeFileSync('tatatata.json', pd.json(songJSON));
 	
 	var convertedSong = Orxatron.DataUtils.renoiseToOrxatron(songJSON);
 	fs.writeFileSync(dstSong, JSON.stringify(convertedSong, null, '\t'));

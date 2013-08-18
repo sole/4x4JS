@@ -137,6 +137,11 @@ function renoiseToOrxatron(json) {
 				tracksSettings[trackIndex] = 0;
 			}
 
+			// Just one line
+			if(lines.forEach === undefined) {
+				lines = [ lines ];
+			}
+
 			lines.forEach(function(line) {
 				var noteColumns = line.NoteColumns.NoteColumn;
 				var numColumns;
@@ -175,6 +180,11 @@ function renoiseToOrxatron(json) {
 
 			var lines = track.Lines && track.Lines.Line ? track.Lines.Line : [];
 			var trackData = [];
+
+			// Just one line
+			if(lines.forEach === undefined) {
+				lines = [ lines ];
+			}
 
 			lines.forEach(function(line) {
 				var rowNumber = line.$.index | 0;
@@ -395,10 +405,25 @@ function PatternCell(data) {
 
 		scope.note = d.note !== undefined ? d.note : null;
 		if(scope.note !== null) {
-			scope.noteNumber = MIDIUtils.noteNameToNoteNumber(scope.note);
+
+			var note = scope.note;
+
+			if(note === 'OFF') {
+
+				scope.noteOff = true;
+
+			} else {
+
+				scope.noteNumber = MIDIUtils.noteNameToNoteNumber(note);
+
+			}
+
 		} else {
+
 			scope.noteNumber = null;
+		
 		}
+
 		scope.instrument = d.instrument !== undefined ? d.instrument : null;
 		scope.volume = d.volume !== undefined ? d.volume : null;
 
@@ -558,10 +583,20 @@ function Player() {
 					changeToRow( currentEvent.row );
 
 				} else if( currentEvent.type === EVENT_NOTE_ON ) {
+
 					// note on -> gear -> schedule note on
 					var voice = that.gear[currentEvent.instrument];
 					if(voice) {
 						voice.noteOn(currentEvent.noteNumber, 1.0, timeUntilEvent);
+					} else {
+						console.log("Attempting to call undefined voice", currentEvent.instrument);
+					}
+
+				} else if( currentEvent.type === EVENT_NOTE_OFF ) {
+
+					var voice = that.gear[currentEvent.instrument];
+					if(voice) {
+						voice.noteOff(currentEvent.noteNumber, 1.0, timeUntilEvent);
 					} else {
 						console.log("Attempting to call undefined voice", currentEvent.instrument);
 					}
@@ -660,6 +695,10 @@ function Player() {
 
 							addEvent( EVENT_NOTE_ON, { timestamp: timestamp, note: cell.note, noteNumber: cell.noteNumber, instrument: cell.instrument, volume: cell.volume, order: orderIndex, pattern: patternIndex, row: i, track: j } );
 
+						} else if(cell.noteOff) {
+							
+							addEvent( EVENT_NOTE_OFF, { timestamp: timestamp, instrument: cell.instrument, order: orderIndex, pattern: patternIndex, row: i, track: j } );
+
 						}
 
 					});
@@ -727,6 +766,7 @@ EVENT_ORDER_CHANGE = 'order_change';
 EVENT_PATTERN_CHANGE = 'pattern_change';
 EVENT_ROW_CHANGE = 'row_change';
 EVENT_NOTE_ON = 'note_on';
+EVENT_NOTE_OFF = 'note_off';
 
 
 module.exports = Player;
@@ -1015,6 +1055,14 @@ module.exports = {
 },{"./Orxatron/":5,"./gear/Bajotron":13}],12:[function(require,module,exports){
 function ADSR(audioContext, param, attack, decay, sustain, release) {
 
+	Object.defineProperties(this, {
+		release: {
+			get: function() { return release; }
+		}
+	});
+
+
+
 	this.beginAttack = function(when) {
 		when = when !== undefined ? when : 0;
 		var now = audioContext.currentTime + when;
@@ -1026,7 +1074,7 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 	this.beginRelease = function() {
 		var now = audioContext.currentTime;
-		param.cancelScheduledValues(value);
+		param.cancelScheduledValues(now);
 		param.linearRampToValueAtTime(0, now + release);
 	};
 
@@ -1091,10 +1139,12 @@ function Bajotron(audioContext, options) {
 		});
 	};
 
-	this.noteOff = function() {
+	this.noteOff = function(when, note) {
 
-		adsr.beginRelease();
-		voice.noteOff();
+		// Because this is a monophonic instrument, `note` is quietly ignored
+
+		adsr.beginRelease(when);
+		voice.noteOff(when + adsr.release);
 
 	};
 }
@@ -1117,7 +1167,7 @@ function OscillatorVoice(context, options) {
 	this.noteOn = function(frequency, when) {
 
 		if(!portamento) {
-			this.noteOff(0);
+			this.noteOff();
 		}
 
 		// The oscillator node is recreated here "on demand",
@@ -1129,7 +1179,7 @@ function OscillatorVoice(context, options) {
 		}
 		
 		internalOscillator.frequency.value = frequency;
-		internalOscillator.start(when);
+		internalOscillator.start(when + context.currentTime);
 
 	};
 

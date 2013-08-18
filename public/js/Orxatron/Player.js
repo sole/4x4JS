@@ -126,10 +126,20 @@ function Player() {
 					changeToRow( currentEvent.row );
 
 				} else if( currentEvent.type === EVENT_NOTE_ON ) {
+
 					// note on -> gear -> schedule note on
 					var voice = that.gear[currentEvent.instrument];
 					if(voice) {
 						voice.noteOn(currentEvent.noteNumber, 1.0, timeUntilEvent);
+					} else {
+						console.log("Attempting to call undefined voice", currentEvent.instrument);
+					}
+
+				} else if( currentEvent.type === EVENT_NOTE_OFF ) {
+
+					var voice = that.gear[currentEvent.instrument];
+					if(voice) {
+						voice.noteOff(currentEvent.noteNumber, 1.0, timeUntilEvent);
 					} else {
 						console.log("Attempting to call undefined voice", currentEvent.instrument);
 					}

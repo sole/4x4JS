@@ -13,7 +13,7 @@ function OscillatorVoice(context, options) {
 	this.noteOn = function(frequency, when) {
 
 		if(!portamento) {
-			this.noteOff(0);
+			this.noteOff();
 		}
 
 		// The oscillator node is recreated here "on demand",
@@ -25,7 +25,7 @@ function OscillatorVoice(context, options) {
 		}
 		
 		internalOscillator.frequency.value = frequency;
-		internalOscillator.start(when);
+		internalOscillator.start(when + context.currentTime);
 
 	};
 
