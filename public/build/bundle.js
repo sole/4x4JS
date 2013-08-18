@@ -1218,7 +1218,7 @@ function Colchonator(audioContext, options) {
 	
 	options = options || {};
 
-	var numVoices = options.numVoices || 2;
+	var numVoices = options.numVoices || 3;
 	var voices = [];
 	var outputNode = audioContext.createGain();
 
@@ -1247,7 +1247,7 @@ function Colchonator(audioContext, options) {
 			while(number > voices.length) {
 				// TODO replace raw oscillator voices with OSC+ADSR units
 				v = {
-					timestamp: Date.now(),
+					timestamp: 0,
 					note: 0,
 					voice: new OscillatorVoice(audioContext)
 				};
@@ -1267,7 +1267,7 @@ function Colchonator(audioContext, options) {
 		var freeVoice;
 
 		// criteria is to return the oldest one
-		var oldest = voices[0];
+		/*var oldest = voices[0];
 		var oldestIndex = 0;
 
 		for(var i = 1; i < voices.length; i++) {
@@ -1282,6 +1282,19 @@ function Colchonator(audioContext, options) {
 		oldest.voice.noteOff();
 		oldest.note = noteNumber;
 		oldest.timestamp = Date.now();
+
+		return oldest.voice; */
+
+		// oldest = the first one,
+		// extract it, stop it,
+		// and use it just as if it was new
+		var oldest = voices.shift();
+
+		oldest.voice.noteOff();
+		oldest.note = noteNumber;
+		oldest.timestamp = Date.now();
+
+		voices.push(oldest);
 
 		return oldest.voice;
 
@@ -1324,25 +1337,8 @@ function Colchonator(audioContext, options) {
 
 		// TODO adsr.beginAttack(when);
 		// TODO: use volume
-		//
-		// 1. ya hay una voz tocando esta nota?
-		//		i.e. existe y esta activa
-		//		--> ignorar
-		// 2. buscar nota libre 
 
-		var existingVoiceWithNoteIndex = getVoiceIndexByNote(note);
-		if(existingVoiceWithNoteIndex > -1) {
-			console.log('existing voice playing', note, existingVoiceWithNoteIndex);
-			// freeVoice(existingVoiceWithNote);
-			var v = voices[existingVoiceWithNoteIndex];
-			if(v.voice.active) {
-				console.log('and its active!');
-				v.timestamp = Date.now();
-				voice = v.voice;
-			}
-		} else {
-			voice = getFreeVoice(note);
-		}
+		voice = getFreeVoice(note);
 
 		voice.noteOn(frequency, when);
 
@@ -1362,15 +1358,6 @@ function Colchonator(audioContext, options) {
 			voice.noteOff(when);
 		}
 
-		/*if(voice) {
-			// If a voice with that frequency is found, stop it
-			voice.oscillator.stop();
-		} else {
-			// Otherwise try to stop ALL voices
-			voices.forEach(function(v) {
-				v.oscillator.stop();
-			});
-		}*/
 	};
 
 }

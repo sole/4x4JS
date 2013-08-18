@@ -1,5 +1,5 @@
 {
-	"bpm": "145",
+	"bpm": "100",
 	"orders": [
 		1,
 		2,
@@ -625,19 +625,6 @@
 						]
 					},
 					{
-						"row": 12,
-						"columns": [
-							{
-								"note": "OFF",
-								"instrument": 0
-							},
-							{
-								"note": "OFF",
-								"instrument": 0
-							}
-						]
-					},
-					{
 						"row": 16,
 						"columns": [
 							{
@@ -647,19 +634,6 @@
 							{
 								"note": "B-4",
 								"instrument": 1
-							}
-						]
-					},
-					{
-						"row": 28,
-						"columns": [
-							{
-								"note": "OFF",
-								"instrument": 0
-							},
-							{
-								"note": "OFF",
-								"instrument": 0
 							}
 						]
 					},
@@ -677,19 +651,6 @@
 						]
 					},
 					{
-						"row": 44,
-						"columns": [
-							{
-								"note": "OFF",
-								"instrument": 0
-							},
-							{
-								"note": "OFF",
-								"instrument": 0
-							}
-						]
-					},
-					{
 						"row": 48,
 						"columns": [
 							{
@@ -699,19 +660,6 @@
 							{
 								"note": "F-5",
 								"instrument": 1
-							}
-						]
-					},
-					{
-						"row": 60,
-						"columns": [
-							{
-								"note": "OFF",
-								"instrument": 0
-							},
-							{
-								"note": "OFF",
-								"instrument": 0
 							}
 						]
 					}
