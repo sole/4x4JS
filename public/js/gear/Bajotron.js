@@ -8,7 +8,7 @@ function Bajotron(audioContext, options) {
 	
 	options = options || {};
 
-	var numVoices = 2; // TODO unhardcode?
+	var numVoices = options.numVoices ? options.numVoices : 2;
 	var portamento = options.portamento !== undefined ? options.portamento : false;
 	var octaves = options.octaves || [0, 1];
 	var waveType = options.waveType || OscillatorVoice.WAVE_TYPE_SQUARE;
