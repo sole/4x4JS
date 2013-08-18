@@ -16,7 +16,7 @@
     "socket.io": "~0.9.16",
     "browserify": "~2.26.0",
     "stringformat.js": "0.0.3",
-    "midiutils": "0.0.1",
+    "midiutils": "0.0.2",
     "renoise": "0.0.1",
     "pretty-data": "~0.40.0"
   }
