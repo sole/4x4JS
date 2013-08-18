@@ -1007,6 +1007,7 @@ function initialiseGear(audioContext) {
 	g.forEach(function(instrument, index) {
 		mixer.plug(index, instrument.output);
 	});
+	mixer.setChannelGain(0, 0);
 	mixer.setChannelGain(1, 0.5);
 
 	// This is ULTRA CREEPY
@@ -1112,7 +1113,8 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 	});
 
 
-
+	// ~~~
+	
 	this.beginAttack = function(when) {
 		when = when !== undefined ? when : 0;
 		var now = audioContext.currentTime + when;
@@ -1137,16 +1139,23 @@ var MIDIUtils = require('midiutils');
 var OscillatorVoice = require('./OscillatorVoice');
 var ADSR = require('./ADSR.js');
 
+function valueOrUndefined(value, defaultValue) {
+	return value !== undefined ? value : defaultValue;
+}
+
 function Bajotron(audioContext, options) {
 
 	var i;
+	var vou = valueOrUndefined; // ??? maybe too tricky ???
 	
 	options = options || {};
 
-	var numVoices = 2; // TODO unhardcode?
+	var numVoices = options.numVoices ? options.numVoices : 2;
 	var portamento = options.portamento !== undefined ? options.portamento : false;
 	var octaves = options.octaves || [0, 1];
+	// TODO var semitones = [ 0, 5 ] --> 5 = 1 * 12 + 5
 	var waveType = options.waveType || OscillatorVoice.WAVE_TYPE_SQUARE;
+	var adsrParams = options.adsr || {};
 
 	// if wave type was a single string constant, build an array with that value
 	if( Object.prototype.toString.call( waveType ) !== '[object Array]' ) {
@@ -1159,7 +1168,7 @@ function Bajotron(audioContext, options) {
 
 	var gain = audioContext.createGain();
 
-	var adsr = new ADSR(audioContext, gain.gain, 0.0, 0.2, 0.05, 0.0);
+	var adsr = new ADSR(audioContext, gain.gain, vou(adsrParams.attack, 0.0), vou(adsrParams.decay, 0.2), vou(adsrParams.sustain, 0.05), vou(adsrParams.release, 0.0));
 
 	this.output = gain;
 
@@ -1175,7 +1184,8 @@ function Bajotron(audioContext, options) {
 		voices.push(voice);
 	}
 
-	
+	// ~~~
+
 	this.noteOn = function(note, volume, when) {
 
 		volume = volume !== undefined ? volume : 1.0;
@@ -1206,6 +1216,7 @@ module.exports = Bajotron;
 var MIDIUtils = require('midiutils');
 var OscillatorVoice = require('./OscillatorVoice');
 var ADSR = require('./ADSR.js');
+var Bajotron = require('./Bajotron');
 
 function Colchonator(audioContext, options) {
 	// input (?)
@@ -1245,11 +1256,17 @@ function Colchonator(audioContext, options) {
 			console.log('Colchonator - increasing polyphony', voices.length, '=>', number);
 
 			while(number > voices.length) {
-				// TODO replace raw oscillator voices with OSC+ADSR units
 				v = {
 					timestamp: 0,
 					note: 0,
-					voice: new OscillatorVoice(audioContext)
+					voice: new Bajotron(audioContext, {
+						numVoices: 1,
+						adsr: {
+							attack: 0.1,
+							sustain: 0.7,
+							release: 0.3
+						}
+					})
 				};
 
 				v.voice.output.connect(outputNode);
@@ -1267,24 +1284,7 @@ function Colchonator(audioContext, options) {
 		var freeVoice;
 
 		// criteria is to return the oldest one
-		/*var oldest = voices[0];
-		var oldestIndex = 0;
-
-		for(var i = 1; i < voices.length; i++) {
-			var v = voices[i];
-
-			if(v.timestamp < oldest.timestamp) {
-				oldest = v;
-				oldestIndex = i;
-			}
-		}
-
-		oldest.voice.noteOff();
-		oldest.note = noteNumber;
-		oldest.timestamp = Date.now();
-
-		return oldest.voice; */
-
+		
 		// oldest = the first one,
 		// extract it, stop it,
 		// and use it just as if it was new
@@ -1331,16 +1331,12 @@ function Colchonator(audioContext, options) {
 		when = when !== undefined ? when : 0;
 
 		var voice;
-		var frequency = MIDIUtils.noteNumberToFrequency( note );
 
 		console.log('Colchonator noteOn', note, MIDIUtils.noteNumberToName(note));
 
-		// TODO adsr.beginAttack(when);
-		// TODO: use volume
-
 		voice = getFreeVoice(note);
 
-		voice.noteOn(frequency, when);
+		voice.noteOn(note, volume, when);
 
 	};
 
@@ -1353,8 +1349,6 @@ function Colchonator(audioContext, options) {
 		console.log('voice = ', voice);
 
 		if(voice) {
-			// TODO adsr.beginRelease(when);
-			// voice.noteOff(when + adsr.release);
 			voice.noteOff(when);
 		}
 
@@ -1364,7 +1358,7 @@ function Colchonator(audioContext, options) {
 
 module.exports = Colchonator;
 
-},{"./ADSR.js":12,"./OscillatorVoice":16,"midiutils":1}],15:[function(require,module,exports){
+},{"./ADSR.js":12,"./Bajotron":13,"./OscillatorVoice":16,"midiutils":1}],15:[function(require,module,exports){
 // A simple mixer for avoiding early deafness
 function Mixer(audioContext) {
 

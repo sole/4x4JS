@@ -1,6 +1,7 @@
 var MIDIUtils = require('midiutils');
 var OscillatorVoice = require('./OscillatorVoice');
 var ADSR = require('./ADSR.js');
+var Bajotron = require('./Bajotron');
 
 function Colchonator(audioContext, options) {
 	// input (?)
@@ -40,11 +41,17 @@ function Colchonator(audioContext, options) {
 			console.log('Colchonator - increasing polyphony', voices.length, '=>', number);
 
 			while(number > voices.length) {
-				// TODO replace raw oscillator voices with OSC+ADSR units
 				v = {
 					timestamp: 0,
 					note: 0,
-					voice: new OscillatorVoice(audioContext)
+					voice: new Bajotron(audioContext, {
+						numVoices: 1,
+						adsr: {
+							attack: 0.1,
+							sustain: 0.7,
+							release: 0.3
+						}
+					})
 				};
 
 				v.voice.output.connect(outputNode);
@@ -62,24 +69,7 @@ function Colchonator(audioContext, options) {
 		var freeVoice;
 
 		// criteria is to return the oldest one
-		/*var oldest = voices[0];
-		var oldestIndex = 0;
-
-		for(var i = 1; i < voices.length; i++) {
-			var v = voices[i];
-
-			if(v.timestamp < oldest.timestamp) {
-				oldest = v;
-				oldestIndex = i;
-			}
-		}
-
-		oldest.voice.noteOff();
-		oldest.note = noteNumber;
-		oldest.timestamp = Date.now();
-
-		return oldest.voice; */
-
+		
 		// oldest = the first one,
 		// extract it, stop it,
 		// and use it just as if it was new
@@ -126,16 +116,12 @@ function Colchonator(audioContext, options) {
 		when = when !== undefined ? when : 0;
 
 		var voice;
-		var frequency = MIDIUtils.noteNumberToFrequency( note );
 
 		console.log('Colchonator noteOn', note, MIDIUtils.noteNumberToName(note));
 
-		// TODO adsr.beginAttack(when);
-		// TODO: use volume
-
 		voice = getFreeVoice(note);
 
-		voice.noteOn(frequency, when);
+		voice.noteOn(note, volume, when);
 
 	};
 
@@ -148,8 +134,6 @@ function Colchonator(audioContext, options) {
 		console.log('voice = ', voice);
 
 		if(voice) {
-			// TODO adsr.beginRelease(when);
-			// voice.noteOff(when + adsr.release);
 			voice.noteOff(when);
 		}
 

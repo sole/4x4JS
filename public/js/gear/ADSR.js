@@ -7,7 +7,8 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 	});
 
 
-
+	// ~~~
+	
 	this.beginAttack = function(when) {
 		when = when !== undefined ? when : 0;
 		var now = audioContext.currentTime + when;

@@ -2,16 +2,23 @@ var MIDIUtils = require('midiutils');
 var OscillatorVoice = require('./OscillatorVoice');
 var ADSR = require('./ADSR.js');
 
+function valueOrUndefined(value, defaultValue) {
+	return value !== undefined ? value : defaultValue;
+}
+
 function Bajotron(audioContext, options) {
 
 	var i;
+	var vou = valueOrUndefined; // ??? maybe too tricky ???
 	
 	options = options || {};
 
 	var numVoices = options.numVoices ? options.numVoices : 2;
 	var portamento = options.portamento !== undefined ? options.portamento : false;
 	var octaves = options.octaves || [0, 1];
+	// TODO var semitones = [ 0, 5 ] --> 5 = 1 * 12 + 5
 	var waveType = options.waveType || OscillatorVoice.WAVE_TYPE_SQUARE;
+	var adsrParams = options.adsr || {};
 
 	// if wave type was a single string constant, build an array with that value
 	if( Object.prototype.toString.call( waveType ) !== '[object Array]' ) {
@@ -24,7 +31,7 @@ function Bajotron(audioContext, options) {
 
 	var gain = audioContext.createGain();
 
-	var adsr = new ADSR(audioContext, gain.gain, 0.0, 0.2, 0.05, 0.0);
+	var adsr = new ADSR(audioContext, gain.gain, vou(adsrParams.attack, 0.0), vou(adsrParams.decay, 0.2), vou(adsrParams.sustain, 0.05), vou(adsrParams.release, 0.0));
 
 	this.output = gain;
 
@@ -40,7 +47,8 @@ function Bajotron(audioContext, options) {
 		voices.push(voice);
 	}
 
-	
+	// ~~~
+
 	this.noteOn = function(note, volume, when) {
 
 		volume = volume !== undefined ? volume : 1.0;

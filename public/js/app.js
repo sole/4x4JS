@@ -80,6 +80,7 @@ function initialiseGear(audioContext) {
 	g.forEach(function(instrument, index) {
 		mixer.plug(index, instrument.output);
 	});
+	mixer.setChannelGain(0, 0);
 	mixer.setChannelGain(1, 0.5);
 
 	// This is ULTRA CREEPY

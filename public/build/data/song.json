@@ -625,6 +625,19 @@
 						]
 					},
 					{
+						"row": 8,
+						"columns": [
+							{
+								"note": "OFF",
+								"instrument": 0
+							},
+							{
+								"note": "OFF",
+								"instrument": 0
+							}
+						]
+					},
+					{
 						"row": 16,
 						"columns": [
 							{
@@ -634,6 +647,19 @@
 							{
 								"note": "B-4",
 								"instrument": 1
+							}
+						]
+					},
+					{
+						"row": 24,
+						"columns": [
+							{
+								"note": "OFF",
+								"instrument": 0
+							},
+							{
+								"note": "OFF",
+								"instrument": 0
 							}
 						]
 					},
@@ -651,6 +677,19 @@
 						]
 					},
 					{
+						"row": 40,
+						"columns": [
+							{
+								"note": "OFF",
+								"instrument": 0
+							},
+							{
+								"note": "OFF",
+								"instrument": 0
+							}
+						]
+					},
+					{
 						"row": 48,
 						"columns": [
 							{
@@ -660,6 +699,19 @@
 							{
 								"note": "F-5",
 								"instrument": 1
+							}
+						]
+					},
+					{
+						"row": 56,
+						"columns": [
+							{
+								"note": "OFF",
+								"instrument": 0
+							},
+							{
+								"note": "OFF",
+								"instrument": 0
 							}
 						]
 					}
