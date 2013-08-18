@@ -9,4 +9,5 @@ Un-be-lie-va-ble
 	- noteOn
 	- noteOff
 - player -> jump to position -> changes time position, etc
+- gear -> some sort of gui
 - Orxatron -> npm

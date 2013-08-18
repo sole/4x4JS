@@ -480,6 +480,7 @@ function Player() {
 	this.finished = false;
 
 	this.tracksConfig = [];
+	this.tracksLastPlayedNotes = [];
 	this.gear = [];
 	this.patterns = [];
 	this.orders = [];
@@ -524,7 +525,13 @@ function Player() {
 		changeToPattern( that.orders[ value ] );
 	}
 
+	function setLastNotePlayed(note, track, column) {
+		that.tracksLastPlayedNotes[track][column] = note;
+	}
 
+	function getLastNotePlayed(track, column) {
+		return that.tracksLastPlayedNotes[track][column];
+	}
 
 	var frameLength = 1000 / 60; // TODO move up (?)
 
@@ -561,8 +568,6 @@ function Player() {
 			currentEvent = that.eventsList[ that.nextEventPosition ];
 			currentEventStart = loopStart + currentEvent.timestamp;
 
-			// console.log('current event', currentEvent, that.nextEventPosition);
-
 			if(currentEventStart > frameEnd) {
 				break;
 			}
@@ -587,6 +592,7 @@ function Player() {
 					// note on -> gear -> schedule note on
 					var voice = that.gear[currentEvent.instrument];
 					if(voice) {
+						setLastNotePlayed(currentEvent.noteNumber, currentEvent.track, currentEvent.column);
 						voice.noteOn(currentEvent.noteNumber, 1.0, timeUntilEvent);
 					} else {
 						console.log("Attempting to call undefined voice", currentEvent.instrument);
@@ -596,7 +602,8 @@ function Player() {
 
 					var voice = that.gear[currentEvent.instrument];
 					if(voice) {
-						voice.noteOff(currentEvent.noteNumber, 1.0, timeUntilEvent);
+						var lastNote = getLastNotePlayed(currentEvent.track, currentEvent.column);
+						voice.noteOff(lastNote, timeUntilEvent);
 					} else {
 						console.log("Attempting to call undefined voice", currentEvent.instrument);
 					}
@@ -630,6 +637,17 @@ function Player() {
 		// Tracks config
 		var tracks = data.tracks.slice(0);
 		that.tracksConfig = tracks;
+
+		// Init last played notes array
+		var tracksLastPlayedNotes = [];
+		tracks.forEach(function(numColumns, trackIndex) {
+			var notes = [];
+			for(var i = 0; i < numColumns; i++) {
+				notes.push(0);
+			}
+			tracksLastPlayedNotes[trackIndex] = notes;
+		});
+		that.tracksLastPlayedNotes = tracksLastPlayedNotes;
 
 		// (packed) patterns
 		that.patterns = [];
@@ -689,15 +707,15 @@ function Player() {
 					var line = pattern.get(i, j);
 					var cells = line.cells;
 
-					cells.forEach(function(cell) {
+					cells.forEach(function(cell, columnIndex) {
 
 						if(cell.noteNumber) {
 
-							addEvent( EVENT_NOTE_ON, { timestamp: timestamp, note: cell.note, noteNumber: cell.noteNumber, instrument: cell.instrument, volume: cell.volume, order: orderIndex, pattern: patternIndex, row: i, track: j } );
+							addEvent( EVENT_NOTE_ON, { timestamp: timestamp, note: cell.note, noteNumber: cell.noteNumber, instrument: cell.instrument, volume: cell.volume, order: orderIndex, pattern: patternIndex, row: i, track: j, column: columnIndex } );
 
 						} else if(cell.noteOff) {
 							
-							addEvent( EVENT_NOTE_OFF, { timestamp: timestamp, instrument: cell.instrument, order: orderIndex, pattern: patternIndex, row: i, track: j } );
+							addEvent( EVENT_NOTE_OFF, { timestamp: timestamp, instrument: cell.instrument, order: orderIndex, pattern: patternIndex, row: i, track: j, column: columnIndex } );
 
 						}
 
@@ -739,7 +757,6 @@ function Player() {
 	};
 
 	this.pause = function() {
-		console.warn('TODO pause');
 		_isPlaying = false;
 		clearTimeout(frameUpdateId);
 	};
@@ -1139,9 +1156,10 @@ function Bajotron(audioContext, options) {
 		});
 	};
 
-	this.noteOff = function(when, note) {
 
-		// Because this is a monophonic instrument, `note` is quietly ignored
+	this.noteOff = function(noteNumber, when) {
+
+		// Because this is a monophonic instrument, `noteNumber` is quietly ignored
 
 		adsr.beginRelease(when);
 		voice.noteOff(when + adsr.release);
