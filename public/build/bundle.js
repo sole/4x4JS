@@ -481,6 +481,7 @@ function Player() {
 
 	this.tracksConfig = [];
 	this.tracksLastPlayedNotes = [];
+	this.tracksLastPlayedInstruments = [];
 	this.gear = [];
 	this.patterns = [];
 	this.orders = [];
@@ -525,12 +526,20 @@ function Player() {
 		changeToPattern( that.orders[ value ] );
 	}
 
-	function setLastNotePlayed(note, track, column) {
+	function setLastPlayedNote(note, track, column) {
 		that.tracksLastPlayedNotes[track][column] = note;
 	}
 
-	function getLastNotePlayed(track, column) {
+	function getLastPlayedNote(track, column) {
 		return that.tracksLastPlayedNotes[track][column];
+	}
+
+	function setLastPlayedInstrument(note, track, column) {
+		that.tracksLastPlayedInstruments[track][column] = note;
+	}
+
+	function getLastPlayedInstrument(track, column) {
+		return that.tracksLastPlayedInstruments[track][column];
 	}
 
 	var frameLength = 1000 / 60; // TODO move up (?)
@@ -592,7 +601,8 @@ function Player() {
 					// note on -> gear -> schedule note on
 					var voice = that.gear[currentEvent.instrument];
 					if(voice) {
-						setLastNotePlayed(currentEvent.noteNumber, currentEvent.track, currentEvent.column);
+						setLastPlayedNote(currentEvent.noteNumber, currentEvent.track, currentEvent.column);
+						setLastPlayedInstrument(currentEvent.instrument, currentEvent.track, currentEvent.column);
 						voice.noteOn(currentEvent.noteNumber, 1.0, timeUntilEvent);
 					} else {
 						console.log("Attempting to call undefined voice", currentEvent.instrument);
@@ -600,14 +610,12 @@ function Player() {
 
 				} else if( currentEvent.type === EVENT_NOTE_OFF ) {
 
-					var voice = that.gear[currentEvent.instrument];
-					if(voice) {
-						var lastNote = getLastNotePlayed(currentEvent.track, currentEvent.column);
-						voice.noteOff(lastNote, timeUntilEvent);
-					} else {
-						console.log("Attempting to call undefined voice", currentEvent.instrument);
+					var voiceIndex = getLastPlayedInstrument(currentEvent.track, currentEvent.column);
+					if(voiceIndex) {
+						var lastVoice = that.gear[voiceIndex];
+						var lastNote = getLastPlayedNote(currentEvent.track, currentEvent.column);
+						lastVoice.noteOff(lastNote, timeUntilEvent);
 					}
-
 				}
 			}
 
@@ -638,16 +646,23 @@ function Player() {
 		var tracks = data.tracks.slice(0);
 		that.tracksConfig = tracks;
 
-		// Init last played notes array
+		// Init last played notes and instruments arrays
 		var tracksLastPlayedNotes = [];
+		var tracksLastPlayedInstruments = [];
+
 		tracks.forEach(function(numColumns, trackIndex) {
 			var notes = [];
+			var instruments = [];
 			for(var i = 0; i < numColumns; i++) {
 				notes.push(0);
+				instruments.push(0);
 			}
 			tracksLastPlayedNotes[trackIndex] = notes;
+			tracksLastPlayedInstruments[trackIndex] = instruments;
 		});
+
 		that.tracksLastPlayedNotes = tracksLastPlayedNotes;
+		that.tracksLastPlayedInstruments = tracksLastPlayedInstruments;
 
 		// (packed) patterns
 		that.patterns = [];
@@ -957,18 +972,24 @@ function onSongDataLoaded(data) {
 function initialiseGear(audioContext) {
 	console.warn('TODO initialiseGear');
 	var g = [];
+
 	// Audio gear
 	// ----------
-	// TODO pads
-	// var Colchonator = require('./gear/Colchonator');
-	// var pads = new Colchonator(audioContext);
-	// g.push(pads);
-
-	// TODO bass
+	
+	// 0 / BASS 
 	var Bajotron = require('./gear/Bajotron');
-	var bass = new Bajotron(audioContext, { portamento: false, waveType: ['square', 'triangle'] });
+	var bass = new Bajotron(audioContext, {
+		portamento: false,
+		waveType: ['square', 'triangle'],
+		octaves: [-2, -1] 
+	});
 	g.push(bass);
 
+	// 1 / PAD
+	var Colchonator = require('./gear/Colchonator');
+	var pad = new Colchonator(audioContext);
+	g.push(pad);
+	
 	// TODO drum machine
 	
 	// TODO tmp, should have some postpro+comp etc
@@ -1069,7 +1090,7 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":5,"./gear/Bajotron":13}],12:[function(require,module,exports){
+},{"./Orxatron/":5,"./gear/Bajotron":13,"./gear/Colchonator":14}],12:[function(require,module,exports){
 function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 	Object.defineProperties(this, {
@@ -1126,7 +1147,7 @@ function Bajotron(audioContext, options) {
 
 	var gain = audioContext.createGain();
 
-	var adsr = new ADSR(audioContext, gain.gain, 0.0, 0.1, 0.05, 0.0);
+	var adsr = new ADSR(audioContext, gain.gain, 0.0, 0.2, 0.05, 0.0);
 
 	this.output = gain;
 
@@ -1169,7 +1190,201 @@ function Bajotron(audioContext, options) {
 
 module.exports = Bajotron;
 
-},{"./ADSR.js":12,"./OscillatorVoice":14,"midiutils":1}],14:[function(require,module,exports){
+},{"./ADSR.js":12,"./OscillatorVoice":15,"midiutils":1}],14:[function(require,module,exports){
+var MIDIUtils = require('midiutils');
+var OscillatorVoice = require('./OscillatorVoice');
+var ADSR = require('./ADSR.js');
+
+function Colchonator(audioContext, options) {
+	// input (?)
+	//--> No, because it's a Source (?)
+	// output -> gainnode output
+	// x notes polyphony
+	// noise (+param)
+	// envelope -> audioGain audioparam (?)
+	// noteOn, noteOff
+	
+	options = options || {};
+
+	var numVoices = options.numVoices || 3;
+	var voices = [];
+	var outputNode = audioContext.createGain();
+
+	initVoices(numVoices);
+
+	/*function makeVoice() {
+		return {
+			timestamp: Date.now(),
+			oscillator: audioContext.createOscillator()
+		};
+	}
+
+	function getFreeVoice() {
+		
+		var freeVoice;
+
+		if(voices.length === numVoices) {
+
+			// get the oldest one, probably stop it, and recreate it
+			var oldest = voices[0];
+			var oldestIndex = 0;
+
+			for(var i = 1; i < voices.length; i++) {
+				var v = voices[i];
+				if(v.timestamp < oldest.timestamp) {
+					oldest = v;
+					oldestIndex = i;
+				}
+			}
+
+			oldest.oscillator.stop();
+
+			freeVoice = makeVoice();
+			voices[oldestIndex] = freeVoice;
+
+		} else {
+
+			// just get a new voice, and store it in the voices array
+
+			freeVoice = makeVoice();
+			voices.push(freeVoice);
+
+		}
+
+		return freeVoice;
+
+	}
+
+	function getVoiceByFrequency(frequency) {
+		for(var i = 0; i < voices.length; i++) {
+			var v = voices[i];
+			if( (v.oscillator.frequency - frequency) < 0.001 ) {
+				return v;
+			}
+		}
+	}*/
+
+	function initVoices(number) {
+		
+		var v;
+
+		if(number < voices.length) {
+
+			console.log('Colchonator - reducing polyphony', voices.length, '=>', number);
+
+			while(number < voices.length) {
+				v = voices.pop();
+				v.voice.noteOff();
+				v.voice.output.disconnect();
+			}
+
+		} else if(number > voices.length) {
+
+			console.log('Colchonator - increasing polyphony', voices.length, '=>', number);
+
+			while(number > voices.length) {
+				// TODO replace raw oscillator voices with OSC+ADSR units
+				v = {
+					timestamp: Date.now(),
+					note: 0,
+					voice: new OscillatorVoice(audioContext)
+				};
+
+				v.voice.output.connect(outputNode);
+				
+				voices.push(v);
+			}
+
+		}
+
+	}
+
+	function getFreeVoice(noteNumber) {
+
+		var freeVoice;
+
+		// criteria is to return the oldest one
+		var oldest = voices[0];
+		var oldestIndex = 0;
+
+		for(var i = 1; i < voices.length; i++) {
+			var v = voices[i];
+
+			if(v.timestamp < oldest.timestamp) {
+				oldest = v;
+				oldestIndex = i;
+			}
+		}
+
+		oldest.voice.noteOff();
+		oldest.note = noteNumber;
+		oldest.timestamp = Date.now();
+
+		return oldest.voice;
+
+	}
+
+	function getVoiceByNote(noteNumber) {
+
+		for(var i = 0; i < voices.length; i++) {
+			var v = voices[i];
+			if(v.note === noteNumber) {
+				return v.voice;
+			}
+		}
+
+	}
+
+	// ~~~
+
+	this.output = outputNode;
+
+	this.noteOn = function(note, volume, when) {
+
+		volume = volume !== undefined ? volume : 1.0;
+		when = when !== undefined ? when : 0;
+
+		// TODO adsr.beginAttack(when);
+
+		// TODO: use volume
+
+		var voice = getFreeVoice(note);
+		var frequency = MIDIUtils.noteNumberToFrequency( note );
+		voice.noteOn(frequency, when);
+
+
+	};
+
+	this.noteOff = function(noteNumber, when) {
+		
+		console.log('Colchonator NOTE OFF', noteNumber);
+
+		var voice = getVoiceByNote(noteNumber);
+
+		console.log('voice = ', voice);
+
+		if(voice) {
+			// TODO adsr.beginRelease(when);
+			// voice.noteOff(when + adsr.release);
+			voice.noteOff(when);
+		}
+
+		/*if(voice) {
+			// If a voice with that frequency is found, stop it
+			voice.oscillator.stop();
+		} else {
+			// Otherwise try to stop ALL voices
+			voices.forEach(function(v) {
+				v.oscillator.stop();
+			});
+		}*/
+	};
+
+}
+
+module.exports = Colchonator;
+
+},{"./ADSR.js":12,"./OscillatorVoice":15,"midiutils":1}],15:[function(require,module,exports){
 function OscillatorVoice(context, options) {
 
 	var internalOscillator = null;
@@ -1217,7 +1432,7 @@ OscillatorVoice.WAVE_TYPE_TRIANGLE = 'triangle';
 
 module.exports = OscillatorVoice;
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -1225,5 +1440,5 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":11}]},{},[15])
+},{"./app":11}]},{},[16])
 ;

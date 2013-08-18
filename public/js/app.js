@@ -52,18 +52,24 @@ function onSongDataLoaded(data) {
 function initialiseGear(audioContext) {
 	console.warn('TODO initialiseGear');
 	var g = [];
+
 	// Audio gear
 	// ----------
-	// TODO pads
-	// var Colchonator = require('./gear/Colchonator');
-	// var pads = new Colchonator(audioContext);
-	// g.push(pads);
-
-	// TODO bass
+	
+	// 0 / BASS 
 	var Bajotron = require('./gear/Bajotron');
-	var bass = new Bajotron(audioContext, { portamento: false, waveType: ['square', 'triangle'] });
+	var bass = new Bajotron(audioContext, {
+		portamento: false,
+		waveType: ['square', 'triangle'],
+		octaves: [-2, -1] 
+	});
 	g.push(bass);
 
+	// 1 / PAD
+	var Colchonator = require('./gear/Colchonator');
+	var pad = new Colchonator(audioContext);
+	g.push(pad);
+	
 	// TODO drum machine
 	
 	// TODO tmp, should have some postpro+comp etc
