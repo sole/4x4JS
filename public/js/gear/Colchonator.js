@@ -13,63 +13,13 @@ function Colchonator(audioContext, options) {
 	
 	options = options || {};
 
-	var numVoices = options.numVoices || 3;
+	var numVoices = options.numVoices || 2;
 	var voices = [];
 	var outputNode = audioContext.createGain();
 
 	initVoices(numVoices);
 
-	/*function makeVoice() {
-		return {
-			timestamp: Date.now(),
-			oscillator: audioContext.createOscillator()
-		};
-	}
-
-	function getFreeVoice() {
-		
-		var freeVoice;
-
-		if(voices.length === numVoices) {
-
-			// get the oldest one, probably stop it, and recreate it
-			var oldest = voices[0];
-			var oldestIndex = 0;
-
-			for(var i = 1; i < voices.length; i++) {
-				var v = voices[i];
-				if(v.timestamp < oldest.timestamp) {
-					oldest = v;
-					oldestIndex = i;
-				}
-			}
-
-			oldest.oscillator.stop();
-
-			freeVoice = makeVoice();
-			voices[oldestIndex] = freeVoice;
-
-		} else {
-
-			// just get a new voice, and store it in the voices array
-
-			freeVoice = makeVoice();
-			voices.push(freeVoice);
-
-		}
-
-		return freeVoice;
-
-	}
-
-	function getVoiceByFrequency(frequency) {
-		for(var i = 0; i < voices.length; i++) {
-			var v = voices[i];
-			if( (v.oscillator.frequency - frequency) < 0.001 ) {
-				return v;
-			}
-		}
-	}*/
+	//
 
 	function initVoices(number) {
 		
@@ -106,6 +56,7 @@ function Colchonator(audioContext, options) {
 
 	}
 
+
 	function getFreeVoice(noteNumber) {
 
 		var freeVoice;
@@ -131,16 +82,26 @@ function Colchonator(audioContext, options) {
 
 	}
 
-	function getVoiceByNote(noteNumber) {
+
+	function getVoiceIndexByNote(noteNumber) {
 
 		for(var i = 0; i < voices.length; i++) {
 			var v = voices[i];
 			if(v.note === noteNumber) {
-				return v.voice;
+				return i;
 			}
 		}
 
 	}
+
+
+	function getVoiceByNote(noteNumber) {
+		var index = getVoiceIndexByNote(noteNumber);
+		if(index !== -1) {
+			return voices[index].voice;
+		}
+	}
+
 
 	// ~~~
 
@@ -151,14 +112,34 @@ function Colchonator(audioContext, options) {
 		volume = volume !== undefined ? volume : 1.0;
 		when = when !== undefined ? when : 0;
 
-		// TODO adsr.beginAttack(when);
-
-		// TODO: use volume
-
-		var voice = getFreeVoice(note);
+		var voice;
 		var frequency = MIDIUtils.noteNumberToFrequency( note );
-		voice.noteOn(frequency, when);
 
+		console.log('Colchonator noteOn', note, MIDIUtils.noteNumberToName(note));
+
+		// TODO adsr.beginAttack(when);
+		// TODO: use volume
+		//
+		// 1. ya hay una voz tocando esta nota?
+		//		i.e. existe y esta activa
+		//		--> ignorar
+		// 2. buscar nota libre 
+
+		var existingVoiceWithNoteIndex = getVoiceIndexByNote(note);
+		if(existingVoiceWithNoteIndex > -1) {
+			console.log('existing voice playing', note, existingVoiceWithNoteIndex);
+			// freeVoice(existingVoiceWithNote);
+			var v = voices[existingVoiceWithNoteIndex];
+			if(v.voice.active) {
+				console.log('and its active!');
+				v.timestamp = Date.now();
+				voice = v.voice;
+			}
+		} else {
+			voice = getFreeVoice(note);
+		}
+
+		voice.noteOn(frequency, when);
 
 	};
 
