@@ -8,6 +8,8 @@ function valueOrUndefined(value, defaultValue) {
 
 function Bajotron(audioContext, options) {
 
+	'use strict';
+
 	var i;
 	var vou = valueOrUndefined; // ??? maybe too tricky ???
 	
@@ -31,7 +33,7 @@ function Bajotron(audioContext, options) {
 
 	var gain = audioContext.createGain();
 
-	var adsr = new ADSR(audioContext, gain.gain, vou(adsrParams.attack, 0.0), vou(adsrParams.decay, 0.2), vou(adsrParams.sustain, 0.05), vou(adsrParams.release, 0.0));
+	var adsr = new ADSR(audioContext, gain.gain, vou(adsrParams.attack, 0.0), vou(adsrParams.decay, 0.2), vou(adsrParams.sustain, 0.05), vou(adsrParams.release, 0.10));
 
 	this.output = gain;
 
@@ -60,15 +62,22 @@ function Bajotron(audioContext, options) {
 			var frequency = MIDIUtils.noteNumberToFrequency( note + octaves[index] * 12 );
 			voice.noteOn(frequency, when);
 		});
+
 	};
 
 
 	this.noteOff = function(noteNumber, when) {
 
 		// Because this is a monophonic instrument, `noteNumber` is quietly ignored
+		when = when !== undefined ? when : 0;
+
+		//console.log('bajotron->release', when, 'voice note off in', when + adsr.release, adsr);
 
 		adsr.beginRelease(when);
-		voice.noteOff(when + adsr.release);
+
+		voices.forEach(function(voice) {
+			voice.noteOff(when + adsr.release);
+		});
 
 	};
 }

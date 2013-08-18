@@ -1007,8 +1007,9 @@ function initialiseGear(audioContext) {
 	g.forEach(function(instrument, index) {
 		mixer.plug(index, instrument.output);
 	});
-	mixer.setChannelGain(0, 0);
-	mixer.setChannelGain(1, 0.5);
+	//mixer.setChannelGain(0, 0);
+	//mixer.setChannelGain(1, 0.5);
+	//mixer.setChannelGain(1, 0);
 
 	// This is ULTRA CREEPY
 	/*setInterval(function() {
@@ -1106,12 +1107,12 @@ module.exports = {
 },{"./Orxatron/":5,"./gear/Bajotron":13,"./gear/Colchonator":14,"./gear/Mixer":15}],12:[function(require,module,exports){
 function ADSR(audioContext, param, attack, decay, sustain, release) {
 
-	Object.defineProperties(this, {
-		release: {
-			get: function() { return release; }
-		}
-	});
+	'use strict';
 
+	this.attack = attack;
+	this.decay = decay;
+	this.sustain = sustain;
+	this.release = release;
 
 	// ~~~
 	
@@ -1120,14 +1121,16 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 		var now = audioContext.currentTime + when;
 		param.cancelScheduledValues(now);
 		param.setValueAtTime(0, now);
-		param.linearRampToValueAtTime(1, now + attack);
-		param.linearRampToValueAtTime(sustain, now + attack + decay);
+		param.linearRampToValueAtTime(1, now + this.attack);
+		param.linearRampToValueAtTime(sustain, now + this.attack + this.decay);
 	};
 
-	this.beginRelease = function() {
-		var now = audioContext.currentTime;
+	this.beginRelease = function(when) {
+		when = when !== undefined ? when : 0;
+		var now = audioContext.currentTime + when;
 		param.cancelScheduledValues(now);
-		param.linearRampToValueAtTime(0, now + release);
+		param.linearRampToValueAtTime(0, now + this.release);
+		param.setValueAtTime(0, now + this.release + 0.001);
 	};
 
 }
@@ -1144,6 +1147,8 @@ function valueOrUndefined(value, defaultValue) {
 }
 
 function Bajotron(audioContext, options) {
+
+	'use strict';
 
 	var i;
 	var vou = valueOrUndefined; // ??? maybe too tricky ???
@@ -1168,7 +1173,7 @@ function Bajotron(audioContext, options) {
 
 	var gain = audioContext.createGain();
 
-	var adsr = new ADSR(audioContext, gain.gain, vou(adsrParams.attack, 0.0), vou(adsrParams.decay, 0.2), vou(adsrParams.sustain, 0.05), vou(adsrParams.release, 0.0));
+	var adsr = new ADSR(audioContext, gain.gain, vou(adsrParams.attack, 0.0), vou(adsrParams.decay, 0.2), vou(adsrParams.sustain, 0.05), vou(adsrParams.release, 0.10));
 
 	this.output = gain;
 
@@ -1197,15 +1202,22 @@ function Bajotron(audioContext, options) {
 			var frequency = MIDIUtils.noteNumberToFrequency( note + octaves[index] * 12 );
 			voice.noteOn(frequency, when);
 		});
+
 	};
 
 
 	this.noteOff = function(noteNumber, when) {
 
 		// Because this is a monophonic instrument, `noteNumber` is quietly ignored
+		when = when !== undefined ? when : 0;
+
+		//console.log('bajotron->release', when, 'voice note off in', when + adsr.release, adsr);
 
 		adsr.beginRelease(when);
-		voice.noteOff(when + adsr.release);
+
+		voices.forEach(function(voice) {
+			voice.noteOff(when + adsr.release);
+		});
 
 	};
 }
@@ -1260,11 +1272,14 @@ function Colchonator(audioContext, options) {
 					timestamp: 0,
 					note: 0,
 					voice: new Bajotron(audioContext, {
+						// this one is pretty crazy!
+						// numVoices: 3,
+						// octaves: [ -1, 0, 1 ],
 						numVoices: 1,
 						adsr: {
 							attack: 0.1,
 							sustain: 0.7,
-							release: 0.3
+							release: 0.5
 						}
 					})
 				};
@@ -1459,7 +1474,7 @@ function OscillatorVoice(context, options) {
 		if(internalOscillator === null) {
 			return;
 		}
-		internalOscillator.stop(when);
+		internalOscillator.stop(when + context.currentTime);
 		internalOscillator = null;
 		this.active = false;
 

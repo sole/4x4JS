@@ -45,11 +45,14 @@ function Colchonator(audioContext, options) {
 					timestamp: 0,
 					note: 0,
 					voice: new Bajotron(audioContext, {
+						// this one is pretty crazy!
+						// numVoices: 3,
+						// octaves: [ -1, 0, 1 ],
 						numVoices: 1,
 						adsr: {
 							attack: 0.1,
 							sustain: 0.7,
-							release: 0.3
+							release: 0.5
 						}
 					})
 				};
