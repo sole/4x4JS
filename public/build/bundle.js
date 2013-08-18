@@ -501,11 +501,10 @@ function Player() {
 
 
 
-	var frameLength = 1000 / 20; // TODO move up (?)
+	var frameLength = 1000 / 60; // TODO move up (?)
 
 	function requestAuditionFrame(callback) {
 
-		//console.log('requestAuditionFrame');
 		var timeout = setTimeout(callback, frameLength);
 		return timeout;
 
@@ -522,8 +521,6 @@ function Player() {
 			segmentStart = now,
 			currentEvent,
 			currentEventStart;
-
-		// console.log('update audio frame', now, frameLength);
 
 		if( that.finished && that.repeat ) {
 			that.jumpToOrder( 0, 0 );
@@ -1064,7 +1061,7 @@ function Bajotron(audioContext, options) {
 
 	var gain = audioContext.createGain();
 
-	var adsr = new ADSR(audioContext, gain.gain, 0.1, 0.1, 0.05, 0.0);
+	var adsr = new ADSR(audioContext, gain.gain, 0.0, 0.1, 0.05, 0.0);
 
 	this.output = gain;
 

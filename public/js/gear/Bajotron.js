@@ -24,7 +24,7 @@ function Bajotron(audioContext, options) {
 
 	var gain = audioContext.createGain();
 
-	var adsr = new ADSR(audioContext, gain.gain, 0.1, 0.1, 0.05, 0.0);
+	var adsr = new ADSR(audioContext, gain.gain, 0.0, 0.1, 0.05, 0.0);
 
 	this.output = gain;
 
