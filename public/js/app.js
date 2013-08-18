@@ -55,6 +55,10 @@ function initialiseGear(audioContext) {
 
 	// Audio gear
 	// ----------
+	var Mixer = require('./gear/Mixer');
+	var mixer = new Mixer(audioContext);
+	mixer.output.connect(audioContext.destination);
+	mixer.setGain(0.25);
 	
 	// 0 / BASS 
 	var Bajotron = require('./gear/Bajotron');
@@ -71,10 +75,10 @@ function initialiseGear(audioContext) {
 	g.push(pad);
 	
 	// TODO drum machine
-	
-	// TODO tmp, should have some postpro+comp etc
-	g.forEach(function(instrument) {
-		instrument.output.connect(audioContext.destination);
+
+	// Plug instruments into the mixer
+	g.forEach(function(instrument, index) {
+		mixer.plug(index, instrument.output);
 	});
 
 	// This is ULTRA CREEPY

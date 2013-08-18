@@ -975,6 +975,10 @@ function initialiseGear(audioContext) {
 
 	// Audio gear
 	// ----------
+	var Mixer = require('./gear/Mixer');
+	var mixer = new Mixer(audioContext);
+	mixer.output.connect(audioContext.destination);
+	mixer.setGain(0.25);
 	
 	// 0 / BASS 
 	var Bajotron = require('./gear/Bajotron');
@@ -991,10 +995,10 @@ function initialiseGear(audioContext) {
 	g.push(pad);
 	
 	// TODO drum machine
-	
-	// TODO tmp, should have some postpro+comp etc
-	g.forEach(function(instrument) {
-		instrument.output.connect(audioContext.destination);
+
+	// Plug instruments into the mixer
+	g.forEach(function(instrument, index) {
+		mixer.plug(index, instrument.output);
 	});
 
 	// This is ULTRA CREEPY
@@ -1090,7 +1094,7 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":5,"./gear/Bajotron":13,"./gear/Colchonator":14}],12:[function(require,module,exports){
+},{"./Orxatron/":5,"./gear/Bajotron":13,"./gear/Colchonator":14,"./gear/Mixer":15}],12:[function(require,module,exports){
 function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 	Object.defineProperties(this, {
@@ -1190,7 +1194,7 @@ function Bajotron(audioContext, options) {
 
 module.exports = Bajotron;
 
-},{"./ADSR.js":12,"./OscillatorVoice":15,"midiutils":1}],14:[function(require,module,exports){
+},{"./ADSR.js":12,"./OscillatorVoice":16,"midiutils":1}],14:[function(require,module,exports){
 var MIDIUtils = require('midiutils');
 var OscillatorVoice = require('./OscillatorVoice');
 var ADSR = require('./ADSR.js');
@@ -1384,7 +1388,64 @@ function Colchonator(audioContext, options) {
 
 module.exports = Colchonator;
 
-},{"./ADSR.js":12,"./OscillatorVoice":15,"midiutils":1}],15:[function(require,module,exports){
+},{"./ADSR.js":12,"./OscillatorVoice":16,"midiutils":1}],15:[function(require,module,exports){
+// A simple mixer for avoiding early deafness
+function Mixer(audioContext) {
+
+	var output = audioContext.createGain();
+	var channels = [];
+	var numChannels = 16;
+
+	initChannels();
+
+	function initChannels() {
+		while(channels.length < numChannels) {
+			var fader = new Fader(audioContext);
+			fader.output.connect(output);
+			fader.setGain(0.7);
+			channels.push(fader);
+		}
+	}
+
+	// ~~~
+	
+	this.output = output;
+
+	this.plug = function(channelNumber, audioOutput) {
+
+		if(channelNumber > channels.length) {
+			console.error('Mixer: trying to plug into a channel that does not exist', channelNumber);
+			return;
+		}
+
+		var faderInput = channels[channelNumber].input;
+		audioOutput.connect(faderInput);
+	};
+
+	this.setGain = function(value) {
+		output.gain.value = value;
+	};
+}
+
+
+function Fader(audioContext, options) {
+	
+	var gain = audioContext.createGain();
+
+	// ~~~
+	
+	this.input = gain;
+	this.output = gain;
+
+	this.setGain = function(value) {
+		gain.gain.value = value;
+	};
+
+}
+
+module.exports = Mixer;
+
+},{}],16:[function(require,module,exports){
 function OscillatorVoice(context, options) {
 
 	var internalOscillator = null;
@@ -1432,7 +1493,7 @@ OscillatorVoice.WAVE_TYPE_TRIANGLE = 'triangle';
 
 module.exports = OscillatorVoice;
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -1440,5 +1501,5 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":11}]},{},[16])
+},{"./app":11}]},{},[17])
 ;
