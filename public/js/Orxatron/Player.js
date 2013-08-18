@@ -282,7 +282,6 @@ function Player() {
 	};
 
 	this.pause = function() {
-		console.warn('TODO pause');
 		_isPlaying = false;
 		clearTimeout(frameUpdateId);
 	};
