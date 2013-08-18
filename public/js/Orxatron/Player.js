@@ -24,6 +24,7 @@ function Player() {
 
 	this.tracksConfig = [];
 	this.tracksLastPlayedNotes = [];
+	this.tracksLastPlayedInstruments = [];
 	this.gear = [];
 	this.patterns = [];
 	this.orders = [];
@@ -68,12 +69,20 @@ function Player() {
 		changeToPattern( that.orders[ value ] );
 	}
 
-	function setLastNotePlayed(note, track, column) {
+	function setLastPlayedNote(note, track, column) {
 		that.tracksLastPlayedNotes[track][column] = note;
 	}
 
-	function getLastNotePlayed(track, column) {
+	function getLastPlayedNote(track, column) {
 		return that.tracksLastPlayedNotes[track][column];
+	}
+
+	function setLastPlayedInstrument(note, track, column) {
+		that.tracksLastPlayedInstruments[track][column] = note;
+	}
+
+	function getLastPlayedInstrument(track, column) {
+		return that.tracksLastPlayedInstruments[track][column];
 	}
 
 	var frameLength = 1000 / 60; // TODO move up (?)
@@ -135,7 +144,8 @@ function Player() {
 					// note on -> gear -> schedule note on
 					var voice = that.gear[currentEvent.instrument];
 					if(voice) {
-						setLastNotePlayed(currentEvent.noteNumber, currentEvent.track, currentEvent.column);
+						setLastPlayedNote(currentEvent.noteNumber, currentEvent.track, currentEvent.column);
+						setLastPlayedInstrument(currentEvent.instrument, currentEvent.track, currentEvent.column);
 						voice.noteOn(currentEvent.noteNumber, 1.0, timeUntilEvent);
 					} else {
 						console.log("Attempting to call undefined voice", currentEvent.instrument);
@@ -143,14 +153,12 @@ function Player() {
 
 				} else if( currentEvent.type === EVENT_NOTE_OFF ) {
 
-					var voice = that.gear[currentEvent.instrument];
-					if(voice) {
-						var lastNote = getLastNotePlayed(currentEvent.track, currentEvent.column);
-						voice.noteOff(lastNote, timeUntilEvent);
-					} else {
-						console.log("Attempting to call undefined voice", currentEvent.instrument);
+					var voiceIndex = getLastPlayedInstrument(currentEvent.track, currentEvent.column);
+					if(voiceIndex) {
+						var lastVoice = that.gear[voiceIndex];
+						var lastNote = getLastPlayedNote(currentEvent.track, currentEvent.column);
+						lastVoice.noteOff(lastNote, timeUntilEvent);
 					}
-
 				}
 			}
 
@@ -181,16 +189,23 @@ function Player() {
 		var tracks = data.tracks.slice(0);
 		that.tracksConfig = tracks;
 
-		// Init last played notes array
+		// Init last played notes and instruments arrays
 		var tracksLastPlayedNotes = [];
+		var tracksLastPlayedInstruments = [];
+
 		tracks.forEach(function(numColumns, trackIndex) {
 			var notes = [];
+			var instruments = [];
 			for(var i = 0; i < numColumns; i++) {
 				notes.push(0);
+				instruments.push(0);
 			}
 			tracksLastPlayedNotes[trackIndex] = notes;
+			tracksLastPlayedInstruments[trackIndex] = instruments;
 		});
+
 		that.tracksLastPlayedNotes = tracksLastPlayedNotes;
+		that.tracksLastPlayedInstruments = tracksLastPlayedInstruments;
 
 		// (packed) patterns
 		that.patterns = [];
