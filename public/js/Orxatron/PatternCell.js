@@ -13,10 +13,25 @@ function PatternCell(data) {
 
 		scope.note = d.note !== undefined ? d.note : null;
 		if(scope.note !== null) {
-			scope.noteNumber = MIDIUtils.noteNameToNoteNumber(scope.note);
+
+			var note = scope.note;
+
+			if(note === 'OFF') {
+
+				scope.noteOff = true;
+
+			} else {
+
+				scope.noteNumber = MIDIUtils.noteNameToNoteNumber(note);
+
+			}
+
 		} else {
+
 			scope.noteNumber = null;
+		
 		}
+
 		scope.instrument = d.instrument !== undefined ? d.instrument : null;
 		scope.volume = d.volume !== undefined ? d.volume : null;
 

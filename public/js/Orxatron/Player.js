@@ -228,6 +228,10 @@ function Player() {
 
 							addEvent( EVENT_NOTE_ON, { timestamp: timestamp, note: cell.note, noteNumber: cell.noteNumber, instrument: cell.instrument, volume: cell.volume, order: orderIndex, pattern: patternIndex, row: i, track: j } );
 
+						} else if(cell.noteOff) {
+							
+							addEvent( EVENT_NOTE_OFF, { timestamp: timestamp, instrument: cell.instrument, order: orderIndex, pattern: patternIndex, row: i, track: j } );
+
 						}
 
 					});
@@ -295,6 +299,7 @@ EVENT_ORDER_CHANGE = 'order_change';
 EVENT_PATTERN_CHANGE = 'pattern_change';
 EVENT_ROW_CHANGE = 'row_change';
 EVENT_NOTE_ON = 'note_on';
+EVENT_NOTE_OFF = 'note_off';
 
 
 module.exports = Player;
