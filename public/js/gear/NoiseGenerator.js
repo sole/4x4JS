@@ -1,3 +1,4 @@
+var SampleVoice = require('./SampleVoice');
 
 function generateWhiteNoise(size) {
 
@@ -93,18 +94,18 @@ function NoiseGenerator(audioContext, options) {
 
 		bufferData = noiseFunction(length);
 
-		var buffer = audioContext.createBuffer(1, length, audioContext.sample);
+		var buffer = audioContext.createBuffer(1, length, audioContext.sampleRate);
 		var channelData = buffer.getChannelData(0);
 		bufferData.forEach(function(v, i) {
 			channelData[i] = v;
 		});
 		
-		sourceVoice = audioContext.createBufferSource();
+		sourceVoice = new SampleVoice(audioContext, {
+			loop: true,
+			buffer: buffer
+		});
 
-		sourceVoice.loop = true;
-		sourceVoice.buffer = buffer;
-
-		sourceVoice.connect(output);
+		sourceVoice.output.connect(output);
 
 	}
 
@@ -117,11 +118,9 @@ function NoiseGenerator(audioContext, options) {
 		volume = volume !== undefined ? volume : 1.0;
 		when = when !== undefined ? when : 0;
 
-		var now = audioContext.currentTime + when;
 
 		// TODO output.gain.linearRampToValueAtTime(volume, now);
-		sourceVoice.start(now);
-
+		sourceVoice.noteOn(note, volume, when);
 
 	};
 

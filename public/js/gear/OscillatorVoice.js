@@ -9,7 +9,6 @@ function OscillatorVoice(context, options) {
 	var waveType = options.waveType || OscillatorVoice.WAVE_TYPE_SQUARE;
 
 	this.output = gain;
-	this.active = false;
 
 	this.noteOn = function(frequency, when) {
 
@@ -28,8 +27,6 @@ function OscillatorVoice(context, options) {
 		internalOscillator.frequency.value = frequency;
 		internalOscillator.start(when + context.currentTime);
 
-		this.active = true;
-
 	};
 
 	this.noteOff = function(when) {
@@ -39,7 +36,6 @@ function OscillatorVoice(context, options) {
 		}
 		internalOscillator.stop(when + context.currentTime);
 		internalOscillator = null;
-		this.active = false;
 
 	};
 }
