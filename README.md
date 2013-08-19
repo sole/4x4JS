@@ -5,6 +5,7 @@ Un-be-lie-va-ble
 ## To do
 - note off!!!
 - disconnect on note offs?
+- Oscilloscope
 - define Gear interfaces
 	Our 'when' is relative - is this good?
 	- noteOn

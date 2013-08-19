@@ -1224,28 +1224,28 @@ function Bajotron(audioContext, options) {
 
 module.exports = Bajotron;
 
-},{"./ADSR.js":12,"./OscillatorVoice":16,"midiutils":1}],14:[function(require,module,exports){
+},{"./ADSR.js":12,"./OscillatorVoice":17,"midiutils":1}],14:[function(require,module,exports){
 var MIDIUtils = require('midiutils');
 var OscillatorVoice = require('./OscillatorVoice');
 var ADSR = require('./ADSR.js');
 var Bajotron = require('./Bajotron');
+var NoiseGenerator = require('./NoiseGenerator');
 
 function Colchonator(audioContext, options) {
-	// input (?)
-	//--> No, because it's a Source (?)
-	// output -> gainnode output
-	// x notes polyphony
-	// noise (+param)
-	// envelope -> audioGain audioparam (?)
-	// noteOn, noteOff
 	
+	// TODO should we have a global ADSR or go on with the per voice ADSR
+
 	options = options || {};
 
 	var numVoices = options.numVoices || 3;
 	var voices = [];
 	var outputNode = audioContext.createGain();
+	var noiseUnit;
 
 	initVoices(numVoices);
+	console.log('sam rate', audioContext.sampleRate);
+	noiseUnit = new NoiseGenerator(audioContext, { type: 'brown', length: audioContext.sampleRate } );
+	noiseUnit.output.connect(outputNode);
 
 	//
 
@@ -1353,6 +1353,8 @@ function Colchonator(audioContext, options) {
 
 		voice.noteOn(note, volume, when);
 
+		noiseUnit.noteOn(note, volume, when);
+
 	};
 
 	this.noteOff = function(noteNumber, when) {
@@ -1367,13 +1369,15 @@ function Colchonator(audioContext, options) {
 			voice.noteOff(when);
 		}
 
+		// if number of active voices = 1 -> noise note off
+
 	};
 
 }
 
 module.exports = Colchonator;
 
-},{"./ADSR.js":12,"./Bajotron":13,"./OscillatorVoice":16,"midiutils":1}],15:[function(require,module,exports){
+},{"./ADSR.js":12,"./Bajotron":13,"./NoiseGenerator":16,"./OscillatorVoice":17,"midiutils":1}],15:[function(require,module,exports){
 // A simple mixer for avoiding early deafness
 function Mixer(audioContext) {
 
@@ -1435,6 +1439,138 @@ function Fader(audioContext, options) {
 module.exports = Mixer;
 
 },{}],16:[function(require,module,exports){
+
+function generateWhiteNoise(size) {
+
+	var out = [];
+	for(var i = 0; i < size; i++) {
+		out.push(Math.random() * 2 - 1);
+	}
+	return out;
+
+}
+
+// Pink and brown noise generation algorithms adapted from
+// https://github.com/zacharydenton/noise.js/blob/master/noise.js
+
+function generatePinkNoise(size) {
+
+	var out = generateWhiteNoise(size);
+	var b0, b1, b2, b3, b4, b5, b6;
+	
+	b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
+
+	for (var i = 0; i < size; i++) {
+
+		var white = out[i];
+
+		b0 = 0.99886 * b0 + white * 0.0555179;
+		b1 = 0.99332 * b1 + white * 0.0750759;
+		b2 = 0.96900 * b2 + white * 0.1538520;
+		b3 = 0.86650 * b3 + white * 0.3104856;
+		b4 = 0.55000 * b4 + white * 0.5329522;
+		b5 = -0.7616 * b5 - white * 0.0168980;
+		out[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+		out[i] *= 0.11; // (roughly) compensate for gain
+		b6 = white * 0.115926;
+
+	}
+
+	return out;
+}
+
+function generateBrownNoise(size) {
+
+	var out = generateWhiteNoise(size);
+	var lastOutput = 0.0;
+
+	for(var i = 0; i < size; i++) {
+
+		var white = out[i];
+		out[i] = (lastOutput + (0.02 * white)) / 1.02;
+		lastOutput = out[i];
+		out[i] *= 3.5; // (roughly) compensate for gain
+		
+	}
+
+	return out;
+
+}
+
+function NoiseGenerator(audioContext, options) {
+	
+	options = options || {};
+	
+	var type = options.type || 'white';
+	var length = options.length || 4096;
+
+	var output = audioContext.createGain();
+	var sourceVoice;
+
+	buildBuffer(length, type);
+
+	// TODO output, input, regenerate on noteoff, noteon -> PCMVoice... or better BufferVoice
+
+	// 
+	
+	function buildBuffer(length, type) {
+
+		console.log('NoiseGenerator - build buffer of', length, type);
+
+		var noiseFunction, bufferData;
+
+		switch(type) {
+			
+			case 'pink': noiseFunction = generatePinkNoise;
+					break;
+
+			case 'brown': noiseFunction = generateBrownNoise;
+					break;
+
+			default:
+			case 'white': noiseFunction = generateWhiteNoise;
+					break;
+		}
+
+		bufferData = noiseFunction(length);
+
+		var buffer = audioContext.createBuffer(1, length, audioContext.sample);
+		var channelData = buffer.getChannelData(0);
+		bufferData.forEach(function(v, i) {
+			channelData[i] = v;
+		});
+		
+		sourceVoice = audioContext.createBufferSource();
+
+		sourceVoice.loop = true;
+		sourceVoice.buffer = buffer;
+
+		sourceVoice.connect(output);
+
+	}
+
+	// ~~~
+	
+	this.output = output;
+
+	this.noteOn = function(note, volume, when) {
+
+		volume = volume !== undefined ? volume : 1.0;
+		when = when !== undefined ? when : 0;
+
+		var now = audioContext.currentTime + when;
+
+		// TODO output.gain.linearRampToValueAtTime(volume, now);
+		sourceVoice.start(now);
+
+
+	};
+
+}
+
+module.exports = NoiseGenerator;
+
+},{}],17:[function(require,module,exports){
 function OscillatorVoice(context, options) {
 
 	var internalOscillator = null;
@@ -1488,7 +1624,7 @@ OscillatorVoice.WAVE_TYPE_TRIANGLE = 'triangle';
 
 module.exports = OscillatorVoice;
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -1496,5 +1632,5 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":11}]},{},[17])
+},{"./app":11}]},{},[18])
 ;

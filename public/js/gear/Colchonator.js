@@ -2,23 +2,23 @@ var MIDIUtils = require('midiutils');
 var OscillatorVoice = require('./OscillatorVoice');
 var ADSR = require('./ADSR.js');
 var Bajotron = require('./Bajotron');
+var NoiseGenerator = require('./NoiseGenerator');
 
 function Colchonator(audioContext, options) {
-	// input (?)
-	//--> No, because it's a Source (?)
-	// output -> gainnode output
-	// x notes polyphony
-	// noise (+param)
-	// envelope -> audioGain audioparam (?)
-	// noteOn, noteOff
 	
+	// TODO should we have a global ADSR or go on with the per voice ADSR
+
 	options = options || {};
 
 	var numVoices = options.numVoices || 3;
 	var voices = [];
 	var outputNode = audioContext.createGain();
+	var noiseUnit;
 
 	initVoices(numVoices);
+	console.log('sam rate', audioContext.sampleRate);
+	noiseUnit = new NoiseGenerator(audioContext, { type: 'brown', length: audioContext.sampleRate } );
+	noiseUnit.output.connect(outputNode);
 
 	//
 
@@ -126,6 +126,8 @@ function Colchonator(audioContext, options) {
 
 		voice.noteOn(note, volume, when);
 
+		noiseUnit.noteOn(note, volume, when);
+
 	};
 
 	this.noteOff = function(noteNumber, when) {
@@ -139,6 +141,8 @@ function Colchonator(audioContext, options) {
 		if(voice) {
 			voice.noteOff(when);
 		}
+
+		// if number of active voices = 1 -> noise note off
 
 	};
 

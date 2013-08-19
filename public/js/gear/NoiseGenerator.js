@@ -63,13 +63,18 @@ function NoiseGenerator(audioContext, options) {
 	var type = options.type || 'white';
 	var length = options.length || 4096;
 
+	var output = audioContext.createGain();
+	var sourceVoice;
+
 	buildBuffer(length, type);
 
-	// TODO output, input, regenerate on noteoff, noteon
+	// TODO output, input, regenerate on noteoff, noteon -> PCMVoice... or better BufferVoice
 
 	// 
 	
 	function buildBuffer(length, type) {
+
+		console.log('NoiseGenerator - build buffer of', length, type);
 
 		var noiseFunction, bufferData;
 
@@ -88,13 +93,38 @@ function NoiseGenerator(audioContext, options) {
 
 		bufferData = noiseFunction(length);
 
-		var buffer = audioContext.createBuffer(1, length, audioContext.samplingRate);
-		var source = audioContext.createBufferSource();
+		var buffer = audioContext.createBuffer(1, length, audioContext.sample);
+		var channelData = buffer.getChannelData(0);
+		bufferData.forEach(function(v, i) {
+			channelData[i] = v;
+		});
+		
+		sourceVoice = audioContext.createBufferSource();
 
-		source.loop = true;
-		source.buffer = buffer;
+		sourceVoice.loop = true;
+		sourceVoice.buffer = buffer;
+
+		sourceVoice.connect(output);
 
 	}
+
+	// ~~~
+	
+	this.output = output;
+
+	this.noteOn = function(note, volume, when) {
+
+		volume = volume !== undefined ? volume : 1.0;
+		when = when !== undefined ? when : 0;
+
+		var now = audioContext.currentTime + when;
+
+		// TODO output.gain.linearRampToValueAtTime(volume, now);
+		sourceVoice.start(now);
+
+
+	};
+
 }
 
 module.exports = NoiseGenerator;
