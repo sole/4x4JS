@@ -91,6 +91,7 @@ function NoiseGenerator(audioContext, options) {
 		bufferData = noiseFunction(length);
 
 		var buffer = audioContext.createBuffer(1, length, audioContext.sampleRate);
+		console.log('NoiseGenerator buffer length', length);
 		var channelData = buffer.getChannelData(0);
 		bufferData.forEach(function(v, i) {
 			channelData[i] = v;

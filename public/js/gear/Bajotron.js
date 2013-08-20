@@ -58,6 +58,9 @@ function Bajotron(audioContext, options) {
 	// mode: * or /: maybe some sort of delay node...?
 	//     -> bass output * noise = ???
 	var noiseOptions = options.noise;
+	if(noiseOptions && noiseOptions.length === undefined) {
+		noiseOptions.length = audioContext.sampleRate;
+	}
 	var noiseGenerator = new NoiseGenerator(audioContext, noiseOptions);
 
 	if(noiseOptions) {
