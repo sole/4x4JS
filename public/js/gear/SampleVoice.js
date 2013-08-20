@@ -29,7 +29,8 @@ function SampleVoice(audioContext, options) {
 		
 		bufferSource.start(when + audioContext.currentTime);
 
-		// Auto note off if not looping, a little bit inaccurate (due to setTimeout...)
+		// Auto note off if not looping, though it can be a little bit inaccurate
+		// (due to setTimeout...)
 		if(!loop) {
 			setTimeout(function() {
 				that.noteOff();

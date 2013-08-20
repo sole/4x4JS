@@ -69,13 +69,9 @@ function NoiseGenerator(audioContext, options) {
 
 	buildBuffer(length, type);
 
-	// TODO output, input, regenerate on noteoff, noteon -> PCMVoice... or better BufferVoice
-
 	// 
 	
 	function buildBuffer(length, type) {
-
-		console.log('NoiseGenerator - build buffer of', length, type);
 
 		var noiseFunction, bufferData;
 
@@ -118,8 +114,6 @@ function NoiseGenerator(audioContext, options) {
 		volume = volume !== undefined ? volume : 1.0;
 		when = when !== undefined ? when : 0;
 
-
-		// TODO output.gain.linearRampToValueAtTime(volume, now);
 		sourceVoice.noteOn(note, volume, when);
 
 	};

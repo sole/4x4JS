@@ -1510,13 +1510,9 @@ function NoiseGenerator(audioContext, options) {
 
 	buildBuffer(length, type);
 
-	// TODO output, input, regenerate on noteoff, noteon -> PCMVoice... or better BufferVoice
-
 	// 
 	
 	function buildBuffer(length, type) {
-
-		console.log('NoiseGenerator - build buffer of', length, type);
 
 		var noiseFunction, bufferData;
 
@@ -1559,8 +1555,6 @@ function NoiseGenerator(audioContext, options) {
 		volume = volume !== undefined ? volume : 1.0;
 		when = when !== undefined ? when : 0;
 
-
-		// TODO output.gain.linearRampToValueAtTime(volume, now);
 		sourceVoice.noteOn(note, volume, when);
 
 	};
@@ -1651,7 +1645,8 @@ function SampleVoice(audioContext, options) {
 		
 		bufferSource.start(when + audioContext.currentTime);
 
-		// Auto note off if not looping, a little bit inaccurate (due to setTimeout...)
+		// Auto note off if not looping, though it can be a little bit inaccurate
+		// (due to setTimeout...)
 		if(!loop) {
 			setTimeout(function() {
 				that.noteOff();
