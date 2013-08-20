@@ -16,7 +16,7 @@ function SampleVoice(audioContext, options) {
 	
 	this.output = output;
 	
-	this.noteOn = function(frequency, when) {
+	this.noteOn = function(frequency, volume, when) {
 
 		// The oscillator node is recreated here "on demand",
 		// and all the parameters are set too.
@@ -27,7 +27,10 @@ function SampleVoice(audioContext, options) {
 			bufferSource.connect(output);
 		}
 		
-		bufferSource.start(when + audioContext.currentTime);
+		//var now = when + audioContext.currentTime;
+		var now = when;
+		console.log('samplevoice start', now);
+		bufferSource.start(now);
 
 		// Auto note off if not looping, though it can be a little bit inaccurate
 		// (due to setTimeout...)
@@ -48,7 +51,7 @@ function SampleVoice(audioContext, options) {
 			return;
 		}
 
-		bufferSource.stop(when + audioContext.currentTime);
+		bufferSource.stop(when /* + audioContext.currentTime*/);
 		bufferSource = null;
 
 	};

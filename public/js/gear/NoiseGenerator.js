@@ -118,6 +118,13 @@ function NoiseGenerator(audioContext, options) {
 
 	};
 
+	this.noteOff = function(when) {
+
+		when = when !== undefined ? when : 0;
+		sourceVoice.noteOff(when);
+
+	};
+
 }
 
 module.exports = NoiseGenerator;

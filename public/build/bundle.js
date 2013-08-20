@@ -1118,7 +1118,10 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 	
 	this.beginAttack = function(when) {
 		when = when !== undefined ? when : 0;
-		var now = audioContext.currentTime + when;
+		//var now = audioContext.currentTime + when;
+		
+		var now = when;
+
 		param.cancelScheduledValues(now);
 		param.setValueAtTime(0, now);
 		param.linearRampToValueAtTime(1, now + this.attack);
@@ -1126,8 +1129,12 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 	};
 
 	this.beginRelease = function(when) {
+		
 		when = when !== undefined ? when : 0;
-		var now = audioContext.currentTime + when;
+		var now = when;
+
+		//var now = audioContext.currentTime + when;
+		
 		param.cancelScheduledValues(now);
 		param.linearRampToValueAtTime(0, now + this.release);
 		param.setValueAtTime(0, now + this.release + 0.001);
@@ -1140,6 +1147,7 @@ module.exports = ADSR;
 },{}],13:[function(require,module,exports){
 var MIDIUtils = require('midiutils');
 var OscillatorVoice = require('./OscillatorVoice');
+var NoiseGenerator = require('./NoiseGenerator');
 var ADSR = require('./ADSR.js');
 
 function valueOrUndefined(value, defaultValue) {
@@ -1149,6 +1157,9 @@ function valueOrUndefined(value, defaultValue) {
 function Bajotron(audioContext, options) {
 
 	'use strict';
+
+	var outputNode = audioContext.createGain();
+
 
 	var i;
 	var vou = valueOrUndefined; // ??? maybe too tricky ???
@@ -1160,7 +1171,6 @@ function Bajotron(audioContext, options) {
 	var octaves = options.octaves || [0, 1];
 	// TODO var semitones = [ 0, 5 ] --> 5 = 1 * 12 + 5
 	var waveType = options.waveType || OscillatorVoice.WAVE_TYPE_SQUARE;
-	var adsrParams = options.adsr || {};
 
 	// if wave type was a single string constant, build an array with that value
 	if( Object.prototype.toString.call( waveType ) !== '[object Array]' ) {
@@ -1171,12 +1181,6 @@ function Bajotron(audioContext, options) {
 		waveType = waveTypes;
 	}
 
-	var gain = audioContext.createGain();
-
-	var adsr = new ADSR(audioContext, gain.gain, vou(adsrParams.attack, 0.0), vou(adsrParams.decay, 0.2), vou(adsrParams.sustain, 0.05), vou(adsrParams.release, 0.10));
-
-	this.output = gain;
-
 	var voices = [];
 	for(i = 0; i < numVoices; i++) {
 		
@@ -1185,22 +1189,49 @@ function Bajotron(audioContext, options) {
 			waveType: waveType[i]
 		});
 
-		voice.output.connect(gain);
+		voice.output.connect(outputNode);
 		voices.push(voice);
 	}
+	
+	
+	var adsrParams = options.adsr || {};
+	var adsr = new ADSR(audioContext, outputNode.gain, vou(adsrParams.attack, 0.0), vou(adsrParams.decay, 0.2), vou(adsrParams.sustain, 0.05), vou(adsrParams.release, 0.10));
+
+
+	// TODO an idea for modulating the output using gain + noise:
+	// extra gain node before outputNode ( < Gain)
+	// mode: + or - : automate gain with noise output
+	//     -> i.e. connect noise output to extraGain.gain
+	// mode: * or /: maybe some sort of delay node...?
+	//     -> bass output * noise = ???
+	var noiseOptions = options.noise;
+	var noiseGenerator = new NoiseGenerator(audioContext, noiseOptions);
+
+	if(noiseOptions) {
+		noiseGenerator.output.connect(outputNode);
+	}
+
 
 	// ~~~
+
+
+	this.output = outputNode;
+
 
 	this.noteOn = function(note, volume, when) {
 
 		volume = volume !== undefined ? volume : 1.0;
 		when = when !== undefined ? when : 0;
 
-		adsr.beginAttack(when);
+		var audioWhen = when + audioContext.currentTime;
+
+		adsr.beginAttack(audioWhen);
+
+		noiseGenerator.noteOn(note, volume, audioWhen);
 
 		voices.forEach(function(voice, index) {
 			var frequency = MIDIUtils.noteNumberToFrequency( note + octaves[index] * 12 );
-			voice.noteOn(frequency, when);
+			voice.noteOn(frequency, audioWhen);
 		});
 
 	};
@@ -1211,25 +1242,27 @@ function Bajotron(audioContext, options) {
 		// Because this is a monophonic instrument, `noteNumber` is quietly ignored
 		when = when !== undefined ? when : 0;
 
-		//console.log('bajotron->release', when, 'voice note off in', when + adsr.release, adsr);
-
 		adsr.beginRelease(when);
 
+		var releaseEndTime = when + adsr.release;
+
 		voices.forEach(function(voice) {
-			voice.noteOff(when + adsr.release);
+			voice.noteOff(releaseEndTime);
 		});
+
+		noiseGenerator.noteOff(releaseEndTime);
 
 	};
 }
 
 module.exports = Bajotron;
 
-},{"./ADSR.js":12,"./OscillatorVoice":17,"midiutils":1}],14:[function(require,module,exports){
+},{"./ADSR.js":12,"./NoiseGenerator":16,"./OscillatorVoice":17,"midiutils":1}],14:[function(require,module,exports){
 var MIDIUtils = require('midiutils');
 var OscillatorVoice = require('./OscillatorVoice');
 var ADSR = require('./ADSR.js');
 var Bajotron = require('./Bajotron');
-var NoiseGenerator = require('./NoiseGenerator');
+//var NoiseGenerator = require('./NoiseGenerator');
 
 function Colchonator(audioContext, options) {
 	
@@ -1240,12 +1273,12 @@ function Colchonator(audioContext, options) {
 	var numVoices = options.numVoices || 3;
 	var voices = [];
 	var outputNode = audioContext.createGain();
-	var noiseUnit;
+	//var noiseUnit;
 
 	initVoices(numVoices);
-	console.log('sam rate', audioContext.sampleRate);
-	noiseUnit = new NoiseGenerator(audioContext, { type: 'brown', length: audioContext.sampleRate } );
-	noiseUnit.output.connect(outputNode);
+	
+	//noiseUnit = new NoiseGenerator(audioContext, { type: 'brown', length: audioContext.sampleRate } );
+	//noiseUnit.output.connect(outputNode);
 
 	//
 
@@ -1280,6 +1313,9 @@ function Colchonator(audioContext, options) {
 							attack: 0.1,
 							sustain: 0.7,
 							release: 0.5
+						},
+						noise: {
+							type: 'white'
 						}
 					})
 				};
@@ -1353,7 +1389,7 @@ function Colchonator(audioContext, options) {
 
 		voice.noteOn(note, volume, when);
 
-		noiseUnit.noteOn(note, volume, when);
+		//noiseUnit.noteOn(note, volume, when);
 
 	};
 
@@ -1377,7 +1413,7 @@ function Colchonator(audioContext, options) {
 
 module.exports = Colchonator;
 
-},{"./ADSR.js":12,"./Bajotron":13,"./NoiseGenerator":16,"./OscillatorVoice":17,"midiutils":1}],15:[function(require,module,exports){
+},{"./ADSR.js":12,"./Bajotron":13,"./OscillatorVoice":17,"midiutils":1}],15:[function(require,module,exports){
 // A simple mixer for avoiding early deafness
 function Mixer(audioContext) {
 
@@ -1559,6 +1595,13 @@ function NoiseGenerator(audioContext, options) {
 
 	};
 
+	this.noteOff = function(when) {
+
+		when = when !== undefined ? when : 0;
+		sourceVoice.noteOff(when);
+
+	};
+
 }
 
 module.exports = NoiseGenerator;
@@ -1591,7 +1634,9 @@ function OscillatorVoice(context, options) {
 		}
 		
 		internalOscillator.frequency.value = frequency;
-		internalOscillator.start(when + context.currentTime);
+		
+		console.log('oscillator voice note on', when);
+		internalOscillator.start(when);
 
 	};
 
@@ -1600,7 +1645,7 @@ function OscillatorVoice(context, options) {
 		if(internalOscillator === null) {
 			return;
 		}
-		internalOscillator.stop(when + context.currentTime);
+		internalOscillator.stop(when);
 		internalOscillator = null;
 
 	};
@@ -1632,7 +1677,7 @@ function SampleVoice(audioContext, options) {
 	
 	this.output = output;
 	
-	this.noteOn = function(frequency, when) {
+	this.noteOn = function(frequency, volume, when) {
 
 		// The oscillator node is recreated here "on demand",
 		// and all the parameters are set too.
@@ -1643,7 +1688,10 @@ function SampleVoice(audioContext, options) {
 			bufferSource.connect(output);
 		}
 		
-		bufferSource.start(when + audioContext.currentTime);
+		//var now = when + audioContext.currentTime;
+		var now = when;
+		console.log('samplevoice start', now);
+		bufferSource.start(now);
 
 		// Auto note off if not looping, though it can be a little bit inaccurate
 		// (due to setTimeout...)
@@ -1664,7 +1712,7 @@ function SampleVoice(audioContext, options) {
 			return;
 		}
 
-		bufferSource.stop(when + audioContext.currentTime);
+		bufferSource.stop(when /* + audioContext.currentTime*/);
 		bufferSource = null;
 
 	};

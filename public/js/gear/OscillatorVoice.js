@@ -25,7 +25,9 @@ function OscillatorVoice(context, options) {
 		}
 		
 		internalOscillator.frequency.value = frequency;
-		internalOscillator.start(when + context.currentTime);
+		
+		console.log('oscillator voice note on', when);
+		internalOscillator.start(when);
 
 	};
 
@@ -34,7 +36,7 @@ function OscillatorVoice(context, options) {
 		if(internalOscillator === null) {
 			return;
 		}
-		internalOscillator.stop(when + context.currentTime);
+		internalOscillator.stop(when);
 		internalOscillator = null;
 
 	};
