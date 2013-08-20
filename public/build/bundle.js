@@ -1262,7 +1262,6 @@ var MIDIUtils = require('midiutils');
 var OscillatorVoice = require('./OscillatorVoice');
 var ADSR = require('./ADSR.js');
 var Bajotron = require('./Bajotron');
-//var NoiseGenerator = require('./NoiseGenerator');
 
 function Colchonator(audioContext, options) {
 	
@@ -1273,12 +1272,8 @@ function Colchonator(audioContext, options) {
 	var numVoices = options.numVoices || 3;
 	var voices = [];
 	var outputNode = audioContext.createGain();
-	//var noiseUnit;
 
 	initVoices(numVoices);
-	
-	//noiseUnit = new NoiseGenerator(audioContext, { type: 'brown', length: audioContext.sampleRate } );
-	//noiseUnit.output.connect(outputNode);
 
 	//
 
@@ -1388,8 +1383,6 @@ function Colchonator(audioContext, options) {
 		voice = getFreeVoice(note);
 
 		voice.noteOn(note, volume, when);
-
-		//noiseUnit.noteOn(note, volume, when);
 
 	};
 
