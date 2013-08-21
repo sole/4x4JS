@@ -1684,7 +1684,7 @@ function Oscilloscope(audioContext, options) {
 	container.appendChild(canvas);
 
 	// and audio
-	var processor = audioContext.createScriptProcessor(4096);
+	var processor = audioContext.createScriptProcessor(2048);
 	var bufferLength = processor.bufferSize;
 
 	console.log('buffer length oscilloscope', bufferLength);
