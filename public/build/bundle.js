@@ -1010,6 +1010,13 @@ function initialiseGear(audioContext) {
 	//mixer.setChannelGain(0, 0);
 	//mixer.setChannelGain(1, 0.5);
 	//mixer.setChannelGain(1, 0);
+	
+	var Oscilloscope = require('./gear/Oscilloscope');
+	var oscilloscope = new Oscilloscope(audioContext);
+	mixer.output.connect(oscilloscope.input);
+	oscilloscope.output.connect(audioContext.destination);
+	oscilloscope.domElement.id = 'oscilloscope';
+	document.body.appendChild(oscilloscope.domElement);
 
 	// This is ULTRA CREEPY
 	/*setInterval(function() {
@@ -1104,7 +1111,7 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":5,"./gear/Bajotron":13,"./gear/Colchonator":14,"./gear/Mixer":15}],12:[function(require,module,exports){
+},{"./Orxatron/":5,"./gear/Bajotron":13,"./gear/Colchonator":14,"./gear/Mixer":15,"./gear/Oscilloscope":18}],12:[function(require,module,exports){
 function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 	'use strict';
@@ -1603,7 +1610,7 @@ function NoiseGenerator(audioContext, options) {
 
 module.exports = NoiseGenerator;
 
-},{"./SampleVoice":18}],17:[function(require,module,exports){
+},{"./SampleVoice":19}],17:[function(require,module,exports){
 function OscillatorVoice(context, options) {
 
 	var internalOscillator = null;
@@ -1656,6 +1663,94 @@ OscillatorVoice.WAVE_TYPE_TRIANGLE = 'triangle';
 module.exports = OscillatorVoice;
 
 },{}],18:[function(require,module,exports){
+function Oscilloscope(audioContext, options) {
+	
+	'use strict';
+
+	var canvasWidth = 200;
+	var canvasHeight = 100;
+	var canvasHalfWidth = canvasWidth * 0.5;
+	var canvasHalfHeight = canvasHeight * 0.5;
+	var numSlices = 32;
+	var inverseNumSlices = 1.0 / numSlices;
+
+	// Graphics
+	var container = document.createElement('div');
+	var canvas = document.createElement('canvas');
+	canvas.width = canvasWidth;
+	canvas.height = canvasHeight;
+	var ctx = canvas.getContext('2d');
+
+	container.appendChild(canvas);
+
+	// and audio
+	var processor = audioContext.createScriptProcessor(4096);
+	var bufferLength = processor.bufferSize;
+
+	console.log('buffer length oscilloscope', bufferLength);
+	console.log('tutu', canvas, container);
+
+	processor.onaudioprocess = updateDisplay;
+
+	//
+	
+	function updateDisplay(evt) {
+		
+		var buffer = evt.inputBuffer,
+			bufferLeft = buffer.getChannelData(0),
+			bufferRight = buffer.getChannelData(1),
+			numSamples = bufferLeft.length,
+			sliceWidth = canvasWidth / numSlices;
+
+		var sliceSize = Math.round(numSamples * inverseNumSlices),
+			index = 0;
+
+			ctx.fillStyle = 'rgb(0, 0, 0)';
+			ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+			ctx.lineWidth = 1;
+			ctx.strokeStyle = 'rgb(0, 255, 0)';
+
+			ctx.beginPath();
+
+			var x = 0;
+
+			for(var i = 0; i < numSlices; i++) {
+				index += sliceSize ;
+
+				if(index > numSamples) {
+					break;
+				}
+
+				var v = (bufferLeft[index] + bufferRight[index]) * 0.5,
+					y = canvasHalfHeight + v * canvasHalfHeight; // relative to canvas size. Originally it's -1..1
+
+				if(i === 0) {
+					ctx.moveTo(x, y);
+				} else {
+					ctx.lineTo(x, y);
+				}
+
+				x += sliceWidth;
+			}
+
+			ctx.lineTo(canvasWidth, canvasHalfHeight);
+
+			ctx.stroke();
+
+	}
+
+	// ~~~
+	
+	this.input = processor;
+	this.output = processor;
+	this.domElement = container;
+
+}
+
+module.exports = Oscilloscope;
+
+},{}],19:[function(require,module,exports){
 // This voice plays a buffer / sample, and it's capable of regenerating the buffer source once noteOff has been called
 // TODO set a base note and use it + noteOn note to play relatively pitched notes
 
@@ -1666,7 +1761,7 @@ function SampleVoice(audioContext, options) {
 	options = options || {};
 
 	var loop = options.loop !== undefined  ? options.loop : true;
-	var buffer = options.buffer || audioContext.createBuffer(1, 0, audioContext.sampleRate);
+	var buffer = options.buffer || audioContext.createBuffer(1, audioContext.sampleRate, audioContext.sampleRate);
 	var bufferSource = null;
 	var output = audioContext.createGain();
 
@@ -1719,7 +1814,7 @@ function SampleVoice(audioContext, options) {
 
 module.exports = SampleVoice;
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -1727,5 +1822,5 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":11}]},{},[19])
+},{"./app":11}]},{},[20])
 ;

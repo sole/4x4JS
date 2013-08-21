@@ -26,9 +26,20 @@ x-deck {
 	border: 1px solid red;
 }
 
+canvas {
+	display: block;
+}
+
 #transport {
 	right: 0;
 	width: 100%;
 	text-align: right;
+}
+
+#oscilloscope {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	border: 3px solid rgba(0, 0, 0, 0.5);
 }
 

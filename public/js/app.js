@@ -83,6 +83,13 @@ function initialiseGear(audioContext) {
 	//mixer.setChannelGain(0, 0);
 	//mixer.setChannelGain(1, 0.5);
 	//mixer.setChannelGain(1, 0);
+	
+	var Oscilloscope = require('./gear/Oscilloscope');
+	var oscilloscope = new Oscilloscope(audioContext);
+	mixer.output.connect(oscilloscope.input);
+	oscilloscope.output.connect(audioContext.destination);
+	oscilloscope.domElement.id = 'oscilloscope';
+	document.body.appendChild(oscilloscope.domElement);
 
 	// This is ULTRA CREEPY
 	/*setInterval(function() {

@@ -8,7 +8,7 @@ function SampleVoice(audioContext, options) {
 	options = options || {};
 
 	var loop = options.loop !== undefined  ? options.loop : true;
-	var buffer = options.buffer || audioContext.createBuffer(1, 0, audioContext.sampleRate);
+	var buffer = options.buffer || audioContext.createBuffer(1, audioContext.sampleRate, audioContext.sampleRate);
 	var bufferSource = null;
 	var output = audioContext.createGain();
 
