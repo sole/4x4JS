@@ -1272,6 +1272,7 @@ var MIDIUtils = require('midiutils');
 var OscillatorVoice = require('./OscillatorVoice');
 var ADSR = require('./ADSR.js');
 var Bajotron = require('./Bajotron');
+var Reverbetron = require('./Reverbetron');
 
 function Colchonator(audioContext, options) {
 	
@@ -1282,8 +1283,27 @@ function Colchonator(audioContext, options) {
 	var numVoices = options.numVoices || 3;
 	var voices = [];
 	var outputNode = audioContext.createGain();
+	var voicesNode = audioContext.createGain();
+	var dryOutputNode = audioContext.createGain();
+	var wetOutputNode = audioContext.createGain();
+	var reverbNode = new Reverbetron(audioContext);
+
+	reverbNode.loadImpulse('data/impulseResponses/cave.ogg');
+	reverbNode.output.connect(wetOutputNode);
+
+	voicesNode.connect(dryOutputNode);
+	voicesNode.connect(reverbNode.input);
+
+	dryOutputNode.connect(outputNode);
+	wetOutputNode.connect(outputNode);
+
+
+
+
+	setWetAmount(0.5);
 
 	initVoices(numVoices);
+	
 
 	//
 
@@ -1325,7 +1345,7 @@ function Colchonator(audioContext, options) {
 					})
 				};
 
-				v.voice.output.connect(outputNode);
+				v.voice.output.connect(voicesNode);
 				
 				voices.push(v);
 			}
@@ -1333,6 +1353,7 @@ function Colchonator(audioContext, options) {
 		}
 
 	}
+
 
 
 	function getFreeVoice(noteNumber) {
@@ -1377,6 +1398,14 @@ function Colchonator(audioContext, options) {
 	}
 
 
+	function setWetAmount(v) {
+		// 0 = totally dry
+		var dryAmount = 1.0 - v;
+		dryOutputNode.gain.value = dryAmount;
+		wetOutputNode.gain.value = v;
+	}
+
+
 	// ~~~
 
 	this.output = outputNode;
@@ -1416,7 +1445,7 @@ function Colchonator(audioContext, options) {
 
 module.exports = Colchonator;
 
-},{"./ADSR.js":12,"./Bajotron":13,"./OscillatorVoice":17,"midiutils":1}],15:[function(require,module,exports){
+},{"./ADSR.js":12,"./Bajotron":13,"./OscillatorVoice":17,"./Reverbetron":19,"midiutils":1}],15:[function(require,module,exports){
 // A simple mixer for avoiding early deafness
 function Mixer(audioContext) {
 
@@ -1610,7 +1639,7 @@ function NoiseGenerator(audioContext, options) {
 
 module.exports = NoiseGenerator;
 
-},{"./SampleVoice":19}],17:[function(require,module,exports){
+},{"./SampleVoice":20}],17:[function(require,module,exports){
 function OscillatorVoice(context, options) {
 
 	var internalOscillator = null;
@@ -1751,6 +1780,47 @@ function Oscilloscope(audioContext, options) {
 module.exports = Oscilloscope;
 
 },{}],19:[function(require,module,exports){
+function Reverbetron(audioContext) {
+
+	var that = this;
+	var convolver = audioContext.createConvolver();
+
+
+	// ~~~
+	
+	this.input = convolver;
+	this.output = convolver;
+
+	this.setImpulse = function(buffer) {
+		convolver.buffer = buffer;
+	};
+
+	this.loadImpulse = function(path) {
+		console.log('Reverbetron load impulse', path);
+
+		var request = new XMLHttpRequest();
+		request.open('GET', path, true);
+		request.responseType = 'arraybuffer';
+
+		request.onload = function() {
+
+			audioContext.decodeAudioData(request.response, function(buffer) {
+					that.setImpulse(buffer);
+				},
+				function() {
+					// onError
+				}
+			);
+		};
+		
+		request.send();
+		
+	};
+}
+
+module.exports = Reverbetron;
+
+},{}],20:[function(require,module,exports){
 // This voice plays a buffer / sample, and it's capable of regenerating the buffer source once noteOff has been called
 // TODO set a base note and use it + noteOn note to play relatively pitched notes
 
@@ -1814,7 +1884,7 @@ function SampleVoice(audioContext, options) {
 
 module.exports = SampleVoice;
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -1822,5 +1892,5 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":11}]},{},[20])
+},{"./app":11}]},{},[21])
 ;

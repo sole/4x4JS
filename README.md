@@ -7,7 +7,7 @@ Un-be-lie-va-ble
 - disconnect on note offs?
 - Reverb
 - define Gear interfaces
-	-Our 'when' is relative - is this good?
+	- Our 'when' is relative - is this good?
 		- It becomes absolute when used with final audio api objects (eg in oscillatornodes). So far, in:
 			- OscillatorVoice
 			- SampleVoice

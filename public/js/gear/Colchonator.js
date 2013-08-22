@@ -2,6 +2,7 @@ var MIDIUtils = require('midiutils');
 var OscillatorVoice = require('./OscillatorVoice');
 var ADSR = require('./ADSR.js');
 var Bajotron = require('./Bajotron');
+var Reverbetron = require('./Reverbetron');
 
 function Colchonator(audioContext, options) {
 	
@@ -12,8 +13,27 @@ function Colchonator(audioContext, options) {
 	var numVoices = options.numVoices || 3;
 	var voices = [];
 	var outputNode = audioContext.createGain();
+	var voicesNode = audioContext.createGain();
+	var dryOutputNode = audioContext.createGain();
+	var wetOutputNode = audioContext.createGain();
+	var reverbNode = new Reverbetron(audioContext);
+
+	reverbNode.loadImpulse('data/impulseResponses/cave.ogg');
+	reverbNode.output.connect(wetOutputNode);
+
+	voicesNode.connect(dryOutputNode);
+	voicesNode.connect(reverbNode.input);
+
+	dryOutputNode.connect(outputNode);
+	wetOutputNode.connect(outputNode);
+
+
+
+
+	setWetAmount(0.5);
 
 	initVoices(numVoices);
+	
 
 	//
 
@@ -55,7 +75,7 @@ function Colchonator(audioContext, options) {
 					})
 				};
 
-				v.voice.output.connect(outputNode);
+				v.voice.output.connect(voicesNode);
 				
 				voices.push(v);
 			}
@@ -63,6 +83,7 @@ function Colchonator(audioContext, options) {
 		}
 
 	}
+
 
 
 	function getFreeVoice(noteNumber) {
@@ -104,6 +125,14 @@ function Colchonator(audioContext, options) {
 		if(index !== -1) {
 			return voices[index].voice;
 		}
+	}
+
+
+	function setWetAmount(v) {
+		// 0 = totally dry
+		var dryAmount = 1.0 - v;
+		dryOutputNode.gain.value = dryAmount;
+		wetOutputNode.gain.value = v;
 	}
 
 
