@@ -71,7 +71,10 @@ function initialiseGear(audioContext) {
 
 	// 1 / PAD
 	var Colchonator = require('./gear/Colchonator');
-	var pad = new Colchonator(audioContext);
+	var pad = new Colchonator(audioContext, {
+		reverbImpulse: 'data/impulseResponses/cave.ogg'
+	});
+	pad.setWetAmount(1.0);
 	g.push(pad);
 	
 	// TODO drum machine

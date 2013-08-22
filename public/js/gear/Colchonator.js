@@ -11,6 +11,8 @@ function Colchonator(audioContext, options) {
 	options = options || {};
 
 	var numVoices = options.numVoices || 3;
+	var reverbImpulse = options.reverbImpulse;
+
 	var voices = [];
 	var outputNode = audioContext.createGain();
 	var voicesNode = audioContext.createGain();
@@ -18,7 +20,9 @@ function Colchonator(audioContext, options) {
 	var wetOutputNode = audioContext.createGain();
 	var reverbNode = new Reverbetron(audioContext);
 
-	reverbNode.loadImpulse('data/impulseResponses/cave.ogg');
+	if(reverbImpulse) {
+		reverbNode.loadImpulse(reverbImpulse);
+	}
 	reverbNode.output.connect(wetOutputNode);
 
 	voicesNode.connect(dryOutputNode);
@@ -140,6 +144,7 @@ function Colchonator(audioContext, options) {
 
 	this.output = outputNode;
 
+
 	this.noteOn = function(note, volume, when) {
 
 		volume = volume !== undefined ? volume : 1.0;
@@ -155,6 +160,7 @@ function Colchonator(audioContext, options) {
 
 	};
 
+
 	this.noteOff = function(noteNumber, when) {
 		
 		console.log('Colchonator NOTE OFF', noteNumber);
@@ -169,6 +175,11 @@ function Colchonator(audioContext, options) {
 
 		// if number of active voices = 1 -> noise note off
 
+	};
+
+
+	this.setWetAmount = function(v) {
+		setWetAmount(v);
 	};
 
 }
