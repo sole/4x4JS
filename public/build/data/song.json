@@ -716,7 +716,89 @@
 						]
 					}
 				],
-				[],
+				[
+					{
+						"row": 0,
+						"columns": [
+							{
+								"note": "C-4",
+								"instrument": 2
+							}
+						]
+					},
+					{
+						"row": 2,
+						"columns": [
+							{
+								"note": "C#4",
+								"instrument": 2
+							}
+						]
+					},
+					{
+						"row": 4,
+						"columns": [
+							{
+								"note": "D-4",
+								"instrument": 2
+							}
+						]
+					},
+					{
+						"row": 6,
+						"columns": [
+							{
+								"note": "D#4",
+								"instrument": 2
+							}
+						]
+					},
+					{
+						"row": 8,
+						"columns": [
+							{
+								"note": "E-4",
+								"instrument": 2
+							}
+						]
+					},
+					{
+						"row": 10,
+						"columns": [
+							{
+								"note": "F-4",
+								"instrument": 2
+							}
+						]
+					},
+					{
+						"row": 12,
+						"columns": [
+							{
+								"note": "F#4",
+								"instrument": 2
+							}
+						]
+					},
+					{
+						"row": 14,
+						"columns": [
+							{
+								"note": "G-4",
+								"instrument": 2
+							}
+						]
+					},
+					{
+						"row": 16,
+						"columns": [
+							{
+								"note": "A-4",
+								"instrument": 2
+							}
+						]
+					}
+				],
 				[],
 				[],
 				[],

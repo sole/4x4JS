@@ -34,9 +34,12 @@ var pd = require('pretty-data').pd;
 var fs = require('fs');
 var dstSong = './public/build/data/song.json';
 
-	
 Renoise.loadAsJSON('./data/song.xrns', function(songJSON) {
-	fs.writeFileSync('tatatata.json', pd.json(songJSON));
+	var tatata = 'tatatata.json';
+	if(fs.existsSync(tatata)) {
+		fs.unlinkSync(tatata);
+	}
+	// fs.writeFileSync(tatata, pd.json(songJSON));
 	
 	var convertedSong = Orxatron.DataUtils.renoiseToOrxatron(songJSON);
 	fs.writeFileSync(dstSong, JSON.stringify(convertedSong, null, '\t'));

@@ -1005,6 +1005,22 @@ function initialiseGear(audioContext) {
 	g.push(pad);
 	
 	// TODO drum machine
+	var Porrompom = require('./gear/Porrompom');
+	var p808 = 'data/samples/808';
+	var dm808 = new Porrompom(audioContext, {
+		mapping: {
+			'C-4': p808 + 'bassdrum.wav',
+			'C#4': p808 + 'snaredrum.wav',
+			'D-4': p808 + 'clap.wav',
+			'D#4': p808 + 'claves.wav',
+			'E-4': p808 + 'cowbell.wav',
+			'F-4': p808 + 'hihat_closed.wav',
+			'F#4': p808 + 'hihat_open.wav',
+			'G-4': p808 + 'maracas.wav',
+			'G#4': p808 + 'rimshot.wav',
+			'A-4': p808 + 'tom_low.wav'
+		}
+	});
 
 	// Plug instruments into the mixer
 	g.forEach(function(instrument, index) {
@@ -1114,7 +1130,7 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":5,"./gear/Bajotron":13,"./gear/Colchonator":14,"./gear/Mixer":15,"./gear/Oscilloscope":18}],12:[function(require,module,exports){
+},{"./Orxatron/":5,"./gear/Bajotron":13,"./gear/Colchonator":14,"./gear/Mixer":15,"./gear/Oscilloscope":18,"./gear/Porrompom":19}],12:[function(require,module,exports){
 function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 	'use strict';
@@ -1459,7 +1475,7 @@ function Colchonator(audioContext, options) {
 
 module.exports = Colchonator;
 
-},{"./ADSR.js":12,"./Bajotron":13,"./OscillatorVoice":17,"./Reverbetron":19,"midiutils":1}],15:[function(require,module,exports){
+},{"./ADSR.js":12,"./Bajotron":13,"./OscillatorVoice":17,"./Reverbetron":20,"midiutils":1}],15:[function(require,module,exports){
 // A simple mixer for avoiding early deafness
 function Mixer(audioContext) {
 
@@ -1653,7 +1669,7 @@ function NoiseGenerator(audioContext, options) {
 
 module.exports = NoiseGenerator;
 
-},{"./SampleVoice":20}],17:[function(require,module,exports){
+},{"./SampleVoice":21}],17:[function(require,module,exports){
 function OscillatorVoice(context, options) {
 
 	var internalOscillator = null;
@@ -1794,6 +1810,39 @@ function Oscilloscope(audioContext, options) {
 module.exports = Oscilloscope;
 
 },{}],19:[function(require,module,exports){
+function Porrompom(audioContext, options) {
+
+	options = options || {};
+	
+	var outputNode = audioContext.createGain();
+	
+	var mappings = options.mappings || {};
+
+	loadMapping(mappings);
+
+	//
+	
+	function addMapping(data) {
+
+	}
+
+
+	function loadMapping(mappings) {
+		// for mapping in mappings
+		// if the sample hasn't been loaded yet
+		// add to buffer load queue
+		// on complete, create samplevoice with that buffer
+	}
+
+	// ~~~
+	
+	this.output = outputNode;
+
+}
+
+module.exports = Porrompom;
+
+},{}],20:[function(require,module,exports){
 function Reverbetron(audioContext) {
 
 	var that = this;
@@ -1834,7 +1883,7 @@ function Reverbetron(audioContext) {
 
 module.exports = Reverbetron;
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 // This voice plays a buffer / sample, and it's capable of regenerating the buffer source once noteOff has been called
 // TODO set a base note and use it + noteOn note to play relatively pitched notes
 
@@ -1898,7 +1947,7 @@ function SampleVoice(audioContext, options) {
 
 module.exports = SampleVoice;
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -1906,5 +1955,5 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":11}]},{},[21])
+},{"./app":11}]},{},[22])
 ;
