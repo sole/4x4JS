@@ -5,7 +5,8 @@ Un-be-lie-va-ble
 ## To do
 - note off!!!
 - disconnect on note offs?
-- Reverb
+- Reverb -> get impulse responses
+- mirar analyser nodes
 - define Gear interfaces
 	- Our 'when' is relative - is this good?
 		- It becomes absolute when used with final audio api objects (eg in oscillatornodes). So far, in:
