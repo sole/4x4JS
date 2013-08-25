@@ -77,11 +77,11 @@ function initialiseGear(audioContext) {
 	pad.setWetAmount(1.0);
 	g.push(pad);
 	
-	// TODO drum machine
+	// 2 / DRUM MACHINE
 	var Porrompom = require('./gear/Porrompom');
-	var p808 = 'data/samples/808';
+	var p808 = 'data/samples/808/';
 	var dm808 = new Porrompom(audioContext, {
-		mapping: {
+		mappings: {
 			'C-4': p808 + 'bassdrum.wav',
 			'C#4': p808 + 'snaredrum.wav',
 			'D-4': p808 + 'clap.wav',
@@ -94,12 +94,15 @@ function initialiseGear(audioContext) {
 			'A-4': p808 + 'tom_low.wav'
 		}
 	});
+	g.push(dm808);
 
 	// Plug instruments into the mixer
 	g.forEach(function(instrument, index) {
+		console.log('plug', instrument, index);
 		mixer.plug(index, instrument.output);
 	});
-	//mixer.setChannelGain(0, 0);
+	mixer.setChannelGain(0, 0);
+	mixer.setChannelGain(1, 0);
 	//mixer.setChannelGain(1, 0.5);
 	//mixer.setChannelGain(1, 0);
 	

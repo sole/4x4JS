@@ -18,6 +18,9 @@ function SampleVoice(audioContext, options) {
 	
 	this.noteOn = function(frequency, volume, when) {
 
+		// TODO use frequency
+
+		// TODO update comments
 		// The oscillator node is recreated here "on demand",
 		// and all the parameters are set too.
 		if(bufferSource === null) {
@@ -34,11 +37,12 @@ function SampleVoice(audioContext, options) {
 
 		// Auto note off if not looping, though it can be a little bit inaccurate
 		// (due to setTimeout...)
-		if(!loop) {
+		// TODO should use the buffer length too for calculating the timeout!!!
+		/*if(!loop) {
 			setTimeout(function() {
 				that.noteOff();
 			}, when * 1000);
-		}
+		}*/
 
 	};
 

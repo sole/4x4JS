@@ -5,6 +5,14 @@ Un-be-lie-va-ble
 ## To do
 - note off!!!
 - disconnect on note offs?
+- buffer loading
+	- is this the only type of external resources we need to load?
+	- BufferLoader --> nicer
+	- Buffer -> wrapper with buffer + loader (even less verbose!)
+	- BufferManager
+- sample voice (for porrompom)
+	- loop end
+	- retrigger same note
 - Reverb -> get impulse responses
 - mirar analyser nodes
 - define Gear interfaces
