@@ -161,9 +161,13 @@ function setupOSC(gear, player, osc) {
 	// Use pad columns/grid as pattern/line indicator
 	// Turn columns on/off as the song is played
 	var lastColumn = null;
+	var lastRow = null;
 	player.addEventListener('row_change', function(ev) {
+		
 		var columnNumber = ev.row % 8;
 		var columnLeds = Quneo.getColumnLeds(columnNumber);
+		var rowNumber = ((63 - ev.row) / 16) | 0;
+		var rowPads = Quneo.getRowPads(rowNumber);
 
 		if(lastColumn !== null) {
 			// Turn older off
@@ -174,12 +178,29 @@ function setupOSC(gear, player, osc) {
 			});
 		}
 
+		if(lastRow !== null && lastRow != rowNumber) {
+			// same
+			var prevPads = Quneo.getRowPads(lastRow);
+			prevPads.forEach(function(index) {
+				osc.send(Quneo.getPadLedsPath(index, 'red'), 0);
+				osc.send(Quneo.getPadLedsPath(index, 'green'), 0);
+			});
+		}
+
+		rowPads.forEach(function(index) {
+			var v = 0.15;
+			osc.send(Quneo.getPadLedsPath(index, 'green'), v);
+			osc.send(Quneo.getPadLedsPath(index, 'red'), v);
+		});
+
 		columnLeds.forEach(function(index) {
 			var path = Quneo.getLedPath(index, 'red');
 			osc.send(path, 0.5);
 		});
 
+		
 		lastColumn = columnNumber;
+		lastRow = rowNumber;
 
 	}, false);
 

@@ -1142,9 +1142,13 @@ function setupOSC(gear, player, osc) {
 	// Use pad columns/grid as pattern/line indicator
 	// Turn columns on/off as the song is played
 	var lastColumn = null;
+	var lastRow = null;
 	player.addEventListener('row_change', function(ev) {
+		
 		var columnNumber = ev.row % 8;
 		var columnLeds = Quneo.getColumnLeds(columnNumber);
+		var rowNumber = ((63 - ev.row) / 16) | 0;
+		var rowPads = Quneo.getRowPads(rowNumber);
 
 		if(lastColumn !== null) {
 			// Turn older off
@@ -1155,12 +1159,29 @@ function setupOSC(gear, player, osc) {
 			});
 		}
 
+		if(lastRow !== null && lastRow != rowNumber) {
+			// same
+			var prevPads = Quneo.getRowPads(lastRow);
+			prevPads.forEach(function(index) {
+				osc.send(Quneo.getPadLedsPath(index, 'red'), 0);
+				osc.send(Quneo.getPadLedsPath(index, 'green'), 0);
+			});
+		}
+
+		rowPads.forEach(function(index) {
+			var v = 0.15;
+			osc.send(Quneo.getPadLedsPath(index, 'green'), v);
+			osc.send(Quneo.getPadLedsPath(index, 'red'), v);
+		});
+
 		columnLeds.forEach(function(index) {
 			var path = Quneo.getLedPath(index, 'red');
 			osc.send(path, 0.5);
 		});
 
+		
 		lastColumn = columnNumber;
+		lastRow = rowNumber;
 
 	}, false);
 
@@ -2123,12 +2144,14 @@ window.addEventListener('DOMComponentsLoaded', function() {
 var i, j;
 var leds = {};
 var columnLeds = {};
+var rowPads = {};
+var basePadPath = '/quneo/leds/pads/';
 
 for(i = 0; i < 4; i++) {
 	for(j = 0; j < 4; j++) {
 		var base = j * 2 + i * 16;
 		var padNumber = i * 4 + j;
-		var path = '/quneo/leds/pads/' + padNumber + '/';
+		var path = getBasePadPath(padNumber); //'/quneo/leds/pads/' + padNumber + '/';
 		leds[base] = path + 'SW/';
 		leds[base + 1] = path + 'SE/';
 		leds[base + 8] = path + 'NW/';
@@ -2144,6 +2167,15 @@ for(i = 0; i < 8; i++) {
 	columnLeds[i] = column;
 }
 
+for(i = 0; i < 4; i++) {
+	var row = [];
+	for(j = 0; j < 4; j++) {
+		row.push(i * 4 + j);
+	}
+	rowPads[i] = row;
+}
+
+// path for controlling an individual led out of the 4 leds in each pad
 // type = 'green' or 'red'
 function getLedPath(ledIndex, type) {
 	if(type === undefined) {
@@ -2156,10 +2188,27 @@ function getColumnLeds(col) {
 	return columnLeds[col];
 }
 
+function getBasePadPath(padNumber) {
+	return basePadPath + padNumber + '/';
+}
+
+// Path for controlling the 4 leds altogether
+function getPadLedsPath(padNumber, type) {
+	if(type === 'undefined') {
+		type = 'red';
+	}
+	return getBasePadPath(padNumber) + '*/' + type;
+}
+
+function getRowPads(row) {
+	return rowPads[row];
+}
 
 module.exports = {
 	getLedPath: getLedPath,
-	getColumnLeds: getColumnLeds
+	getColumnLeds: getColumnLeds,
+	getPadLedsPath: getPadLedsPath,
+	getRowPads: getRowPads
 };
 
 },{}]},{},[24])
