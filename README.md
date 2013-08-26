@@ -10,9 +10,6 @@ Un-be-lie-va-ble
 	- BufferLoader --> nicer
 	- Buffer -> wrapper with buffer + loader (even less verbose!)
 	- BufferManager
-- sample voice (for porrompom)
-	- loop end
-	- retrigger same note
 - Reverb -> get impulse responses
 - mirar analyser nodes
 - define Gear interfaces
@@ -40,3 +37,9 @@ Un-be-lie-va-ble
 	go wild
 	go mad / LFO
 - Orxatron -> npm
+
+## reusing
+
+Colchonator -> Bajotron
+Bajotron -> SampleVoice, NoiseGenerator
+Porrompom -> SampleVoice
