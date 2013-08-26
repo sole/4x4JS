@@ -3,6 +3,7 @@
 Un-be-lie-va-ble
 
 ## To do
+- porrom -> compressor before gain
 - note off!!!
 - disconnect on note offs?
 - define Gear interfaces

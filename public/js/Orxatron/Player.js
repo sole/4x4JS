@@ -50,7 +50,7 @@ function Player() {
 		var previousValue = that.currentRow;
 
 		that.currentRow = value;
-		that.dispatchEvent({ type: 'rowChanged', row: value, previousRow: previousValue, pattern: that.currentPattern, order: that.currentOrder });
+		that.dispatchEvent({ type: EVENT_ROW_CHANGE, row: value, previousRow: previousValue, pattern: that.currentPattern, order: that.currentOrder });
 	}
 
 	function changeToPattern( value ) {

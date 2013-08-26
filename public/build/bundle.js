@@ -354,6 +354,13 @@ module.exports = function() {
 
 	};
 
+
+	this.send = function(address, value) {
+
+		socket.emit('message', [address, value]);
+
+	};
+
 	
 };
 
@@ -561,7 +568,7 @@ function Player() {
 		var previousValue = that.currentRow;
 
 		that.currentRow = value;
-		that.dispatchEvent({ type: 'rowChanged', row: value, previousRow: previousValue, pattern: that.currentPattern, order: that.currentOrder });
+		that.dispatchEvent({ type: EVENT_ROW_CHANGE, row: value, previousRow: previousValue, pattern: that.currentPattern, order: that.currentOrder });
 	}
 
 	function changeToPattern( value ) {
@@ -1024,7 +1031,7 @@ function onSongDataLoaded(data) {
 
 
 function initialiseGear(audioContext) {
-	console.warn('TODO initialiseGear');
+	
 	var g = [];
 
 	// Audio gear
@@ -1086,24 +1093,6 @@ function initialiseGear(audioContext) {
 	oscilloscope.domElement.id = 'oscilloscope';
 	document.body.appendChild(oscilloscope.domElement);
 
-	// This is ULTRA CREEPY
-	/*setInterval(function() {
-		// bass.noteOff();
-		bass.noteOn(440 + Math.random() * 1000);
-	}, 1000);*/
-
-	/*setInterval(function() {
-		var noteNumber = 32 + (Math.random() * 10) | 0;
-		bass.noteOn(noteNumber);
-	}, 1000);*/
-
-	/*var lastNote = 0;
-	setInterval(function() {
-		var noteNumber = 32 + lastNote * 12;
-		bass.noteOn(noteNumber);
-		lastNote = lastNote === 0 ? 1 : 0;
-	}, 250);*/
-
 	// GFX gear
 	// --------
 	// TODO gfx gear!
@@ -1114,6 +1103,9 @@ function initialiseGear(audioContext) {
 
 function setupGearPlayerListeners(gear, player) {
 	// listeners player <-> gear
+	
+		
+	
 	console.warn('TODO setupGearPlayerListeners');
 }
 
@@ -1146,6 +1138,77 @@ function setupOSC(gear, player, osc) {
 	// TODO: flash play button to the beat
 	// TODO: flash stop button at 0.5
 	// TODO: use pad columns/grid as pattern/line indicator
+	
+	// Turn columns on/off as the song is played
+	var getLedPath = (function() {
+		
+		var leds = {};
+
+		for(var i = 0; i < 4; i++) {
+			for(var j = 0; j < 4; j++) {
+				var base = j * 2 + i * 16;
+				var padNumber = i * 4 + j;
+				var path = '/quneo/leds/pads/' + padNumber + '/';
+				leds[base] = path + 'SW/';
+				leds[base + 1] = path + 'SE/';
+				leds[base + 8] = path + 'NW/';
+				leds[base + 9] = path + 'NE/';
+			}
+		}
+
+		// type = 'green' or 'red'
+		return function(ledIndex, type) {
+			if(type === undefined) {
+				type = '';
+			}
+			return leds[ledIndex] + type;
+		};
+
+	})();
+
+	var getColumnLeds = (function() {
+
+		var columnLeds = {};
+		
+		for(var i = 0; i < 8; i++) {
+			var column = [];
+			for(var j = 0; j < 8; j++) {
+				column.push(i + j * 8);
+			}
+			columnLeds[i] = column;
+			console.log(i, column);
+		}
+		
+		return function(col) {
+			return columnLeds[col];
+		};
+
+	})();
+
+	var lastColumn = null;
+	player.addEventListener('row_change', function(ev) {
+		var columnNumber = ev.row % 8;
+		var columnLeds = getColumnLeds(columnNumber);
+
+		if(lastColumn !== null) {
+			// Turn older off
+			var prevLeds = getColumnLeds(lastColumn);
+			prevLeds.forEach(function(index) {
+				osc.send(getLedPath(index, 'red'), 0);
+				osc.send(getLedPath(index, 'green'), 0);
+			});
+		}
+
+		columnLeds.forEach(function(index) {
+			var path = getLedPath(index, 'red');
+			osc.send(path, 0.5);
+		});
+
+		lastColumn = columnNumber;
+
+	}, false);
+
+
 	// TODO: vumeters?
 
 }

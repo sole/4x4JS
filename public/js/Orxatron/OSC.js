@@ -65,5 +65,12 @@ module.exports = function() {
 
 	};
 
+
+	this.send = function(address, value) {
+
+		socket.emit('message', [address, value]);
+
+	};
+
 	
 };
