@@ -109,7 +109,6 @@ function initialiseGear(audioContext) {
 	var Oscilloscope = require('./gear/Oscilloscope');
 	var oscilloscope = new Oscilloscope(audioContext);
 	mixer.output.connect(oscilloscope.input);
-	oscilloscope.output.connect(audioContext.destination);
 	oscilloscope.domElement.id = 'oscilloscope';
 	document.body.appendChild(oscilloscope.domElement);
 

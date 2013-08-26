@@ -5,13 +5,6 @@ Un-be-lie-va-ble
 ## To do
 - note off!!!
 - disconnect on note offs?
-- buffer loading
-	- is this the only type of external resources we need to load?
-	- BufferLoader --> nicer
-	- Buffer -> wrapper with buffer + loader (even less verbose!)
-	- BufferManager
-- Reverb -> get impulse responses
-- mirar analyser nodes
 - define Gear interfaces
 	- Our 'when' is relative - is this good?
 		- It becomes absolute when used with final audio api objects (eg in oscillatornodes). So far, in:

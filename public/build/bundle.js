@@ -1083,7 +1083,6 @@ function initialiseGear(audioContext) {
 	var Oscilloscope = require('./gear/Oscilloscope');
 	var oscilloscope = new Oscilloscope(audioContext);
 	mixer.output.connect(oscilloscope.input);
-	oscilloscope.output.connect(audioContext.destination);
 	oscilloscope.domElement.id = 'oscilloscope';
 	document.body.appendChild(oscilloscope.domElement);
 
@@ -1818,66 +1817,59 @@ function Oscilloscope(audioContext, options) {
 	container.appendChild(canvas);
 
 	// and audio
-	var processor = audioContext.createScriptProcessor(2048);
-	var bufferLength = processor.bufferSize;
+	var analyser = audioContext.createAnalyser();
+	analyser.fftSize = 1024;
+	var bufferLength = analyser.frequencyBinCount;
+	var timeDomainArray = new Uint8Array(bufferLength);
 
 	console.log('buffer length oscilloscope', bufferLength);
-	console.log('tutu', canvas, container);
 
-	processor.onaudioprocess = updateDisplay;
+	update();
 
 	//
-	
-	function updateDisplay(evt) {
-		
-		var buffer = evt.inputBuffer,
-			bufferLeft = buffer.getChannelData(0),
-			bufferRight = buffer.getChannelData(1),
-			numSamples = bufferLeft.length,
-			sliceWidth = canvasWidth / numSlices;
 
-		var sliceSize = Math.round(numSamples * inverseNumSlices),
-			index = 0;
+	function update() {
 
-			ctx.fillStyle = 'rgb(0, 0, 0)';
-			ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+		requestAnimationFrame(update);
 
-			ctx.lineWidth = 1;
-			ctx.strokeStyle = 'rgb(0, 255, 0)';
+		analyser.getByteTimeDomainData(timeDomainArray);
 
-			ctx.beginPath();
+		ctx.fillStyle = 'rgb(0, 0, 0)';
+		ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-			var x = 0;
+		ctx.lineWidth = 1;
+		ctx.strokeStyle = 'rgb(0, 255, 0)';
 
-			for(var i = 0; i < numSlices; i++) {
-				index += sliceSize ;
+		ctx.beginPath();
 
-				if(index > numSamples) {
-					break;
-				}
+		var sliceWidth = canvasWidth * 1.0 / bufferLength;
+		var x = 0;
 
-				var v = (bufferLeft[index] + bufferRight[index]) * 0.5,
-					y = canvasHalfHeight + v * canvasHalfHeight; // relative to canvas size. Originally it's -1..1
 
-				if(i === 0) {
-					ctx.moveTo(x, y);
-				} else {
-					ctx.lineTo(x, y);
-				}
+		for(var i = 0; i < bufferLength; i++) {
+			
+			var v = timeDomainArray[i] / 256.0 - 0.5;
+			var y = (v + 1) * canvasHalfHeight;
 
-				x += sliceWidth;
+			if(i === 0) {
+				ctx.moveTo(x, y);
+			} else {
+				ctx.lineTo(x, y);
 			}
 
-			ctx.lineTo(canvasWidth, canvasHalfHeight);
+			x += sliceWidth;
+		}
 
-			ctx.stroke();
+		ctx.lineTo(canvasWidth, canvasHalfHeight);
+
+		ctx.stroke();
 
 	}
-
+	
+	
 	// ~~~
 	
-	this.input = processor;
-	this.output = processor;
+	this.input = analyser;
 	this.domElement = container;
 
 }
