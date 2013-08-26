@@ -30,19 +30,18 @@ function SampleVoice(audioContext, options) {
 			bufferSource.connect(output);
 		}
 		
-		//var now = when + audioContext.currentTime;
-		var now = when;
-		console.log('samplevoice start', now);
-		bufferSource.start(now);
+		console.log('samplevoice start', when);
+		bufferSource.start(when);
 
 		// Auto note off if not looping, though it can be a little bit inaccurate
 		// (due to setTimeout...)
-		// TODO should use the buffer length too for calculating the timeout!!!
-		/*if(!loop) {
+		if(!loop) {
+			var endTime = (when + buffer.duration) * 1000;
+			console.log('end in', endTime);
 			setTimeout(function() {
 				that.noteOff();
-			}, when * 1000);
-		}*/
+			}, endTime);
+		}
 
 	};
 
