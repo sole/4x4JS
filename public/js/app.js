@@ -101,8 +101,8 @@ function initialiseGear(audioContext) {
 		console.log('plug', instrument, index);
 		mixer.plug(index, instrument.output);
 	});
-	mixer.setChannelGain(0, 0);
-	mixer.setChannelGain(1, 0);
+	mixer.setChannelGain(0, 0.1);
+	mixer.setChannelGain(1, 0.1);
 	//mixer.setChannelGain(1, 0.5);
 	//mixer.setChannelGain(1, 0);
 	

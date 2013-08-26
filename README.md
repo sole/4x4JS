@@ -40,6 +40,6 @@ Un-be-lie-va-ble
 
 ## reusing
 
-Colchonator -> Bajotron
-Bajotron -> SampleVoice, NoiseGenerator
+Colchonator -> Bajotron, ADSR
+Bajotron -> SampleVoice, NoiseGenerator, ADSR
 Porrompom -> SampleVoice

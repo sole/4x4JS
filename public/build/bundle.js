@@ -1075,8 +1075,8 @@ function initialiseGear(audioContext) {
 		console.log('plug', instrument, index);
 		mixer.plug(index, instrument.output);
 	});
-	mixer.setChannelGain(0, 0);
-	mixer.setChannelGain(1, 0);
+	mixer.setChannelGain(0, 0.1);
+	mixer.setChannelGain(1, 0.1);
 	//mixer.setChannelGain(1, 0.5);
 	//mixer.setChannelGain(1, 0);
 	
@@ -1906,8 +1906,7 @@ function Porrompom(audioContext, options) {
 	
 
 	function loadSample(noteKey, samplePath, callback) {
-		console.log('loading sample', samplePath, '=>', noteKey);
-		
+
 		bufferLoader.load(samplePath, function(buffer) {
 			callback(noteKey, samplePath, buffer);
 		});
@@ -1916,11 +1915,11 @@ function Porrompom(audioContext, options) {
 
 
 	function onSampleLoaded(noteKey, samplePath, loadedBuffer) {
-		console.log('sample loaded', noteKey, samplePath);
 
 		var voice = new SampleVoice(audioContext, {
 			buffer: loadedBuffer,
-			loop: false
+			loop: false,
+			nextNoteAction: 'continue'
 		});
 
 		samples[samplePath] = voice;
