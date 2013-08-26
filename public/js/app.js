@@ -124,8 +124,6 @@ function initialiseGear(audioContext) {
 function setupGearPlayerListeners(gear, player) {
 	// listeners player <-> gear
 	
-		
-	
 	console.warn('TODO setupGearPlayerListeners');
 }
 
@@ -222,16 +220,29 @@ function setupKeyboardAndTransport() {
 	$('#pause').on('click', pause);
 }
 
+var playAnimation = null;
 
 function play() {
 	if(!player.isPlaying()) {
 		player.play();
+
+		clearInterval(playAnimation);
+		playAnimation = setInterval(updatePlayButton, 20);
+		//osc.send(Quneo.getPlayLedPath(), 1.0);
+		osc.send(Quneo.getStopLedPath(), 0.5);
 	}
 }
 
+function updatePlayButton() {
+	var t = Date.now() * 0.01;
+	var v = (2 + Math.sin(t)) * 0.25;
+	osc.send(Quneo.getPlayLedPath(), v);
+}
 
 function pause() {
 	player.pause();
+	clearInterval(playAnimation);
+	osc.send(Quneo.getPlayLedPath(), 0);
 }
 
 module.exports = {

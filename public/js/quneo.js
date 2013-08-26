@@ -8,7 +8,7 @@ for(i = 0; i < 4; i++) {
 	for(j = 0; j < 4; j++) {
 		var base = j * 2 + i * 16;
 		var padNumber = i * 4 + j;
-		var path = getBasePadPath(padNumber); //'/quneo/leds/pads/' + padNumber + '/';
+		var path = getBasePadPath(padNumber);
 		leds[base] = path + 'SW/';
 		leds[base + 1] = path + 'SE/';
 		leds[base + 8] = path + 'NW/';
@@ -61,9 +61,19 @@ function getRowPads(row) {
 	return rowPads[row];
 }
 
+function getPlayLedPath() {
+	return '/quneo/leds/transportButtons/2';
+}
+
+function getStopLedPath() {
+	return '/quneo/leds/transportButtons/1';
+}
+
 module.exports = {
 	getLedPath: getLedPath,
 	getColumnLeds: getColumnLeds,
 	getPadLedsPath: getPadLedsPath,
-	getRowPads: getRowPads
+	getRowPads: getRowPads,
+	getPlayLedPath: getPlayLedPath,
+	getStopLedPath: getStopLedPath
 };

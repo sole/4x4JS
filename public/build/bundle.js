@@ -1105,8 +1105,6 @@ function initialiseGear(audioContext) {
 function setupGearPlayerListeners(gear, player) {
 	// listeners player <-> gear
 	
-		
-	
 	console.warn('TODO setupGearPlayerListeners');
 }
 
@@ -1203,16 +1201,29 @@ function setupKeyboardAndTransport() {
 	$('#pause').on('click', pause);
 }
 
+var playAnimation = null;
 
 function play() {
 	if(!player.isPlaying()) {
 		player.play();
+
+		clearInterval(playAnimation);
+		playAnimation = setInterval(updatePlayButton, 20);
+		//osc.send(Quneo.getPlayLedPath(), 1.0);
+		osc.send(Quneo.getStopLedPath(), 0.5);
 	}
 }
 
+function updatePlayButton() {
+	var t = Date.now() * 0.01;
+	var v = (2 + Math.sin(t)) * 0.25;
+	osc.send(Quneo.getPlayLedPath(), v);
+}
 
 function pause() {
 	player.pause();
+	clearInterval(playAnimation);
+	osc.send(Quneo.getPlayLedPath(), 0);
 }
 
 module.exports = {
@@ -2151,7 +2162,7 @@ for(i = 0; i < 4; i++) {
 	for(j = 0; j < 4; j++) {
 		var base = j * 2 + i * 16;
 		var padNumber = i * 4 + j;
-		var path = getBasePadPath(padNumber); //'/quneo/leds/pads/' + padNumber + '/';
+		var path = getBasePadPath(padNumber);
 		leds[base] = path + 'SW/';
 		leds[base + 1] = path + 'SE/';
 		leds[base + 8] = path + 'NW/';
@@ -2204,11 +2215,21 @@ function getRowPads(row) {
 	return rowPads[row];
 }
 
+function getPlayLedPath() {
+	return '/quneo/leds/transportButtons/2';
+}
+
+function getStopLedPath() {
+	return '/quneo/leds/transportButtons/1';
+}
+
 module.exports = {
 	getLedPath: getLedPath,
 	getColumnLeds: getColumnLeds,
 	getPadLedsPath: getPadLedsPath,
-	getRowPads: getRowPads
+	getRowPads: getRowPads,
+	getPlayLedPath: getPlayLedPath,
+	getStopLedPath: getStopLedPath
 };
 
 },{}]},{},[24])
