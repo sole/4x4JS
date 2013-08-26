@@ -984,6 +984,7 @@ var audioContext,
 	deck;
 
 var Orxatron = require('./Orxatron/'),
+	Quneo = require('./quneo.js'),
 	gear;
 
 function start() {
@@ -1137,70 +1138,25 @@ function setupOSC(gear, player, osc) {
 	console.warn('TODO setupOSC');
 	// TODO: flash play button to the beat
 	// TODO: flash stop button at 0.5
-	// TODO: use pad columns/grid as pattern/line indicator
 	
+	// Use pad columns/grid as pattern/line indicator
 	// Turn columns on/off as the song is played
-	var getLedPath = (function() {
-		
-		var leds = {};
-
-		for(var i = 0; i < 4; i++) {
-			for(var j = 0; j < 4; j++) {
-				var base = j * 2 + i * 16;
-				var padNumber = i * 4 + j;
-				var path = '/quneo/leds/pads/' + padNumber + '/';
-				leds[base] = path + 'SW/';
-				leds[base + 1] = path + 'SE/';
-				leds[base + 8] = path + 'NW/';
-				leds[base + 9] = path + 'NE/';
-			}
-		}
-
-		// type = 'green' or 'red'
-		return function(ledIndex, type) {
-			if(type === undefined) {
-				type = '';
-			}
-			return leds[ledIndex] + type;
-		};
-
-	})();
-
-	var getColumnLeds = (function() {
-
-		var columnLeds = {};
-		
-		for(var i = 0; i < 8; i++) {
-			var column = [];
-			for(var j = 0; j < 8; j++) {
-				column.push(i + j * 8);
-			}
-			columnLeds[i] = column;
-			console.log(i, column);
-		}
-		
-		return function(col) {
-			return columnLeds[col];
-		};
-
-	})();
-
 	var lastColumn = null;
 	player.addEventListener('row_change', function(ev) {
 		var columnNumber = ev.row % 8;
-		var columnLeds = getColumnLeds(columnNumber);
+		var columnLeds = Quneo.getColumnLeds(columnNumber);
 
 		if(lastColumn !== null) {
 			// Turn older off
-			var prevLeds = getColumnLeds(lastColumn);
+			var prevLeds = Quneo.getColumnLeds(lastColumn);
 			prevLeds.forEach(function(index) {
-				osc.send(getLedPath(index, 'red'), 0);
-				osc.send(getLedPath(index, 'green'), 0);
+				osc.send(Quneo.getLedPath(index, 'red'), 0);
+				osc.send(Quneo.getLedPath(index, 'green'), 0);
 			});
 		}
 
 		columnLeds.forEach(function(index) {
-			var path = getLedPath(index, 'red');
+			var path = Quneo.getLedPath(index, 'red');
 			osc.send(path, 0.5);
 		});
 
@@ -1242,7 +1198,7 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":6,"./gear/Bajotron":14,"./gear/Colchonator":16,"./gear/Mixer":17,"./gear/Oscilloscope":20,"./gear/Porrompom":21}],13:[function(require,module,exports){
+},{"./Orxatron/":6,"./gear/Bajotron":14,"./gear/Colchonator":16,"./gear/Mixer":17,"./gear/Oscilloscope":20,"./gear/Porrompom":21,"./quneo.js":25}],13:[function(require,module,exports){
 function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 	'use strict';
@@ -2163,5 +2119,48 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":12}]},{},[24])
+},{"./app":12}],25:[function(require,module,exports){
+var i, j;
+var leds = {};
+var columnLeds = {};
+
+for(i = 0; i < 4; i++) {
+	for(j = 0; j < 4; j++) {
+		var base = j * 2 + i * 16;
+		var padNumber = i * 4 + j;
+		var path = '/quneo/leds/pads/' + padNumber + '/';
+		leds[base] = path + 'SW/';
+		leds[base + 1] = path + 'SE/';
+		leds[base + 8] = path + 'NW/';
+		leds[base + 9] = path + 'NE/';
+	}
+}
+
+for(i = 0; i < 8; i++) {
+	var column = [];
+	for(j = 0; j < 8; j++) {
+		column.push(i + j * 8);
+	}
+	columnLeds[i] = column;
+}
+
+// type = 'green' or 'red'
+function getLedPath(ledIndex, type) {
+	if(type === undefined) {
+		type = '';
+	}
+	return leds[ledIndex] + type;
+}
+
+function getColumnLeds(col) {
+	return columnLeds[col];
+}
+
+
+module.exports = {
+	getLedPath: getLedPath,
+	getColumnLeds: getColumnLeds
+};
+
+},{}]},{},[24])
 ;

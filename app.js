@@ -58,7 +58,6 @@ Renoise.loadAsJSON('./data/song.xrns', function(songJSON) {
 // Maybe - toggle remote LED control
 var oscServer = new osc.Server(oscServerPort, '0.0.0.0');
 var oscClient = new osc.Client('0.0.0.0', oscClientPort);
-//oscClient.send('/quneo/leds/pads/0/SE/red', 1);
 
 // Socket.io
 var lastSocket = null;
