@@ -85,7 +85,7 @@ function Player() {
 		return that.tracksLastPlayedInstruments[track][column];
 	}
 
-	var frameLength = 1000 / 60; // TODO move up (?)
+	var frameLength = 1000 / 60.0; // TODO move up (?)
 
 	function requestAuditionFrame(callback) {
 
