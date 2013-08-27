@@ -5,8 +5,8 @@ Un-be-lie-va-ble
 ## To do
 - get something coordinated
 	- gui -> sound design
+		-> associate some params to hardware controls
 	- deck
-- porrom -> compressor before gain
 - note off!!!
 - disconnect on note offs?
 - define Gear interfaces

@@ -6,11 +6,14 @@ function Porrompom(audioContext, options) {
 
 	options = options || {};
 	
+	var compressor = audioContext.createDynamicsCompressor();
 	var outputNode = audioContext.createGain();
 	var samples = {};
 	var bufferLoader = new BufferLoader(audioContext);
 	
 	var mappings = options.mappings || {};
+
+	compressor.connect(outputNode);
 
 	loadMappings(mappings);
 
@@ -37,7 +40,7 @@ function Porrompom(audioContext, options) {
 
 		samples[samplePath] = voice;
 		
-		voice.output.connect(outputNode);
+		voice.output.connect(compressor);
 	}
 
 

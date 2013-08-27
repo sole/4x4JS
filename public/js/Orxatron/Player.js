@@ -298,7 +298,6 @@ function Player() {
 
 	this.play = function() {
 
-		console.warn('TODO play');
 		_isPlaying = true;
 
 		updateFrame();
