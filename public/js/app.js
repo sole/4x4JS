@@ -1,6 +1,7 @@
 var audioContext,
 	renderer,
-	deck;
+	deck,
+	guiContainer;
 
 var Orxatron = require('./Orxatron/'),
 	Quneo = require('./quneo.js'),
@@ -8,11 +9,11 @@ var Orxatron = require('./Orxatron/'),
 
 function start() {
 
-	console.log('app start, yo!');
-
 	var rendererContainer = document.getElementById('rendererContainer');
 
 	deck = document.querySelector('x-deck');
+	guiContainer = document.getElementById('gui');
+	console.log('gui container', guiContainer);
 
 	// load song ajax
 	$.ajax({
@@ -102,10 +103,8 @@ function initialiseGear(audioContext) {
 		console.log('plug', instrument, index);
 		mixer.plug(index, instrument.output);
 	});
-	mixer.setChannelGain(0, 0.1);
-	mixer.setChannelGain(1, 0.1);
-	//mixer.setChannelGain(1, 0.5);
-	//mixer.setChannelGain(1, 0);
+	mixer.setFaderGain(0, 0.1);
+	mixer.setFaderGain(1, 0.1);
 	
 	var Oscilloscope = require('./gear/Oscilloscope');
 	var oscilloscope = new Oscilloscope(audioContext);
@@ -116,7 +115,12 @@ function initialiseGear(audioContext) {
 	// GFX gear
 	// --------
 	// TODO gfx gear!
-	
+
+	// Gear GUI
+	// --------
+	guiContainer.appendChild(mixer.gui);
+
+
 	return g;
 }
 

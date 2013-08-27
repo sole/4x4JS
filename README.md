@@ -4,7 +4,9 @@ Un-be-lie-va-ble
 
 ## To do
 - get something coordinated
-	- gui -> sound design
+	- gui
+		-> setters/getters in instruments
+		-> sound design
 		-> associate some params to hardware controls
 	- deck
 - note off!!!
@@ -20,23 +22,42 @@ Un-be-lie-va-ble
 		- noteOff
 	- Common properties
 		- output
-			- Every gear component output is a gain node
+			- (almost) every gear component output is a gain node
 				- Allows for changing the gain amount of that node, automating it, etc
 			- also easy connection:
 				someComponent.output.connect(audioContext.destination);
+		- input (in some cases --> analyser node)
+		- gui === DOM node
 	- TODO: GearBase class
 - player -> jump to position -> changes time position, etc
-- gear -> some sort of gui
 - sliditation
 	get excited
 		affordable synthesis
 		accessible, available
 	go wild
 	go mad / LFO
+	- show gui / progressively
 - Orxatron -> npm
+	dependencies: eventdispatcher
+	- make it use the eventdispatcher packaged in node_modules --as dependency in package.json
+- Gear -> npm
+	dependencies: eventdispatcher
 
 ## reusing
 
 Colchonator -> Bajotron, ADSR
 Bajotron -> SampleVoice, NoiseGenerator, ADSR
 Porrompom -> SampleVoice
+
+## Gear
+
+- Bajotron
+- Colchonator
+- Porrompom
+- Mixer
+
+### 'submodules'
+
+- ADSR
+- SampleVoice
+- NoiseGenerator

@@ -43,3 +43,11 @@ canvas {
 	border: 3px solid rgba(0, 0, 0, 0.5);
 }
 
+#gui {
+	position: absolute;
+	top: 0;
+	left: 25%;
+	border: 1px dotted red;
+	width: 50%;
+	height: 90%;
+}
