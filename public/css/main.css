@@ -51,3 +51,12 @@ canvas {
 	width: 50%;
 	height: 90%;
 }
+
+	#gui > div {
+		border: 3px solid #333;
+		padding: 1rem;
+	}
+
+.gear-mixer .fader span {
+	padding-right: 1rem;
+}

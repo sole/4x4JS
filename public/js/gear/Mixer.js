@@ -114,14 +114,23 @@ function Fader(audioContext, options) {
 function MixerGUI() {
 
 	var element = document.createElement('div');
+	element.className = 'gear-mixer';
+
+	var div = document.createElement('div');
+	div.className = 'fader';
+	element.appendChild(div);
+
+	var label = document.createElement('span');
+	label.innerHTML = 'MST';
+
 	var slider = document.createElement('input');
 	slider.type = 'range';
 	slider.min = 0.0;
 	slider.max = 1.0;
 	slider.step = 0.05;
 
-	element.appendChild(document.createTextNode('MST'));
-	element.appendChild(slider);
+	div.appendChild(label);
+	div.appendChild(slider);
 
 	// ~~~
 	
@@ -149,6 +158,8 @@ function MixerGUI() {
 
 function FaderGUI() {
 	var element = document.createElement('div');
+	element.className = 'fader';
+
 	var label = document.createElement('span');
 	var slider = document.createElement('input');
 	slider.type = 'range';
