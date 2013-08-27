@@ -1754,6 +1754,7 @@ function Mixer(audioContext) {
 			var fader = new Fader(audioContext);
 			fader.output.connect(output);
 			fader.gain = 0.7;
+			fader.label = 'CH ' + (faders.length + 1);
 			faders.push(fader);
 		}
 	}
@@ -1784,6 +1785,7 @@ function Mixer(audioContext) {
 function Fader(audioContext, options) {
 	
 	var gain = audioContext.createGain();
+	var label = 'fader';
 	var that = this;
 
 	EventDispatcher.call(this);
@@ -1796,6 +1798,15 @@ function Fader(audioContext, options) {
 			set: function(v) {
 				that.dispatchEvent({ type: 'gain_change', gain: v });
 				gain.gain.value = v;
+			}
+		},
+		label: {
+			get: function() {
+				return label;
+			},
+			set: function(v) {
+				that.dispatchEvent({ type: 'label_change', label: v });
+				label = v;
 			}
 		}
 	});
@@ -1824,7 +1835,7 @@ function MixerGUI() {
 	slider.max = 1.0;
 	slider.step = 0.05;
 
-	element.appendChild(document.createTextNode('master gain'));
+	element.appendChild(document.createTextNode('MST'));
 	element.appendChild(slider);
 
 	// ~~~
@@ -1853,12 +1864,14 @@ function MixerGUI() {
 
 function FaderGUI() {
 	var element = document.createElement('div');
+	var label = document.createElement('span');
 	var slider = document.createElement('input');
 	slider.type = 'range';
 	slider.min = 0.0;
 	slider.max = 1.0;
 	slider.step = 0.05;
 	
+	element.appendChild(label);
 	element.appendChild(slider);
 
 	// ~~~
@@ -1866,6 +1879,14 @@ function FaderGUI() {
 	this.domElement = element;
 	
 	this.attachTo = function(fader) {
+
+		// Label ---
+		label.innerHTML = fader.label;
+		fader.addEventListener('label_change', function(ev) {
+			label.innerHTML = ev.label;
+		}, false);
+
+		// Slider ---
 
 		slider.value = fader.gain;
 
