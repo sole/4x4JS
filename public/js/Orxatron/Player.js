@@ -57,14 +57,14 @@ function Player() {
 		var previousValue = that.currentPattern;
 
 		that.currentPattern = value;
-		that.dispatchEvent({ type: 'patternChanged', pattern: value, previousPattern: previousValue, order: that.currentOrder, row: that.currentRow });
+		that.dispatchEvent({ type: EVENT_PATTERN_CHANGE, pattern: value, previousPattern: previousValue, order: that.currentOrder, row: that.currentRow });
 	}
 
 	function changeToOrder( value ) {
 		var previousValue = that.currentOrder;
 
 		that.currentOrder = value;
-		that.dispatchEvent({ type: 'orderChanged', order: value, previousOrder: previousValue, pattern: that.currentPattern, row: that.currentRow });
+		that.dispatchEvent({ type: EVENT_ORDER_CHANGE, order: value, previousOrder: previousValue, pattern: that.currentPattern, row: that.currentRow });
 
 		changeToPattern( that.orders[ value ] );
 	}

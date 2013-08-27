@@ -575,14 +575,14 @@ function Player() {
 		var previousValue = that.currentPattern;
 
 		that.currentPattern = value;
-		that.dispatchEvent({ type: 'patternChanged', pattern: value, previousPattern: previousValue, order: that.currentOrder, row: that.currentRow });
+		that.dispatchEvent({ type: EVENT_PATTERN_CHANGE, pattern: value, previousPattern: previousValue, order: that.currentOrder, row: that.currentRow });
 	}
 
 	function changeToOrder( value ) {
 		var previousValue = that.currentOrder;
 
 		that.currentOrder = value;
-		that.dispatchEvent({ type: 'orderChanged', order: value, previousOrder: previousValue, pattern: that.currentPattern, row: that.currentRow });
+		that.dispatchEvent({ type: EVENT_ORDER_CHANGE, order: value, previousOrder: previousValue, pattern: that.currentPattern, row: that.currentRow });
 
 		changeToPattern( that.orders[ value ] );
 	}
@@ -1191,7 +1191,18 @@ function setupOSC(gear, player, osc) {
 
 function setupDeck(player, deck) {
 	// player -> deck
-	console.warn('TODO setupDeck');
+
+	player.addEventListener('order_change', function(ev) {
+		// 'reduce' to showing 1 slide every 4 orders
+		var slideIndex = (ev.order / 4) | 0;
+		var activeCard = deck.getSelectedCard();
+		var activeCardIndex = deck.getCardIndex(activeCard);
+
+		if(activeCardIndex !== slideIndex) {
+			console.log('deck ⇒ shuffle to', slideIndex);
+			deck.shuffleTo(slideIndex);
+		}
+	}, false);
 }
 
 
@@ -1977,7 +1988,7 @@ function Porrompom(audioContext, options) {
 
 			var samplePath = mappings[noteKey];
 			
-			console.log(noteKey, samplePath);
+			console.log('Porrompom LOAD', noteKey, samplePath);
 		
 			// if the sample hasn't been loaded yet
 			if(samples[samplePath] === undefined) {
@@ -2003,13 +2014,11 @@ function Porrompom(audioContext, options) {
 		var mapping = mappings[noteKey];
 		
 		if(mapping) {
-			console.log(noteKey, '=>', mapping);
 			// play sample
 			var sample = samples[mapping];
 
 			// It might not have loaded yet
 			if(sample) {
-				console.log('SAMPLE NOTE ON');
 				sample.noteOn(44100, 1.0, 0);
 			}
 

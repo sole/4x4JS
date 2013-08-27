@@ -3,6 +3,9 @@
 Un-be-lie-va-ble
 
 ## To do
+- get something coordinated
+	- gui -> sound design
+	- deck
 - porrom -> compressor before gain
 - note off!!!
 - disconnect on note offs?

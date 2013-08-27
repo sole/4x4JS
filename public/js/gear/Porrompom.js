@@ -47,7 +47,7 @@ function Porrompom(audioContext, options) {
 
 			var samplePath = mappings[noteKey];
 			
-			console.log(noteKey, samplePath);
+			console.log('Porrompom LOAD', noteKey, samplePath);
 		
 			// if the sample hasn't been loaded yet
 			if(samples[samplePath] === undefined) {
@@ -73,13 +73,11 @@ function Porrompom(audioContext, options) {
 		var mapping = mappings[noteKey];
 		
 		if(mapping) {
-			console.log(noteKey, '=>', mapping);
 			// play sample
 			var sample = samples[mapping];
 
 			// It might not have loaded yet
 			if(sample) {
-				console.log('SAMPLE NOTE ON');
 				sample.noteOn(44100, 1.0, 0);
 			}
 

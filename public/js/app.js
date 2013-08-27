@@ -210,7 +210,18 @@ function setupOSC(gear, player, osc) {
 
 function setupDeck(player, deck) {
 	// player -> deck
-	console.warn('TODO setupDeck');
+
+	player.addEventListener('order_change', function(ev) {
+		// 'reduce' to showing 1 slide every 4 orders
+		var slideIndex = (ev.order / 4) | 0;
+		var activeCard = deck.getSelectedCard();
+		var activeCardIndex = deck.getCardIndex(activeCard);
+
+		if(activeCardIndex !== slideIndex) {
+			console.log('deck ⇒ shuffle to', slideIndex);
+			deck.shuffleTo(slideIndex);
+		}
+	}, false);
 }
 
 
