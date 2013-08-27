@@ -60,7 +60,7 @@ function initialiseGear(audioContext) {
 	var Mixer = require('./gear/Mixer');
 	var mixer = new Mixer(audioContext);
 	mixer.output.connect(audioContext.destination);
-	mixer.setGlobalGain(0.25);
+	mixer.gain = 0.25;
 	
 	// 0 / BASS 
 	var Bajotron = require('./gear/Bajotron');

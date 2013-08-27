@@ -8,6 +8,8 @@ function Mixer(audioContext) {
 	var faders = [];
 	var numFaders = 8;
 
+	EventDispatcher.call(this);
+
 	initFaders();
 
 	var that = this;
@@ -15,8 +17,16 @@ function Mixer(audioContext) {
 	Object.defineProperties(this, {
 		faders: {
 			get: function() { return faders; }
+		},
+		gain: {
+			get: function() { return output.gain.value; },
+			set: function(v) {
+				that.dispatchEvent({ type: 'gain_change', gain: v });
+				output.gain.value = v;
+			}
 		}
 	});
+
 
 	var gui = new MixerGUI();
 	gui.attachTo(this);
@@ -48,10 +58,6 @@ function Mixer(audioContext) {
 
 		var faderInput = faders[faderNumber].input;
 		audioOutput.connect(faderInput);
-	};
-
-	this.setGlobalGain = function(value) {
-		output.gain.value = value;
 	};
 
 	this.setFaderGain = function(faderNumber, value) {
@@ -97,13 +103,31 @@ function Fader(audioContext, options) {
 function MixerGUI() {
 
 	var element = document.createElement('div');
+	var slider = document.createElement('input');
+	slider.type = 'range';
+	slider.min = 0.0;
+	slider.max = 1.0;
+	slider.step = 0.05;
+
+	element.appendChild(document.createTextNode('master gain'));
+	element.appendChild(slider);
 
 	// ~~~
 	
 	this.domElement = element;
-	element.innerHTML = 'mixer gui';
 	
 	this.attachTo = function(mixer) {
+
+		slider.value = mixer.gain;
+
+		mixer.addEventListener('gain_change', function(ev) {
+			slider.value = ev.gain;
+		}, false);
+
+		slider.addEventListener('change', function() {
+			mixer.gain = slider.value;
+		}, false);
+
 		var faders = mixer.faders;
 
 		faders.forEach(function(fader) {
