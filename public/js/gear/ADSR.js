@@ -2,16 +2,33 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 	'use strict';
 
-	this.attack = attack;
+	var that = this;
+
+	setParams({
+		attack: attack,
+		decay: decay,
+		sustain: sustain,
+		release: release
+	});
+	
+	/*this.attack = attack;
 	this.decay = decay;
 	this.sustain = sustain;
-	this.release = release;
+	this.release = release;*/
 
+	function setParams(params) {
+		that.attack = params.attack !== undefined ? params.attack : 0.0;
+		that.decay = params.decay !== undefined ? params.decay : 0.02;
+		that.sustain = params.sustain !== undefined ? params.sustain : 0.5;
+		that.release = params.release !== undefined ? params.release : 0.10;
+	}
+	
 	// ~~~
 	
+	this.setParams = setParams;
+
 	this.beginAttack = function(when) {
 		when = when !== undefined ? when : 0;
-		//var now = audioContext.currentTime + when;
 		
 		var now = when;
 
@@ -26,8 +43,6 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 		when = when !== undefined ? when : 0;
 		var now = when;
 
-		//var now = audioContext.currentTime + when;
-		
 		param.cancelScheduledValues(now);
 		param.linearRampToValueAtTime(0, now + this.release);
 		param.setValueAtTime(0, now + this.release + 0.001);

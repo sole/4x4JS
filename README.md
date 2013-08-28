@@ -3,6 +3,7 @@
 Un-be-lie-va-ble
 
 ## To do
+- wave type setter in OscillatorVoice
 - get something coordinated
 	- gui
 		-> setters/getters in instruments

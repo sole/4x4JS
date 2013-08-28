@@ -19,7 +19,9 @@ function Bajotron(audioContext, options) {
 	var voices = [];
 	var octaves = [];
 	// TODO var semitones = [];
+
 	var outputNode = audioContext.createGain();
+	var adsr = new ADSR(audioContext, outputNode.gain);
 
 	EventDispatcher.call(this);
 
@@ -76,9 +78,6 @@ function Bajotron(audioContext, options) {
 		noiseGenerator.output.connect(outputNode);
 	}*/
 
-	// Voices -> numVoices
-	// add -> copy latest settings
-	// 
 
 	Object.defineProperties(this, {
 		portamento: {
@@ -88,16 +87,35 @@ function Bajotron(audioContext, options) {
 		numVoices: {
 			get: function() { return voices.length; },
 			set: setNumVoices
+		},
+		voices: {
+			get: function() { return voices; }
+		},
+		adsr: {
+			get: function() { return adsr; }
 		}
 	});
 
 	//
 	
 	function parseOptions(options) {
+
 		options = options || {};
 
 		setPortamento(options.portamento !== undefined ? options.portamento : false);
 		setNumVoices(options.numVoices ? options.numVoices : 2);
+		
+		if(options.waveType) {
+			setVoicesWaveType(options.waveType);
+		}
+
+		if(options.octaves) {
+			setVoicesOctaves(options.octaves);
+		}
+
+		if(options.adsr) {
+			adsr.setParams(options.adsr);
+		}
 
 	}
 	
@@ -124,6 +142,7 @@ function Bajotron(audioContext, options) {
 					portamento: portamento,
 					waveType: defaultWaveType
 				});
+				voice.output.connect(outputNode);
 				voices.push(voice);
 				octaves.push(defaultOctave);
 			}
@@ -133,6 +152,30 @@ function Bajotron(audioContext, options) {
 				voice = voices.pop();
 				octaves.pop();
 				voice.output.disconnect();
+			}
+		}
+
+	}
+
+
+	function setVoicesWaveType(v) {
+	
+		voices.forEach(function(voice, index) {
+			if( Object.prototype.toString.call( v ) === '[object Array]' ) {
+				voice.waveType = v[i];
+			} else {
+				voice.waveType = v;
+			}
+		});
+
+	}
+
+
+	function setVoicesOctaves(v) {
+
+		for(var i = 0; i < octaves.length; i++) {
+			if(v[i] !== undefined) {
+				octaves[i] = v[i];
 			}
 		}
 
