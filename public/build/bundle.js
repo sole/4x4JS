@@ -1709,8 +1709,8 @@ module.exports = Bajotron;
 
 },{"./ADSR.js":15,"./NoiseGenerator":22,"./OscillatorVoice":23,"EventDispatcher":1}],17:[function(require,module,exports){
 function register() {
-	var bajotronTemplate = '<input type="checkbox" /> portamento<br/>' +
-		'<input type="number" min="1" max="10" step="1" value="1" /> voices<br />' +
+	var bajotronTemplate = '<label>portamento <input type="checkbox" /></label><br/>' +
+		'<label>voices <input type="number" min="1" max="10" step="1" value="1" /></label><br />' +
 		'<div class="voices">voices settings</div>' +
 		'<div>adsr stuff</div>' +
 		'<div>noise type and amount</div>';
@@ -2529,7 +2529,7 @@ OscillatorVoice.WAVE_TYPE_TRIANGLE = 'triangle';
 module.exports = OscillatorVoice;
 
 },{"EventDispatcher":1,"midiutils":4}],24:[function(require,module,exports){
-var template = '<input type="number" min="0" max="10" step="1" value="5" /> octave<br />' +
+var template = '<label>octave <input type="number" min="0" max="10" step="1" value="5" /></label><br />' +
 	'<select><option value="sine">sine</option><option value="square">square</option><option value="sawtooth">sawtooth</option><option value="triangle">triangle</option></select>';
 
 

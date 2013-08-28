@@ -1,6 +1,6 @@
 function register() {
-	var bajotronTemplate = '<input type="checkbox" /> portamento<br/>' +
-		'<input type="number" min="1" max="10" step="1" value="1" /> voices<br />' +
+	var bajotronTemplate = '<label>portamento <input type="checkbox" /></label><br/>' +
+		'<label>voices <input type="number" min="1" max="10" step="1" value="1" /></label><br />' +
 		'<div class="voices">voices settings</div>' +
 		'<div>adsr stuff</div>' +
 		'<div>noise type and amount</div>';

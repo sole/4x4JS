@@ -1,4 +1,4 @@
-var template = '<input type="number" min="0" max="10" step="1" value="5" /> octave<br />' +
+var template = '<label>octave <input type="number" min="0" max="10" step="1" value="5" /></label><br />' +
 	'<select><option value="sine">sine</option><option value="square">square</option><option value="sawtooth">sawtooth</option><option value="triangle">triangle</option></select>';
 
 
