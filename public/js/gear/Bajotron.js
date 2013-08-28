@@ -67,9 +67,12 @@ function Bajotron(audioContext, options) {
 		noiseGenerator.output.connect(outputNode);
 	}
 
+	var gui = document.createElement('gear-bajotron');
+	gui.attachTo(this);
 
 	// ~~~
 
+	this.gui = gui;
 
 	this.output = outputNode;
 
@@ -110,5 +113,22 @@ function Bajotron(audioContext, options) {
 
 	};
 }
+(function() {
+	var template = 'portamento';
+
+	xtag.register('gear-bajotron', {
+		lifecycle: {
+			created: function() {
+				this.innerHTML = template;
+			},
+		},
+		methods: {
+			attachTo: function(bajotron) {
+				console.log('gear-bajotron attaching to', bajotron);
+			}
+		}
+	});
+
+})();
 
 module.exports = Bajotron;

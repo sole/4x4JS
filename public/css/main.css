@@ -52,11 +52,15 @@ canvas {
 	height: 90%;
 }
 
-	#gui > div {
+	#gui > * {
 		border: 3px solid #333;
 		padding: 1rem;
+		display: block;
 	}
 
 .gear-mixer .fader span {
 	padding-right: 1rem;
+}
+
+.gear-bajotron {
 }

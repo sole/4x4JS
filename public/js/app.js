@@ -119,6 +119,8 @@ function initialiseGear(audioContext) {
 	// Gear GUI
 	// --------
 	guiContainer.appendChild(mixer.gui);
+	// TODO tmp, should append them all consecutively
+	guiContainer.appendChild(bass.gui);
 
 
 	return g;

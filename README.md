@@ -8,6 +8,7 @@ Un-be-lie-va-ble
 		-> setters/getters in instruments
 		-> sound design
 		-> associate some params to hardware controls
+		- x-taggy -> put these things in another file, so that components can be reused
 	- deck
 - note off!!!
 - disconnect on note offs?
