@@ -1447,7 +1447,7 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":8,"./gear/Bajotron":16,"./gear/Colchonator":19,"./gear/GUI":20,"./gear/Mixer":21,"./gear/Oscilloscope":25,"./gear/Porrompom":26,"./quneo.js":30}],15:[function(require,module,exports){
+},{"./Orxatron/":8,"./gear/Bajotron":17,"./gear/Colchonator":20,"./gear/GUI":21,"./gear/Mixer":22,"./gear/Oscilloscope":26,"./gear/Porrompom":27,"./quneo.js":31}],15:[function(require,module,exports){
 function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 	'use strict';
@@ -1460,12 +1460,9 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 		sustain: sustain,
 		release: release
 	});
-	
-	/*this.attack = attack;
-	this.decay = decay;
-	this.sustain = sustain;
-	this.release = release;*/
 
+	//
+	
 	function setParams(params) {
 		that.attack = params.attack !== undefined ? params.attack : 0.0;
 		that.decay = params.decay !== undefined ? params.decay : 0.02;
@@ -1503,6 +1500,69 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 module.exports = ADSR;
 
 },{}],16:[function(require,module,exports){
+var template = '<label>attack <input type="range" class="attack" min="0" max="1" step="0.001"></label><br />' + 
+	'<label>decay <input type="range" class="decay" min="0" max="1" step="0.001"></label><br />' +
+	'<label>sustain <input type="range" class="sustain" min="0" max="1" step="0.001"></label><br />' +
+	'<label>release <input type="range" class="release" min="0" max="1" step="0.001"></label>';
+
+var adsrProps = ['attack', 'decay', 'sustain', 'release'];
+
+function register() {
+
+	'use strict';
+
+	xtag.register('gear-adsr', {
+
+		lifecycle: {
+			created: function() {
+
+				var that = this;
+
+				this.innerHTML = template;
+
+				adsrProps.forEach(function(p) {
+					that[p] = that.querySelector('.' + p);
+				});
+
+			}
+		},
+
+		methods: {
+
+			attachTo: function(adsr) {
+
+				var that = this;
+
+				this.adsr = adsr;
+				
+				adsrProps.forEach(function(p) {
+					
+					that[p].value = adsr[p];
+					that[p].addEventListener('change', function() {
+						that.adsr[p] = that[p].value;
+					});
+					// TODO in the future when properties have setters in ADSR and dispatch events
+					// that.adsr[p].addEventListener(p + '_change', function(ev) {
+					//	console.log(ev[p]);
+					// }, false);
+
+				});
+
+			},
+
+			detach: function() {
+				console.error('detach not implemented');
+			}
+
+		}
+	});
+}
+
+module.exports = {
+	register: register
+};
+
+},{}],17:[function(require,module,exports){
 var EventDispatcher = require('EventDispatcher');
 var OscillatorVoice = require('./OscillatorVoice');
 var NoiseGenerator = require('./NoiseGenerator');
@@ -1707,23 +1767,13 @@ function Bajotron(audioContext, options) {
 
 module.exports = Bajotron;
 
-},{"./ADSR.js":15,"./NoiseGenerator":22,"./OscillatorVoice":23,"EventDispatcher":1}],17:[function(require,module,exports){
+},{"./ADSR.js":15,"./NoiseGenerator":23,"./OscillatorVoice":24,"EventDispatcher":1}],18:[function(require,module,exports){
 function register() {
 	var bajotronTemplate = '<label>portamento <input type="checkbox" /></label><br/>' +
 		'<label>voices <input type="number" min="1" max="10" step="1" value="1" /></label><br />' +
 		'<div class="voices">voices settings</div>' +
-		'<div>adsr stuff</div>' +
+		'<div class="adsr"></div>' +
 		'<div>noise type and amount</div>';
-
-/*
- * var numVoices = options.numVoices ? options.numVoices : 2;
-	var portamento = options.portamento !== undefined ? options.portamento : false;
-	var octaves = options.octaves || [0, 1];
-	// TODO var semitones = [ 0, 5 ] --> 5 = 1 * 12 + 5
-	var waveType = options.waveType || OscillatorVoice.WAVE_TYPE_SQUARE;
-	ADSR
-	noise, type and amount
- */
 
 	function updateVoicesContainer(container, voices) {
 		
@@ -1749,6 +1799,7 @@ function register() {
 	xtag.register('gear-bajotron', {
 		lifecycle: {
 			created: function() {
+
 				var that = this;
 
 				this.bajotron = null;
@@ -1759,6 +1810,9 @@ function register() {
 				
 				this.numVoices = this.querySelector('input[type=number]');
 				this.voicesContainer = this.querySelector('.voices');
+				this.adsrContainer = this.querySelector('.adsr');
+				this.adsr = document.createElement('gear-adsr');
+				this.adsrContainer.appendChild(this.adsr);
 
 			},
 		},
@@ -1793,6 +1847,9 @@ function register() {
 				bajotron.addEventListener('num_voices_change', function() {
 					updateVoicesContainer(that.voicesContainer, bajotron.voices);
 				}, false);
+
+				// ADSR
+				this.adsr.attachTo(bajotron.adsr);
 			}
 		}
 	});
@@ -1805,7 +1862,7 @@ module.exports = {
 };
 
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 function BufferLoader(audioContext) {
 
 	this.load = function(path, loadedCallback, errorCallback) {
@@ -1830,7 +1887,7 @@ function BufferLoader(audioContext) {
 
 module.exports = BufferLoader;
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 var MIDIUtils = require('midiutils');
 var OscillatorVoice = require('./OscillatorVoice');
 var ADSR = require('./ADSR.js');
@@ -2019,11 +2076,13 @@ function Colchonator(audioContext, options) {
 
 module.exports = Colchonator;
 
-},{"./ADSR.js":15,"./Bajotron":16,"./OscillatorVoice":23,"./Reverbetron":27,"midiutils":4}],20:[function(require,module,exports){
+},{"./ADSR.js":15,"./Bajotron":17,"./OscillatorVoice":24,"./Reverbetron":28,"midiutils":4}],21:[function(require,module,exports){
+var ADSRGUI = require('./ADSRGUI');
 var OscillatorVoiceGUI = require('./OscillatorVoiceGUI');
 var BajotronGUI = require('./BajotronGUI');
 
 var registry = [
+	ADSRGUI,
 	OscillatorVoiceGUI,
 	BajotronGUI
 ];
@@ -2039,7 +2098,7 @@ module.exports = {
 	init: init
 };
 
-},{"./BajotronGUI":17,"./OscillatorVoiceGUI":24}],21:[function(require,module,exports){
+},{"./ADSRGUI":16,"./BajotronGUI":18,"./OscillatorVoiceGUI":25}],22:[function(require,module,exports){
 var EventDispatcher = require('eventdispatcher');
 
 // A simple mixer for avoiding early deafness
@@ -2242,7 +2301,7 @@ function FaderGUI() {
 
 module.exports = Mixer;
 
-},{"eventdispatcher":3}],22:[function(require,module,exports){
+},{"eventdispatcher":3}],23:[function(require,module,exports){
 var SampleVoice = require('./SampleVoice');
 
 function generateWhiteNoise(size) {
@@ -2409,7 +2468,7 @@ function NoiseGenerator(audioContext, options) {
 
 module.exports = NoiseGenerator;
 
-},{"./SampleVoice":28}],23:[function(require,module,exports){
+},{"./SampleVoice":29}],24:[function(require,module,exports){
 var MIDIUtils = require('midiutils');
 var EventDispatcher = require('EventDispatcher');
 
@@ -2425,6 +2484,7 @@ function OscillatorVoice(context, options) {
 	var waveType = options.waveType || OscillatorVoice.WAVE_TYPE_SQUARE;
 	var defaultOctave = 4;
 	var octave = defaultOctave;
+	// TODO semitones
 	var lastNote = null;
 
 	EventDispatcher.call(this);
@@ -2528,7 +2588,7 @@ OscillatorVoice.WAVE_TYPE_TRIANGLE = 'triangle';
 
 module.exports = OscillatorVoice;
 
-},{"EventDispatcher":1,"midiutils":4}],24:[function(require,module,exports){
+},{"EventDispatcher":1,"midiutils":4}],25:[function(require,module,exports){
 var template = '<label>octave <input type="number" min="0" max="10" step="1" value="5" /></label><br />' +
 	'<select><option value="sine">sine</option><option value="square">square</option><option value="sawtooth">sawtooth</option><option value="triangle">triangle</option></select>';
 
@@ -2587,7 +2647,7 @@ module.exports = {
 	register: register
 };
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 function Oscilloscope(audioContext, options) {
 	
 	'use strict';
@@ -2668,7 +2728,7 @@ function Oscilloscope(audioContext, options) {
 
 module.exports = Oscilloscope;
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 var BufferLoader = require('./BufferLoader');
 var SampleVoice = require('./SampleVoice');
 var MIDIUtils = require('MIDIUtils');
@@ -2763,7 +2823,7 @@ function Porrompom(audioContext, options) {
 
 module.exports = Porrompom;
 
-},{"./BufferLoader":18,"./SampleVoice":28,"MIDIUtils":2}],27:[function(require,module,exports){
+},{"./BufferLoader":19,"./SampleVoice":29,"MIDIUtils":2}],28:[function(require,module,exports){
 function Reverbetron(audioContext) {
 
 	var that = this;
@@ -2804,7 +2864,7 @@ function Reverbetron(audioContext) {
 
 module.exports = Reverbetron;
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 // This voice plays a buffer / sample, and it's capable of regenerating the buffer source once noteOff has been called
 // TODO set a base note and use it + noteOn note to play relatively pitched notes
 
@@ -2885,7 +2945,7 @@ function SampleVoice(audioContext, options) {
 
 module.exports = SampleVoice;
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -2893,7 +2953,7 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":14}],30:[function(require,module,exports){
+},{"./app":14}],31:[function(require,module,exports){
 var i, j;
 var leds = {};
 var columnLeds = {};
@@ -2974,5 +3034,5 @@ module.exports = {
 	getStopLedPath: getStopLedPath
 };
 
-},{}]},{},[29])
+},{}]},{},[30])
 ;

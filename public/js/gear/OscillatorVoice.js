@@ -13,6 +13,7 @@ function OscillatorVoice(context, options) {
 	var waveType = options.waveType || OscillatorVoice.WAVE_TYPE_SQUARE;
 	var defaultOctave = 4;
 	var octave = defaultOctave;
+	// TODO semitones
 	var lastNote = null;
 
 	EventDispatcher.call(this);

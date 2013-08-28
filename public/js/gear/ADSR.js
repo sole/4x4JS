@@ -10,12 +10,9 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 		sustain: sustain,
 		release: release
 	});
-	
-	/*this.attack = attack;
-	this.decay = decay;
-	this.sustain = sustain;
-	this.release = release;*/
 
+	//
+	
 	function setParams(params) {
 		that.attack = params.attack !== undefined ? params.attack : 0.0;
 		that.decay = params.decay !== undefined ? params.decay : 0.02;

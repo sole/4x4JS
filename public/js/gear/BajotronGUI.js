@@ -2,18 +2,8 @@ function register() {
 	var bajotronTemplate = '<label>portamento <input type="checkbox" /></label><br/>' +
 		'<label>voices <input type="number" min="1" max="10" step="1" value="1" /></label><br />' +
 		'<div class="voices">voices settings</div>' +
-		'<div>adsr stuff</div>' +
+		'<div class="adsr"></div>' +
 		'<div>noise type and amount</div>';
-
-/*
- * var numVoices = options.numVoices ? options.numVoices : 2;
-	var portamento = options.portamento !== undefined ? options.portamento : false;
-	var octaves = options.octaves || [0, 1];
-	// TODO var semitones = [ 0, 5 ] --> 5 = 1 * 12 + 5
-	var waveType = options.waveType || OscillatorVoice.WAVE_TYPE_SQUARE;
-	ADSR
-	noise, type and amount
- */
 
 	function updateVoicesContainer(container, voices) {
 		
@@ -39,6 +29,7 @@ function register() {
 	xtag.register('gear-bajotron', {
 		lifecycle: {
 			created: function() {
+
 				var that = this;
 
 				this.bajotron = null;
@@ -49,6 +40,9 @@ function register() {
 				
 				this.numVoices = this.querySelector('input[type=number]');
 				this.voicesContainer = this.querySelector('.voices');
+				this.adsrContainer = this.querySelector('.adsr');
+				this.adsr = document.createElement('gear-adsr');
+				this.adsrContainer.appendChild(this.adsr);
 
 			},
 		},
@@ -83,6 +77,9 @@ function register() {
 				bajotron.addEventListener('num_voices_change', function() {
 					updateVoicesContainer(that.voicesContainer, bajotron.voices);
 				}, false);
+
+				// ADSR
+				this.adsr.attachTo(bajotron.adsr);
 			}
 		}
 	});
