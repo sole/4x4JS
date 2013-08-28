@@ -2455,7 +2455,7 @@ function OscillatorVoice(context, options) {
 	}
 
 	function getFrequency(note) {
-		return MIDIUtils.noteNumberToFrequency(note - (octave - defaultOctave) * 12);
+		return MIDIUtils.noteNumberToFrequency(note - (defaultOctave - octave) * 12);
 	}
 
 	// ~~~
@@ -2476,13 +2476,11 @@ function OscillatorVoice(context, options) {
 			internalOscillator.connect(gain);
 		}
 		
-		//var finalNote = note + (octave - defaultOctave) * 12;
-		//var frequency = MIDIUtils.noteNumberToFrequency(finalNote);
-		var frequency = 
+		var frequency = getFrequency(note);
 
 		internalOscillator.frequency.value = frequency;
 		
-		console.log('oscillator voice note on', when);
+		console.log('oscillator voice note on', when, note, octave, frequency);
 		internalOscillator.start(when);
 
 	};
