@@ -5,11 +5,14 @@ var audioContext,
 
 var Orxatron = require('./Orxatron/'),
 	Quneo = require('./quneo.js'),
+	gearGUI = require('./gear/GUI'),
 	gear;
 
 function start() {
 
 	var rendererContainer = document.getElementById('rendererContainer');
+
+	gearGUI.init();
 
 	deck = document.querySelector('x-deck');
 	guiContainer = document.getElementById('gui');
@@ -120,7 +123,9 @@ function initialiseGear(audioContext) {
 	// --------
 	guiContainer.appendChild(mixer.gui);
 	// TODO tmp, should append them all consecutively
-	guiContainer.appendChild(bass.gui);
+	var bassGUI = document.createElement(bass.guiTag);
+	bassGUI.attachTo(bass);
+	guiContainer.appendChild(bassGUI);
 
 
 	return g;

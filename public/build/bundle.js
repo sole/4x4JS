@@ -1083,11 +1083,14 @@ var audioContext,
 
 var Orxatron = require('./Orxatron/'),
 	Quneo = require('./quneo.js'),
+	gearGUI = require('./gear/GUI'),
 	gear;
 
 function start() {
 
 	var rendererContainer = document.getElementById('rendererContainer');
+
+	gearGUI.init();
 
 	deck = document.querySelector('x-deck');
 	guiContainer = document.getElementById('gui');
@@ -1198,7 +1201,9 @@ function initialiseGear(audioContext) {
 	// --------
 	guiContainer.appendChild(mixer.gui);
 	// TODO tmp, should append them all consecutively
-	guiContainer.appendChild(bass.gui);
+	var bassGUI = document.createElement(bass.guiTag);
+	bassGUI.attachTo(bass);
+	guiContainer.appendChild(bassGUI);
 
 
 	return g;
@@ -1344,7 +1349,7 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":7,"./gear/Bajotron":15,"./gear/Colchonator":17,"./gear/Mixer":18,"./gear/Oscilloscope":21,"./gear/Porrompom":22,"./quneo.js":26}],14:[function(require,module,exports){
+},{"./Orxatron/":7,"./gear/Bajotron":15,"./gear/Colchonator":18,"./gear/GUI":19,"./gear/Mixer":20,"./gear/Oscilloscope":23,"./gear/Porrompom":24,"./quneo.js":28}],14:[function(require,module,exports){
 function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 	'use strict';
@@ -1454,12 +1459,9 @@ function Bajotron(audioContext, options) {
 		noiseGenerator.output.connect(outputNode);
 	}
 
-	var gui = document.createElement('gear-bajotron');
-	gui.attachTo(this);
-
 	// ~~~
 
-	this.gui = gui;
+	this.guiTag = 'gear-bajotron';
 
 	this.output = outputNode;
 
@@ -1500,7 +1502,11 @@ function Bajotron(audioContext, options) {
 
 	};
 }
-(function() {
+
+module.exports = Bajotron;
+
+},{"./ADSR.js":14,"./NoiseGenerator":21,"./OscillatorVoice":22,"midiutils":3}],16:[function(require,module,exports){
+function register() {
 	var template = 'portamento';
 
 	xtag.register('gear-bajotron', {
@@ -1516,11 +1522,14 @@ function Bajotron(audioContext, options) {
 		}
 	});
 
-})();
+}
 
-module.exports = Bajotron;
+module.exports = {
+	register: register
+};
 
-},{"./ADSR.js":14,"./NoiseGenerator":19,"./OscillatorVoice":20,"midiutils":3}],16:[function(require,module,exports){
+
+},{}],17:[function(require,module,exports){
 function BufferLoader(audioContext) {
 
 	this.load = function(path, loadedCallback, errorCallback) {
@@ -1545,7 +1554,7 @@ function BufferLoader(audioContext) {
 
 module.exports = BufferLoader;
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 var MIDIUtils = require('midiutils');
 var OscillatorVoice = require('./OscillatorVoice');
 var ADSR = require('./ADSR.js');
@@ -1734,7 +1743,25 @@ function Colchonator(audioContext, options) {
 
 module.exports = Colchonator;
 
-},{"./ADSR.js":14,"./Bajotron":15,"./OscillatorVoice":20,"./Reverbetron":23,"midiutils":3}],18:[function(require,module,exports){
+},{"./ADSR.js":14,"./Bajotron":15,"./OscillatorVoice":22,"./Reverbetron":25,"midiutils":3}],19:[function(require,module,exports){
+var BajotronGUI = require('./BajotronGUI');
+
+var registry = [
+	BajotronGUI
+];
+
+
+function init() {
+	registry.forEach(function(gui) {
+		gui.register();
+	});
+}
+
+module.exports = {
+	init: init
+};
+
+},{"./BajotronGUI":16}],20:[function(require,module,exports){
 var EventDispatcher = require('eventdispatcher');
 
 // A simple mixer for avoiding early deafness
@@ -1937,7 +1964,7 @@ function FaderGUI() {
 
 module.exports = Mixer;
 
-},{"eventdispatcher":2}],19:[function(require,module,exports){
+},{"eventdispatcher":2}],21:[function(require,module,exports){
 var SampleVoice = require('./SampleVoice');
 
 function generateWhiteNoise(size) {
@@ -2070,7 +2097,7 @@ function NoiseGenerator(audioContext, options) {
 
 module.exports = NoiseGenerator;
 
-},{"./SampleVoice":24}],20:[function(require,module,exports){
+},{"./SampleVoice":26}],22:[function(require,module,exports){
 function OscillatorVoice(context, options) {
 
 	var internalOscillator = null;
@@ -2122,7 +2149,7 @@ OscillatorVoice.WAVE_TYPE_TRIANGLE = 'triangle';
 
 module.exports = OscillatorVoice;
 
-},{}],21:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 function Oscilloscope(audioContext, options) {
 	
 	'use strict';
@@ -2203,7 +2230,7 @@ function Oscilloscope(audioContext, options) {
 
 module.exports = Oscilloscope;
 
-},{}],22:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 var BufferLoader = require('./BufferLoader');
 var SampleVoice = require('./SampleVoice');
 var MIDIUtils = require('MIDIUtils');
@@ -2298,7 +2325,7 @@ function Porrompom(audioContext, options) {
 
 module.exports = Porrompom;
 
-},{"./BufferLoader":16,"./SampleVoice":24,"MIDIUtils":1}],23:[function(require,module,exports){
+},{"./BufferLoader":17,"./SampleVoice":26,"MIDIUtils":1}],25:[function(require,module,exports){
 function Reverbetron(audioContext) {
 
 	var that = this;
@@ -2339,7 +2366,7 @@ function Reverbetron(audioContext) {
 
 module.exports = Reverbetron;
 
-},{}],24:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 // This voice plays a buffer / sample, and it's capable of regenerating the buffer source once noteOff has been called
 // TODO set a base note and use it + noteOn note to play relatively pitched notes
 
@@ -2420,7 +2447,7 @@ function SampleVoice(audioContext, options) {
 
 module.exports = SampleVoice;
 
-},{}],25:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -2428,7 +2455,7 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":13}],26:[function(require,module,exports){
+},{"./app":13}],28:[function(require,module,exports){
 var i, j;
 var leds = {};
 var columnLeds = {};
@@ -2509,5 +2536,5 @@ module.exports = {
 	getStopLedPath: getStopLedPath
 };
 
-},{}]},{},[25])
+},{}]},{},[27])
 ;
