@@ -1447,7 +1447,7 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":8,"./gear/Bajotron":17,"./gear/Colchonator":20,"./gear/GUI":21,"./gear/Mixer":22,"./gear/Oscilloscope":26,"./gear/Porrompom":27,"./quneo.js":31}],15:[function(require,module,exports){
+},{"./Orxatron/":8,"./gear/Bajotron":17,"./gear/Colchonator":20,"./gear/GUI":21,"./gear/Mixer":22,"./gear/Oscilloscope":27,"./gear/Porrompom":28,"./quneo.js":32}],15:[function(require,module,exports){
 function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 	'use strict';
@@ -1615,6 +1615,9 @@ function Bajotron(audioContext, options) {
 		noiseAmount: {
 			get: function() { return noiseAmount; },
 			set: setNoiseAmount
+		},
+		noiseGenerator: {
+			get: function() { return noiseGenerator; }
 		}
 	});
 
@@ -1771,13 +1774,13 @@ function Bajotron(audioContext, options) {
 
 module.exports = Bajotron;
 
-},{"./ADSR.js":15,"./NoiseGenerator":23,"./OscillatorVoice":24,"EventDispatcher":1}],18:[function(require,module,exports){
+},{"./ADSR.js":15,"./NoiseGenerator":23,"./OscillatorVoice":25,"EventDispatcher":1}],18:[function(require,module,exports){
 function register() {
 	var bajotronTemplate = '<label>portamento <input type="checkbox" /></label><br/>' +
 		'<label>voices <input type="number" min="1" max="10" step="1" value="1" /></label><br />' +
 		'<div class="voices">voices settings</div>' +
 		'<div class="adsr"></div>' +
-		'<div>noise type and amount</div>';
+		'<div class="noise">noise<br /></div>';
 
 	function updateVoicesContainer(container, voices) {
 		
@@ -1796,7 +1799,6 @@ function register() {
 			container.appendChild(oscgui);
 		});
 
-
 	}
 
 
@@ -1814,9 +1816,14 @@ function register() {
 				
 				this.numVoices = this.querySelector('input[type=number]');
 				this.voicesContainer = this.querySelector('.voices');
+				
 				this.adsrContainer = this.querySelector('.adsr');
 				this.adsr = document.createElement('gear-adsr');
 				this.adsrContainer.appendChild(this.adsr);
+
+				this.noiseContainer = this.querySelector('.noise');
+				this.noise = document.createElement('gear-noise-generator');
+				this.noiseContainer.appendChild(this.noise);
 
 			},
 		},
@@ -1854,6 +1861,9 @@ function register() {
 
 				// ADSR
 				this.adsr.attachTo(bajotron.adsr);
+
+				// Noise
+				this.noise.attachTo(bajotron.noiseGenerator);
 			}
 		}
 	});
@@ -2080,13 +2090,15 @@ function Colchonator(audioContext, options) {
 
 module.exports = Colchonator;
 
-},{"./ADSR.js":15,"./Bajotron":17,"./OscillatorVoice":24,"./Reverbetron":28,"midiutils":4}],21:[function(require,module,exports){
+},{"./ADSR.js":15,"./Bajotron":17,"./OscillatorVoice":25,"./Reverbetron":29,"midiutils":4}],21:[function(require,module,exports){
 var ADSRGUI = require('./ADSRGUI');
+var NoiseGeneratorGUI = require('./NoiseGeneratorGUI');
 var OscillatorVoiceGUI = require('./OscillatorVoiceGUI');
 var BajotronGUI = require('./BajotronGUI');
 
 var registry = [
 	ADSRGUI,
+	NoiseGeneratorGUI,
 	OscillatorVoiceGUI,
 	BajotronGUI
 ];
@@ -2102,7 +2114,7 @@ module.exports = {
 	init: init
 };
 
-},{"./ADSRGUI":16,"./BajotronGUI":18,"./OscillatorVoiceGUI":25}],22:[function(require,module,exports){
+},{"./ADSRGUI":16,"./BajotronGUI":18,"./NoiseGeneratorGUI":24,"./OscillatorVoiceGUI":26}],22:[function(require,module,exports){
 var EventDispatcher = require('eventdispatcher');
 
 // A simple mixer for avoiding early deafness
@@ -2472,7 +2484,65 @@ function NoiseGenerator(audioContext, options) {
 
 module.exports = NoiseGenerator;
 
-},{"./SampleVoice":29}],24:[function(require,module,exports){
+},{"./SampleVoice":30}],24:[function(require,module,exports){
+var template = '<label>colour <select><option value="white">white</option><option value="pink">pink</option><option value="brown">brown</option></select></label><br />' +
+	'<label>length <input type="range" min="1" max="48000" /></label>';
+
+function register() {
+	xtag.register('gear-noise-generator', {
+		lifecycle: {
+			created: function() {
+				this.innerHTML = template;
+
+				this.length = this.querySelector('input[type=range]');
+				this.type = this.querySelector('select');
+
+			}
+		},
+		methods: {
+
+			attachTo: function(generator) {
+				var that = this;
+
+				this.generator = generator;
+				
+				// Length
+				this.length.value = generator.length;
+
+				this.length.addEventListener('change', function() {
+					that.generator.length = that.length.value;
+				}, false);
+
+				/*generator.addEventListener('length_change', function() {
+					that.length.value = generator.length;
+				}, false);*/
+
+				// noise type
+				this.type.value = generator.type;
+
+				this.type.addEventListener('change', function() {
+					generator.type = that.type.value;
+				}, false);
+
+				/*generator.addEventListener('type_change', function(ev) {
+					that.type.value = ev.type;
+				}, false);*/
+
+			},
+
+			detach: function() {
+				console.error('detach not implemented');
+			}
+
+		}
+	});
+}
+
+module.exports = {
+	register: register
+};
+
+},{}],25:[function(require,module,exports){
 var MIDIUtils = require('midiutils');
 var EventDispatcher = require('EventDispatcher');
 
@@ -2592,7 +2662,7 @@ OscillatorVoice.WAVE_TYPE_TRIANGLE = 'triangle';
 
 module.exports = OscillatorVoice;
 
-},{"EventDispatcher":1,"midiutils":4}],25:[function(require,module,exports){
+},{"EventDispatcher":1,"midiutils":4}],26:[function(require,module,exports){
 var template = '<label>octave <input type="number" min="0" max="10" step="1" value="5" /></label><br />' +
 	'<select><option value="sine">sine</option><option value="square">square</option><option value="sawtooth">sawtooth</option><option value="triangle">triangle</option></select>';
 
@@ -2651,7 +2721,7 @@ module.exports = {
 	register: register
 };
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 function Oscilloscope(audioContext, options) {
 	
 	'use strict';
@@ -2732,7 +2802,7 @@ function Oscilloscope(audioContext, options) {
 
 module.exports = Oscilloscope;
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 var BufferLoader = require('./BufferLoader');
 var SampleVoice = require('./SampleVoice');
 var MIDIUtils = require('MIDIUtils');
@@ -2827,7 +2897,7 @@ function Porrompom(audioContext, options) {
 
 module.exports = Porrompom;
 
-},{"./BufferLoader":19,"./SampleVoice":29,"MIDIUtils":2}],28:[function(require,module,exports){
+},{"./BufferLoader":19,"./SampleVoice":30,"MIDIUtils":2}],29:[function(require,module,exports){
 function Reverbetron(audioContext) {
 
 	var that = this;
@@ -2868,7 +2938,7 @@ function Reverbetron(audioContext) {
 
 module.exports = Reverbetron;
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 // This voice plays a buffer / sample, and it's capable of regenerating the buffer source once noteOff has been called
 // TODO set a base note and use it + noteOn note to play relatively pitched notes
 
@@ -2949,7 +3019,7 @@ function SampleVoice(audioContext, options) {
 
 module.exports = SampleVoice;
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -2957,7 +3027,7 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":14}],31:[function(require,module,exports){
+},{"./app":14}],32:[function(require,module,exports){
 var i, j;
 var leds = {};
 var columnLeds = {};
@@ -3038,5 +3108,5 @@ module.exports = {
 	getStopLedPath: getStopLedPath
 };
 
-},{}]},{},[30])
+},{}]},{},[31])
 ;

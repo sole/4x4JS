@@ -3,7 +3,7 @@ function register() {
 		'<label>voices <input type="number" min="1" max="10" step="1" value="1" /></label><br />' +
 		'<div class="voices">voices settings</div>' +
 		'<div class="adsr"></div>' +
-		'<div>noise type and amount</div>';
+		'<div class="noise">noise<br /></div>';
 
 	function updateVoicesContainer(container, voices) {
 		
@@ -22,7 +22,6 @@ function register() {
 			container.appendChild(oscgui);
 		});
 
-
 	}
 
 
@@ -40,9 +39,14 @@ function register() {
 				
 				this.numVoices = this.querySelector('input[type=number]');
 				this.voicesContainer = this.querySelector('.voices');
+				
 				this.adsrContainer = this.querySelector('.adsr');
 				this.adsr = document.createElement('gear-adsr');
 				this.adsrContainer.appendChild(this.adsr);
+
+				this.noiseContainer = this.querySelector('.noise');
+				this.noise = document.createElement('gear-noise-generator');
+				this.noiseContainer.appendChild(this.noise);
 
 			},
 		},
@@ -80,6 +84,9 @@ function register() {
 
 				// ADSR
 				this.adsr.attachTo(bajotron.adsr);
+
+				// Noise
+				this.noise.attachTo(bajotron.noiseGenerator);
 			}
 		}
 	});

@@ -46,6 +46,9 @@ function Bajotron(audioContext, options) {
 		noiseAmount: {
 			get: function() { return noiseAmount; },
 			set: setNoiseAmount
+		},
+		noiseGenerator: {
+			get: function() { return noiseGenerator; }
 		}
 	});
 
