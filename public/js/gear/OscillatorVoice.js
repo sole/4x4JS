@@ -31,11 +31,17 @@ function OscillatorVoice(context, options) {
 	// 
 	
 	function setWaveType(v) {
+
 		if(internalOscillator !== null) {
 			internalOscillator.type = v;
 		}
+
 		waveType = v;
+
+		that.dispatchEvent({ type: 'wave_type_change', wave_type: v });
+
 	}
+
 
 	function setOctave(v) {
 
@@ -48,6 +54,7 @@ function OscillatorVoice(context, options) {
 		that.dispatchEvent({ type: 'octave_change', octave: v });
 
 	}
+
 
 	function getFrequency(note) {
 		return MIDIUtils.noteNumberToFrequency(note - (defaultOctave - octave) * 12);

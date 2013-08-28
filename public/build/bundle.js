@@ -2436,11 +2436,17 @@ function OscillatorVoice(context, options) {
 	// 
 	
 	function setWaveType(v) {
+
 		if(internalOscillator !== null) {
 			internalOscillator.type = v;
 		}
+
 		waveType = v;
+
+		that.dispatchEvent({ type: 'wave_type_change', wave_type: v });
+
 	}
+
 
 	function setOctave(v) {
 
@@ -2453,6 +2459,7 @@ function OscillatorVoice(context, options) {
 		that.dispatchEvent({ type: 'octave_change', octave: v });
 
 	}
+
 
 	function getFrequency(note) {
 		return MIDIUtils.noteNumberToFrequency(note - (defaultOctave - octave) * 12);
@@ -2515,10 +2522,12 @@ function register() {
 				this.innerHTML = template;
 
 				this.octave = this.querySelector('input[type=number]');
+				this.wave_type = this.querySelector('select');
 
 			}
 		},
 		methods: {
+
 			attachTo: function(voice) {
 				var that = this;
 
@@ -2536,12 +2545,22 @@ function register() {
 				}, false);
 
 				// Wave type
-				// TODO
+				this.wave_type.value = voice.waveType;
+
+				this.wave_type.addEventListener('change', function() {
+					voice.waveType = that.wave_type.value;
+				}, false);
+
+				voice.addEventListener('wave_type_change', function(ev) {
+					that.wave_type.value = ev.wave_type;
+				}, false);
 
 			},
+
 			detach: function() {
 				console.error('detach not implemented');
 			}
+
 		}
 	});
 }
