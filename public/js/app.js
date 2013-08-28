@@ -107,7 +107,7 @@ function initialiseGear(audioContext) {
 		mixer.plug(index, instrument.output);
 	});
 	mixer.setFaderGain(0, 0.1);
-	mixer.setFaderGain(1, 0.1);
+	mixer.setFaderGain(1, 0.0);
 	
 	var Oscilloscope = require('./gear/Oscilloscope');
 	var oscilloscope = new Oscilloscope(audioContext);

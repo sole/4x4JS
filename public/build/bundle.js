@@ -1283,7 +1283,7 @@ function initialiseGear(audioContext) {
 		mixer.plug(index, instrument.output);
 	});
 	mixer.setFaderGain(0, 0.1);
-	mixer.setFaderGain(1, 0.1);
+	mixer.setFaderGain(1, 0.0);
 	
 	var Oscilloscope = require('./gear/Oscilloscope');
 	var oscilloscope = new Oscilloscope(audioContext);
@@ -1461,8 +1461,10 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 		release: release
 	});
 
+
 	//
-	
+
+
 	function setParams(params) {
 		that.attack = params.attack !== undefined ? params.attack : 0.0;
 		that.decay = params.decay !== undefined ? params.decay : 0.02;
@@ -1500,10 +1502,10 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 module.exports = ADSR;
 
 },{}],16:[function(require,module,exports){
-var template = '<label>attack <input type="range" class="attack" min="0" max="1" step="0.001"></label><br />' + 
-	'<label>decay <input type="range" class="decay" min="0" max="1" step="0.001"></label><br />' +
-	'<label>sustain <input type="range" class="sustain" min="0" max="1" step="0.001"></label><br />' +
-	'<label>release <input type="range" class="release" min="0" max="1" step="0.001"></label>';
+var template = '<label>attack <input type="range" class="attack" min="0" max="1" step="0.0001"></label><br />' + 
+	'<label>decay <input type="range" class="decay" min="0" max="1" step="0.0001"></label><br />' +
+	'<label>sustain <input type="range" class="sustain" min="0" max="1" step="0.0001"></label><br />' +
+	'<label>release <input type="range" class="release" min="0" max="1" step="0.0001"></label>';
 
 var adsrProps = ['attack', 'decay', 'sustain', 'release'];
 
@@ -1539,7 +1541,9 @@ function register() {
 					
 					that[p].value = adsr[p];
 					that[p].addEventListener('change', function() {
-						that.adsr[p] = that[p].value;
+						var arg = that[p].value*1 + 1;
+						var scaledValue = Math.log(arg);
+						that.adsr[p] = scaledValue;
 					});
 					// TODO in the future when properties have setters in ADSR and dispatch events
 					// that.adsr[p].addEventListener(p + '_change', function(ev) {
