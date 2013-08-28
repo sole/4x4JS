@@ -77,6 +77,8 @@ function OscillatorVoice(context, options) {
 			internalOscillator.type = waveType;
 			internalOscillator.connect(gain);
 		}
+
+		lastNote = note;
 		
 		var frequency = getFrequency(note);
 
