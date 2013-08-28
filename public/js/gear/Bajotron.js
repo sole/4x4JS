@@ -11,19 +11,25 @@ function valueOrUndefined(value, defaultValue) {
 function Bajotron(audioContext, options) {
 
 	'use strict';
+
 	var that = this;
+	var defaultWaveType = OscillatorVoice.WAVE_TYPE_SQUARE;
+	var defaultOctave = 4;
+	var portamento;
+	var voices = [];
+	var octaves = [];
+	// TODO var semitones = [];
+	var outputNode = audioContext.createGain();
 
 	EventDispatcher.call(this);
 
-	var outputNode = audioContext.createGain();
+	parseOptions(options);
 
-	var i;
+	/*var i;
 	var vou = valueOrUndefined; // ??? maybe too tricky ???
 	
-	options = options || {};
-
+	
 	var numVoices = options.numVoices ? options.numVoices : 2;
-	var portamento = options.portamento !== undefined ? options.portamento : false;
 	var octaves = options.octaves || [0, 1];
 	// TODO var semitones = [ 0, 5 ] --> 5 = 1 * 12 + 5
 	var waveType = options.waveType || OscillatorVoice.WAVE_TYPE_SQUARE;
@@ -68,17 +74,71 @@ function Bajotron(audioContext, options) {
 
 	if(noiseOptions) {
 		noiseGenerator.output.connect(outputNode);
-	}
+	}*/
+
+	// Voices -> numVoices
+	// add -> copy latest settings
+	// 
 
 	Object.defineProperties(this, {
 		portamento: {
 			get: function() { return portamento; },
-			set: function(v) {
-				portamento = v;
-				that.dispatchEvent({ type: 'portamento_change', portamento: v });
-			}
+			set: setPortamento
+		},
+		numVoices: {
+			get: function() { return voices.length; },
+			set: setNumVoices
 		}
 	});
+
+	//
+	
+	function parseOptions(options) {
+		options = options || {};
+
+		setPortamento(options.portamento !== undefined ? options.portamento : false);
+		setNumVoices(options.numVoices ? options.numVoices : 2);
+
+	}
+	
+
+	function setPortamento(v) {
+
+		portamento = v;
+		voices.forEach(function(voice) {
+			voice.portamento = v;
+		}); // TODO ???
+		that.dispatchEvent({ type: 'portamento_change', portamento: v });
+	
+	}
+
+
+	function setNumVoices(v) {
+
+		var voice;
+
+		if(v < voices.length) {
+			// add voices
+			while(v < voices.length) {
+				voice = new OscillatorVoice(audioContext, {
+					portamento: portamento,
+					waveType: defaultWaveType
+				});
+				voices.push(voice);
+				octaves.push(defaultOctave);
+			}
+		} else {
+			// remove voices
+			while(v > voices.length) {
+				voice = voices.pop();
+				octaves.pop();
+				voice.output.disconnect();
+			}
+		}
+
+	}
+
+
 
 	// ~~~
 
