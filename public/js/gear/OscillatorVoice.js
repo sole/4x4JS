@@ -1,7 +1,9 @@
 var MIDIUtils = require('midiutils');
+var EventDispatcher = require('EventDispatcher');
 
 function OscillatorVoice(context, options) {
 
+	var that = this;
 	var internalOscillator = null;
 	var gain = context.createGain();
 
@@ -11,6 +13,9 @@ function OscillatorVoice(context, options) {
 	var waveType = options.waveType || OscillatorVoice.WAVE_TYPE_SQUARE;
 	var defaultOctave = 4;
 	var octave = defaultOctave;
+	var lastNote = null;
+
+	EventDispatcher.call(this);
 
 	Object.defineProperties(this, {
 		waveType: {
@@ -33,8 +38,19 @@ function OscillatorVoice(context, options) {
 	}
 
 	function setOctave(v) {
+
 		octave = v;
-		// TODO update currently playing oscillator --> need to store the last note etc
+		
+		if(internalOscillator !== null && lastNote !== null) {
+			internalOscillator.frequency.value = getFrequency(lastNote);
+		}
+
+		that.dispatchEvent({ type: 'octave_change', octave: v });
+
+	}
+
+	function getFrequency(note) {
+		return MIDIUtils.noteNumberToFrequency(note - (octave - defaultOctave) * 12);
 	}
 
 	// ~~~
@@ -55,8 +71,9 @@ function OscillatorVoice(context, options) {
 			internalOscillator.connect(gain);
 		}
 		
-		var finalNote = note + (octave - defaultOctave) * 12;
-		var frequency = MIDIUtils.noteNumberToFrequency(finalNote);
+		//var finalNote = note + (octave - defaultOctave) * 12;
+		//var frequency = MIDIUtils.noteNumberToFrequency(finalNote);
+		var frequency = 
 
 		internalOscillator.frequency.value = frequency;
 		

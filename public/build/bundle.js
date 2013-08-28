@@ -1246,7 +1246,7 @@ function initialiseGear(audioContext) {
 	var bass = new Bajotron(audioContext, {
 		portamento: false,
 		waveType: ['square', 'triangle'],
-		octaves: [-2, -1] 
+		octaves: [3, 4] 
 	});
 	g.push(bass);
 
@@ -1503,7 +1503,6 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 module.exports = ADSR;
 
 },{}],16:[function(require,module,exports){
-var MIDIUtils = require('midiutils');
 var EventDispatcher = require('EventDispatcher');
 var OscillatorVoice = require('./OscillatorVoice');
 var NoiseGenerator = require('./NoiseGenerator');
@@ -1708,7 +1707,7 @@ function Bajotron(audioContext, options) {
 
 module.exports = Bajotron;
 
-},{"./ADSR.js":15,"./NoiseGenerator":22,"./OscillatorVoice":23,"EventDispatcher":1,"midiutils":4}],17:[function(require,module,exports){
+},{"./ADSR.js":15,"./NoiseGenerator":22,"./OscillatorVoice":23,"EventDispatcher":1}],17:[function(require,module,exports){
 function register() {
 	var bajotronTemplate = '<input type="checkbox" /> portamento<br/>' +
 		'<input type="number" min="1" max="10" step="1" value="1" /> voices<br />' +
@@ -2405,9 +2404,11 @@ module.exports = NoiseGenerator;
 
 },{"./SampleVoice":28}],23:[function(require,module,exports){
 var MIDIUtils = require('midiutils');
+var EventDispatcher = require('EventDispatcher');
 
 function OscillatorVoice(context, options) {
 
+	var that = this;
 	var internalOscillator = null;
 	var gain = context.createGain();
 
@@ -2417,6 +2418,9 @@ function OscillatorVoice(context, options) {
 	var waveType = options.waveType || OscillatorVoice.WAVE_TYPE_SQUARE;
 	var defaultOctave = 4;
 	var octave = defaultOctave;
+	var lastNote = null;
+
+	EventDispatcher.call(this);
 
 	Object.defineProperties(this, {
 		waveType: {
@@ -2439,8 +2443,19 @@ function OscillatorVoice(context, options) {
 	}
 
 	function setOctave(v) {
+
 		octave = v;
-		// TODO update currently playing oscillator --> need to store the last note etc
+		
+		if(internalOscillator !== null && lastNote !== null) {
+			internalOscillator.frequency.value = getFrequency(lastNote);
+		}
+
+		that.dispatchEvent({ type: 'octave_change', octave: v });
+
+	}
+
+	function getFrequency(note) {
+		return MIDIUtils.noteNumberToFrequency(note - (octave - defaultOctave) * 12);
 	}
 
 	// ~~~
@@ -2461,8 +2476,9 @@ function OscillatorVoice(context, options) {
 			internalOscillator.connect(gain);
 		}
 		
-		var finalNote = note + (octave - defaultOctave) * 12;
-		var frequency = MIDIUtils.noteNumberToFrequency(finalNote);
+		//var finalNote = note + (octave - defaultOctave) * 12;
+		//var frequency = MIDIUtils.noteNumberToFrequency(finalNote);
+		var frequency = 
 
 		internalOscillator.frequency.value = frequency;
 		
@@ -2489,7 +2505,7 @@ OscillatorVoice.WAVE_TYPE_TRIANGLE = 'triangle';
 
 module.exports = OscillatorVoice;
 
-},{"midiutils":4}],24:[function(require,module,exports){
+},{"EventDispatcher":1,"midiutils":4}],24:[function(require,module,exports){
 var template = '<input type="number" min="0" max="10" step="1" value="5" /> octave<br />' +
 	'<select><option value="sine">sine</option><option value="square">square</option><option value="sawtooth">sawtooth</option><option value="triangle">triangle</option></select>';
 
@@ -2499,12 +2515,31 @@ function register() {
 		lifecycle: {
 			created: function() {
 				this.innerHTML = template;
+
+				this.octave = this.querySelector('input[type=number]');
+
 			}
 		},
 		methods: {
 			attachTo: function(voice) {
+				var that = this;
+
 				this.voice = voice;
-				// TODO add listeners
+				
+				// Octave
+				this.octave.value = voice.octave;
+
+				this.octave.addEventListener('change', function() {
+					that.voice.octave = that.octave.value;
+				}, false);
+
+				voice.addEventListener('octave_change', function() {
+					that.octave.value = voice.octave;
+				}, false);
+
+				// Wave type
+				// TODO
+
 			},
 			detach: function() {
 				console.error('detach not implemented');

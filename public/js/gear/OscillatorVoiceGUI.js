@@ -7,12 +7,31 @@ function register() {
 		lifecycle: {
 			created: function() {
 				this.innerHTML = template;
+
+				this.octave = this.querySelector('input[type=number]');
+
 			}
 		},
 		methods: {
 			attachTo: function(voice) {
+				var that = this;
+
 				this.voice = voice;
-				// TODO add listeners
+				
+				// Octave
+				this.octave.value = voice.octave;
+
+				this.octave.addEventListener('change', function() {
+					that.voice.octave = that.octave.value;
+				}, false);
+
+				voice.addEventListener('octave_change', function() {
+					that.octave.value = voice.octave;
+				}, false);
+
+				// Wave type
+				// TODO
+
 			},
 			detach: function() {
 				console.error('detach not implemented');

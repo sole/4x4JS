@@ -70,7 +70,7 @@ function initialiseGear(audioContext) {
 	var bass = new Bajotron(audioContext, {
 		portamento: false,
 		waveType: ['square', 'triangle'],
-		octaves: [-2, -1] 
+		octaves: [3, 4] 
 	});
 	g.push(bass);
 

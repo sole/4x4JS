@@ -1,4 +1,3 @@
-var MIDIUtils = require('midiutils');
 var EventDispatcher = require('EventDispatcher');
 var OscillatorVoice = require('./OscillatorVoice');
 var NoiseGenerator = require('./NoiseGenerator');
