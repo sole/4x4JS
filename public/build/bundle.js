@@ -1527,63 +1527,14 @@ function Bajotron(audioContext, options) {
 
 	var outputNode = audioContext.createGain();
 	var adsr = new ADSR(audioContext, outputNode.gain);
+	var noiseAmount = 0.0;
+	var noiseGenerator = new NoiseGenerator(audioContext);
 
 	EventDispatcher.call(this);
 
 	parseOptions(options);
 
-	/*var i;
-	var vou = valueOrUndefined; // ??? maybe too tricky ???
 	
-	
-	var numVoices = options.numVoices ? options.numVoices : 2;
-	var octaves = options.octaves || [0, 1];
-	// TODO var semitones = [ 0, 5 ] --> 5 = 1 * 12 + 5
-	var waveType = options.waveType || OscillatorVoice.WAVE_TYPE_SQUARE;
-
-	// if wave type was a single string constant, build an array with that value
-	if( Object.prototype.toString.call( waveType ) !== '[object Array]' ) {
-		var waveTypes = [];
-		for(i = 0; i < numVoices; i++) {
-			waveTypes.push(waveType);
-		}
-		waveType = waveTypes;
-	}
-
-	var voices = [];
-	for(i = 0; i < numVoices; i++) {
-		
-		var voice = new OscillatorVoice(audioContext, {
-			portamento: portamento,
-			waveType: waveType[i]
-		});
-
-		voice.output.connect(outputNode);
-		voices.push(voice);
-	}
-	
-	
-	var adsrParams = options.adsr || {};
-	var adsr = new ADSR(audioContext, outputNode.gain, vou(adsrParams.attack, 0.0), vou(adsrParams.decay, 0.2), vou(adsrParams.sustain, 0.05), vou(adsrParams.release, 0.10));
-
-
-	// TODO an idea for modulating the output using gain + noise:
-	// extra gain node before outputNode ( < Gain)
-	// mode: + or - : automate gain with noise output
-	//     -> i.e. connect noise output to extraGain.gain
-	// mode: * or /: maybe some sort of delay node...?
-	//     -> bass output * noise = ???
-	var noiseOptions = options.noise;
-	if(noiseOptions && noiseOptions.length === undefined) {
-		noiseOptions.length = audioContext.sampleRate;
-	}
-	var noiseGenerator = new NoiseGenerator(audioContext, noiseOptions);
-
-	if(noiseOptions) {
-		noiseGenerator.output.connect(outputNode);
-	}*/
-
-
 	Object.defineProperties(this, {
 		portamento: {
 			get: function() { return portamento; },
@@ -1598,6 +1549,10 @@ function Bajotron(audioContext, options) {
 		},
 		adsr: {
 			get: function() { return adsr; }
+		},
+		noiseAmount: {
+			get: function() { return noiseAmount; },
+			set: setNoiseAmount
 		}
 	});
 
@@ -1622,6 +1577,14 @@ function Bajotron(audioContext, options) {
 			adsr.setParams(options.adsr);
 		}
 
+		setNoiseAmount(options.noiseAmount !== undefined ? options.noiseAmount : 0.0);
+		if(options.noise) {
+			for(var k in options.noise) {
+				console.log('set noise opt', k, options.noise[k]);
+				noiseGenerator.k = options.noise[k];
+			}
+		}
+
 	}
 	
 
@@ -1639,10 +1602,10 @@ function Bajotron(audioContext, options) {
 	function setNumVoices(v) {
 
 		var voice;
-
-		if(v < voices.length) {
+		
+		if(v > voices.length) {
 			// add voices
-			while(v < voices.length) {
+			while(v > voices.length) {
 				voice = new OscillatorVoice(audioContext, {
 					portamento: portamento,
 					waveType: defaultWaveType
@@ -1653,7 +1616,7 @@ function Bajotron(audioContext, options) {
 			}
 		} else {
 			// remove voices
-			while(v > voices.length) {
+			while(v < voices.length) {
 				voice = voices.pop();
 				octaves.pop();
 				voice.output.disconnect();
@@ -1667,7 +1630,7 @@ function Bajotron(audioContext, options) {
 	
 		voices.forEach(function(voice, index) {
 			if( Object.prototype.toString.call( v ) === '[object Array]' ) {
-				voice.waveType = v[i];
+				voice.waveType = v[index];
 			} else {
 				voice.waveType = v;
 			}
@@ -1686,6 +1649,20 @@ function Bajotron(audioContext, options) {
 
 	}
 
+
+	function setNoiseAmount(v) {
+		
+		noiseAmount = v;
+
+		if(noiseAmount <= 0) {
+			noiseGenerator.output.disconnect();
+		} else {
+			noiseGenerator.output.connect(outputNode);
+		}
+
+		that.dispatchEvent({ type: 'noise_amount_changed', amount: v });
+
+	}
 
 
 	// ~~~
@@ -2291,21 +2268,38 @@ function generateBrownNoise(size) {
 
 function NoiseGenerator(audioContext, options) {
 	
-	options = options || {};
-	
-	var type = options.type || 'white';
-	var length = options.length || 4096;
-
 	var output = audioContext.createGain();
 	var sourceVoice;
+	var type;
+	var length;
+
+	options = options || {};
+
+	setType(options.type || 'white');
+	setLength(options.length || audioContext.sampleRate);
 
 	buildBuffer(length, type);
+
+	Object.defineProperties(this, {
+		type: {
+			set: setType,
+			get: function() { return type; }
+		},
+		length: {
+			set: setLength,
+			get: function() { return length; }
+		}
+	});
 
 	// 
 	
 	function buildBuffer(length, type) {
 
 		var noiseFunction, bufferData;
+
+		if(length === undefined || type === undefined) {
+			return;
+		}
 
 		switch(type) {
 			
@@ -2323,12 +2317,16 @@ function NoiseGenerator(audioContext, options) {
 		bufferData = noiseFunction(length);
 
 		var buffer = audioContext.createBuffer(1, length, audioContext.sampleRate);
-		console.log('NoiseGenerator buffer length', length);
+		
 		var channelData = buffer.getChannelData(0);
 		bufferData.forEach(function(v, i) {
 			channelData[i] = v;
 		});
 		
+		if(sourceVoice) {
+			sourceVoice.output.disconnect();
+		}
+
 		sourceVoice = new SampleVoice(audioContext, {
 			loop: true,
 			buffer: buffer
@@ -2336,6 +2334,19 @@ function NoiseGenerator(audioContext, options) {
 
 		sourceVoice.output.connect(output);
 
+	}
+
+
+	//
+	
+	function setType(t) {
+		buildBuffer(length, t);
+		type = t;
+	}
+
+	function setLength(v) {
+		buildBuffer(v, type);
+		length = v;
 	}
 
 	// ~~~

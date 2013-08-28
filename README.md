@@ -4,6 +4,7 @@ Un-be-lie-va-ble
 
 ## To do
 - wave type setter in OscillatorVoice
+- noise generator dispatch events on setters
 - get something coordinated
 	- gui
 		-> setters/getters in instruments

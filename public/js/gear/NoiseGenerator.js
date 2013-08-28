@@ -59,21 +59,38 @@ function generateBrownNoise(size) {
 
 function NoiseGenerator(audioContext, options) {
 	
-	options = options || {};
-	
-	var type = options.type || 'white';
-	var length = options.length || 4096;
-
 	var output = audioContext.createGain();
 	var sourceVoice;
+	var type;
+	var length;
+
+	options = options || {};
+
+	setType(options.type || 'white');
+	setLength(options.length || audioContext.sampleRate);
 
 	buildBuffer(length, type);
+
+	Object.defineProperties(this, {
+		type: {
+			set: setType,
+			get: function() { return type; }
+		},
+		length: {
+			set: setLength,
+			get: function() { return length; }
+		}
+	});
 
 	// 
 	
 	function buildBuffer(length, type) {
 
 		var noiseFunction, bufferData;
+
+		if(length === undefined || type === undefined) {
+			return;
+		}
 
 		switch(type) {
 			
@@ -91,12 +108,16 @@ function NoiseGenerator(audioContext, options) {
 		bufferData = noiseFunction(length);
 
 		var buffer = audioContext.createBuffer(1, length, audioContext.sampleRate);
-		console.log('NoiseGenerator buffer length', length);
+		
 		var channelData = buffer.getChannelData(0);
 		bufferData.forEach(function(v, i) {
 			channelData[i] = v;
 		});
 		
+		if(sourceVoice) {
+			sourceVoice.output.disconnect();
+		}
+
 		sourceVoice = new SampleVoice(audioContext, {
 			loop: true,
 			buffer: buffer
@@ -104,6 +125,19 @@ function NoiseGenerator(audioContext, options) {
 
 		sourceVoice.output.connect(output);
 
+	}
+
+
+	//
+	
+	function setType(t) {
+		buildBuffer(length, t);
+		type = t;
+	}
+
+	function setLength(v) {
+		buildBuffer(v, type);
+		length = v;
 	}
 
 	// ~~~
