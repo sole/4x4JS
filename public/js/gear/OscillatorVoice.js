@@ -1,3 +1,5 @@
+var MIDIUtils = require('midiutils');
+
 function OscillatorVoice(context, options) {
 
 	var internalOscillator = null;
@@ -7,10 +9,39 @@ function OscillatorVoice(context, options) {
 
 	var portamento = options.portamento !== undefined ? options.portamento : true;
 	var waveType = options.waveType || OscillatorVoice.WAVE_TYPE_SQUARE;
+	var defaultOctave = 4;
+	var octave = defaultOctave;
+
+	Object.defineProperties(this, {
+		waveType: {
+			get: function() { return waveType; },
+			set: setWaveType
+		},
+		octave: {
+			get: function() { return octave; },
+			set: setOctave
+		}
+	});
+
+	// 
+	
+	function setWaveType(v) {
+		if(internalOscillator !== null) {
+			internalOscillator.type = v;
+		}
+		waveType = v;
+	}
+
+	function setOctave(v) {
+		octave = v;
+		// TODO update currently playing oscillator --> need to store the last note etc
+	}
+
+	// ~~~
 
 	this.output = gain;
 
-	this.noteOn = function(frequency, when) {
+	this.noteOn = function(note, when) {
 
 		if(!portamento) {
 			this.noteOff();
@@ -24,6 +55,9 @@ function OscillatorVoice(context, options) {
 			internalOscillator.connect(gain);
 		}
 		
+		var finalNote = note + (octave - defaultOctave) * 12;
+		var frequency = MIDIUtils.noteNumberToFrequency(finalNote);
+
 		internalOscillator.frequency.value = frequency;
 		
 		console.log('oscillator voice note on', when);

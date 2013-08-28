@@ -1447,7 +1447,7 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":8,"./gear/Bajotron":16,"./gear/Colchonator":19,"./gear/GUI":20,"./gear/Mixer":21,"./gear/Oscilloscope":24,"./gear/Porrompom":25,"./quneo.js":29}],15:[function(require,module,exports){
+},{"./Orxatron/":8,"./gear/Bajotron":16,"./gear/Colchonator":19,"./gear/GUI":20,"./gear/Mixer":21,"./gear/Oscilloscope":25,"./gear/Porrompom":26,"./quneo.js":30}],15:[function(require,module,exports){
 function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 	'use strict';
@@ -1522,7 +1522,6 @@ function Bajotron(audioContext, options) {
 	var defaultOctave = 4;
 	var portamento;
 	var voices = [];
-	var octaves = [];
 	// TODO var semitones = [];
 
 	var outputNode = audioContext.createGain();
@@ -1608,17 +1607,16 @@ function Bajotron(audioContext, options) {
 			while(v > voices.length) {
 				voice = new OscillatorVoice(audioContext, {
 					portamento: portamento,
-					waveType: defaultWaveType
+					waveType: defaultWaveType,
+					octave: defaultOctave
 				});
 				voice.output.connect(outputNode);
 				voices.push(voice);
-				octaves.push(defaultOctave);
 			}
 		} else {
 			// remove voices
 			while(v < voices.length) {
 				voice = voices.pop();
-				octaves.pop();
 				voice.output.disconnect();
 			}
 		}
@@ -1641,9 +1639,9 @@ function Bajotron(audioContext, options) {
 
 	function setVoicesOctaves(v) {
 
-		for(var i = 0; i < octaves.length; i++) {
+		for(var i = 0; i < voices.length; i++) {
 			if(v[i] !== undefined) {
-				octaves[i] = v[i];
+				voices[i].octave = v[i];
 			}
 		}
 
@@ -1684,8 +1682,7 @@ function Bajotron(audioContext, options) {
 		noiseGenerator.noteOn(note, volume, audioWhen);
 
 		voices.forEach(function(voice, index) {
-			var frequency = MIDIUtils.noteNumberToFrequency( note + octaves[index] * 12 );
-			voice.noteOn(frequency, audioWhen);
+			voice.noteOn(note, audioWhen);
 		});
 
 	};
@@ -1715,12 +1712,9 @@ module.exports = Bajotron;
 function register() {
 	var bajotronTemplate = '<input type="checkbox" /> portamento<br/>' +
 		'<input type="number" min="1" max="10" step="1" value="1" /> voices<br />' +
-		'<div>voices settings</div>' +
+		'<div class="voices">voices settings</div>' +
 		'<div>adsr stuff</div>' +
 		'<div>noise type and amount</div>';
-
-	var voiceTemplate = '<input type="number" min="0" max="10" step="1" value="5" /> octave<br />' +
-		'<select><option value="square" /></select>';
 
 /*
  * var numVoices = options.numVoices ? options.numVoices : 2;
@@ -1731,6 +1725,28 @@ function register() {
 	ADSR
 	noise, type and amount
  */
+
+	function updateVoicesContainer(container, voices) {
+		
+		// remove references if existing
+		var oscguis = container.querySelectorAll('gear-oscillator-voice');
+		
+		for(var i = 0; i < oscguis.length; i++) {
+			var oscgui = oscguis[i];
+			oscgui.detach();
+			container.removeChild(oscgui);
+		}
+
+		voices.forEach(function(voice) {
+			var oscgui = document.createElement('gear-oscillator-voice');
+			oscgui.attachTo(voice);
+			container.appendChild(oscgui);
+		});
+
+
+	}
+
+
 	xtag.register('gear-bajotron', {
 		lifecycle: {
 			created: function() {
@@ -1746,6 +1762,10 @@ function register() {
 						that.bajotron.portamento = that.portamento.checked;
 					}
 				}, false);
+
+				this.voicesContainer = this.querySelector('.voices');
+
+
 			},
 		},
 		methods: {
@@ -1756,14 +1776,22 @@ function register() {
 				
 				this.bajotron = bajotron;
 				
+				// Portamento
 				this.portamento.checked = bajotron.portamento;
 				bajotron.addEventListener('portamento_change', function() {
 					that.portamento.checked = bajotron.portamento;
+				}, false);
+
+				// Voices
+				updateVoicesContainer(that.voicesContainer, bajotron.voices);
+				bajotron.addEventListener('num_voices_change', function() {
+					updateVoicesContainer(that.voicesContainer, bajotron.voices);
 				}, false);
 			}
 		}
 	});
 
+	
 }
 
 module.exports = {
@@ -1985,10 +2013,12 @@ function Colchonator(audioContext, options) {
 
 module.exports = Colchonator;
 
-},{"./ADSR.js":15,"./Bajotron":16,"./OscillatorVoice":23,"./Reverbetron":26,"midiutils":4}],20:[function(require,module,exports){
+},{"./ADSR.js":15,"./Bajotron":16,"./OscillatorVoice":23,"./Reverbetron":27,"midiutils":4}],20:[function(require,module,exports){
+var OscillatorVoiceGUI = require('./OscillatorVoiceGUI');
 var BajotronGUI = require('./BajotronGUI');
 
 var registry = [
+	OscillatorVoiceGUI,
 	BajotronGUI
 ];
 
@@ -2003,7 +2033,7 @@ module.exports = {
 	init: init
 };
 
-},{"./BajotronGUI":17}],21:[function(require,module,exports){
+},{"./BajotronGUI":17,"./OscillatorVoiceGUI":24}],21:[function(require,module,exports){
 var EventDispatcher = require('eventdispatcher');
 
 // A simple mixer for avoiding early deafness
@@ -2373,7 +2403,9 @@ function NoiseGenerator(audioContext, options) {
 
 module.exports = NoiseGenerator;
 
-},{"./SampleVoice":27}],23:[function(require,module,exports){
+},{"./SampleVoice":28}],23:[function(require,module,exports){
+var MIDIUtils = require('midiutils');
+
 function OscillatorVoice(context, options) {
 
 	var internalOscillator = null;
@@ -2383,10 +2415,39 @@ function OscillatorVoice(context, options) {
 
 	var portamento = options.portamento !== undefined ? options.portamento : true;
 	var waveType = options.waveType || OscillatorVoice.WAVE_TYPE_SQUARE;
+	var defaultOctave = 4;
+	var octave = defaultOctave;
+
+	Object.defineProperties(this, {
+		waveType: {
+			get: function() { return waveType; },
+			set: setWaveType
+		},
+		octave: {
+			get: function() { return octave; },
+			set: setOctave
+		}
+	});
+
+	// 
+	
+	function setWaveType(v) {
+		if(internalOscillator !== null) {
+			internalOscillator.type = v;
+		}
+		waveType = v;
+	}
+
+	function setOctave(v) {
+		octave = v;
+		// TODO update currently playing oscillator --> need to store the last note etc
+	}
+
+	// ~~~
 
 	this.output = gain;
 
-	this.noteOn = function(frequency, when) {
+	this.noteOn = function(note, when) {
 
 		if(!portamento) {
 			this.noteOff();
@@ -2400,6 +2461,9 @@ function OscillatorVoice(context, options) {
 			internalOscillator.connect(gain);
 		}
 		
+		var finalNote = note + (octave - defaultOctave) * 12;
+		var frequency = MIDIUtils.noteNumberToFrequency(finalNote);
+
 		internalOscillator.frequency.value = frequency;
 		
 		console.log('oscillator voice note on', when);
@@ -2425,7 +2489,35 @@ OscillatorVoice.WAVE_TYPE_TRIANGLE = 'triangle';
 
 module.exports = OscillatorVoice;
 
-},{}],24:[function(require,module,exports){
+},{"midiutils":4}],24:[function(require,module,exports){
+var template = '<input type="number" min="0" max="10" step="1" value="5" /> octave<br />' +
+	'<select><option value="sine">sine</option><option value="square">square</option><option value="sawtooth">sawtooth</option><option value="triangle">triangle</option></select>';
+
+
+function register() {
+	xtag.register('gear-oscillator-voice', {
+		lifecycle: {
+			created: function() {
+				this.innerHTML = template;
+			}
+		},
+		methods: {
+			attachTo: function(voice) {
+				this.voice = voice;
+				// TODO add listeners
+			},
+			detach: function() {
+				console.error('detach not implemented');
+			}
+		}
+	});
+}
+
+module.exports = {
+	register: register
+};
+
+},{}],25:[function(require,module,exports){
 function Oscilloscope(audioContext, options) {
 	
 	'use strict';
@@ -2506,7 +2598,7 @@ function Oscilloscope(audioContext, options) {
 
 module.exports = Oscilloscope;
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 var BufferLoader = require('./BufferLoader');
 var SampleVoice = require('./SampleVoice');
 var MIDIUtils = require('MIDIUtils');
@@ -2601,7 +2693,7 @@ function Porrompom(audioContext, options) {
 
 module.exports = Porrompom;
 
-},{"./BufferLoader":18,"./SampleVoice":27,"MIDIUtils":2}],26:[function(require,module,exports){
+},{"./BufferLoader":18,"./SampleVoice":28,"MIDIUtils":2}],27:[function(require,module,exports){
 function Reverbetron(audioContext) {
 
 	var that = this;
@@ -2642,7 +2734,7 @@ function Reverbetron(audioContext) {
 
 module.exports = Reverbetron;
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 // This voice plays a buffer / sample, and it's capable of regenerating the buffer source once noteOff has been called
 // TODO set a base note and use it + noteOn note to play relatively pitched notes
 
@@ -2723,7 +2815,7 @@ function SampleVoice(audioContext, options) {
 
 module.exports = SampleVoice;
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -2731,7 +2823,7 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":14}],29:[function(require,module,exports){
+},{"./app":14}],30:[function(require,module,exports){
 var i, j;
 var leds = {};
 var columnLeds = {};
@@ -2812,5 +2904,5 @@ module.exports = {
 	getStopLedPath: getStopLedPath
 };
 
-},{}]},{},[28])
+},{}]},{},[29])
 ;

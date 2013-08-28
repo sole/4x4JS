@@ -62,5 +62,9 @@ canvas {
 	padding-right: 1rem;
 }
 
-.gear-bajotron {
+gear-bajotron {
+}
+
+gear-oscillator-voice {
+	display: inline-block;
 }

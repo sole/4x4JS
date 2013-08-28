@@ -1,6 +1,8 @@
+var OscillatorVoiceGUI = require('./OscillatorVoiceGUI');
 var BajotronGUI = require('./BajotronGUI');
 
 var registry = [
+	OscillatorVoiceGUI,
 	BajotronGUI
 ];
 

@@ -1,12 +1,9 @@
 function register() {
 	var bajotronTemplate = '<input type="checkbox" /> portamento<br/>' +
 		'<input type="number" min="1" max="10" step="1" value="1" /> voices<br />' +
-		'<div>voices settings</div>' +
+		'<div class="voices">voices settings</div>' +
 		'<div>adsr stuff</div>' +
 		'<div>noise type and amount</div>';
-
-	var voiceTemplate = '<input type="number" min="0" max="10" step="1" value="5" /> octave<br />' +
-		'<select><option value="square" /></select>';
 
 /*
  * var numVoices = options.numVoices ? options.numVoices : 2;
@@ -17,6 +14,28 @@ function register() {
 	ADSR
 	noise, type and amount
  */
+
+	function updateVoicesContainer(container, voices) {
+		
+		// remove references if existing
+		var oscguis = container.querySelectorAll('gear-oscillator-voice');
+		
+		for(var i = 0; i < oscguis.length; i++) {
+			var oscgui = oscguis[i];
+			oscgui.detach();
+			container.removeChild(oscgui);
+		}
+
+		voices.forEach(function(voice) {
+			var oscgui = document.createElement('gear-oscillator-voice');
+			oscgui.attachTo(voice);
+			container.appendChild(oscgui);
+		});
+
+
+	}
+
+
 	xtag.register('gear-bajotron', {
 		lifecycle: {
 			created: function() {
@@ -32,6 +51,10 @@ function register() {
 						that.bajotron.portamento = that.portamento.checked;
 					}
 				}, false);
+
+				this.voicesContainer = this.querySelector('.voices');
+
+
 			},
 		},
 		methods: {
@@ -42,14 +65,22 @@ function register() {
 				
 				this.bajotron = bajotron;
 				
+				// Portamento
 				this.portamento.checked = bajotron.portamento;
 				bajotron.addEventListener('portamento_change', function() {
 					that.portamento.checked = bajotron.portamento;
+				}, false);
+
+				// Voices
+				updateVoicesContainer(that.voicesContainer, bajotron.voices);
+				bajotron.addEventListener('num_voices_change', function() {
+					updateVoicesContainer(that.voicesContainer, bajotron.voices);
 				}, false);
 			}
 		}
 	});
 
+	
 }
 
 module.exports = {

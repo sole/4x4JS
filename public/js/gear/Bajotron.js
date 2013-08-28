@@ -17,7 +17,6 @@ function Bajotron(audioContext, options) {
 	var defaultOctave = 4;
 	var portamento;
 	var voices = [];
-	var octaves = [];
 	// TODO var semitones = [];
 
 	var outputNode = audioContext.createGain();
@@ -103,17 +102,16 @@ function Bajotron(audioContext, options) {
 			while(v > voices.length) {
 				voice = new OscillatorVoice(audioContext, {
 					portamento: portamento,
-					waveType: defaultWaveType
+					waveType: defaultWaveType,
+					octave: defaultOctave
 				});
 				voice.output.connect(outputNode);
 				voices.push(voice);
-				octaves.push(defaultOctave);
 			}
 		} else {
 			// remove voices
 			while(v < voices.length) {
 				voice = voices.pop();
-				octaves.pop();
 				voice.output.disconnect();
 			}
 		}
@@ -136,9 +134,9 @@ function Bajotron(audioContext, options) {
 
 	function setVoicesOctaves(v) {
 
-		for(var i = 0; i < octaves.length; i++) {
+		for(var i = 0; i < voices.length; i++) {
 			if(v[i] !== undefined) {
-				octaves[i] = v[i];
+				voices[i].octave = v[i];
 			}
 		}
 
@@ -179,8 +177,7 @@ function Bajotron(audioContext, options) {
 		noiseGenerator.noteOn(note, volume, audioWhen);
 
 		voices.forEach(function(voice, index) {
-			var frequency = MIDIUtils.noteNumberToFrequency( note + octaves[index] * 12 );
-			voice.noteOn(frequency, audioWhen);
+			voice.noteOn(note, audioWhen);
 		});
 
 	};
