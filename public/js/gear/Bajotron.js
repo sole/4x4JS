@@ -1,4 +1,5 @@
 var MIDIUtils = require('midiutils');
+var EventDispatcher = require('EventDispatcher');
 var OscillatorVoice = require('./OscillatorVoice');
 var NoiseGenerator = require('./NoiseGenerator');
 var ADSR = require('./ADSR.js');
@@ -10,9 +11,11 @@ function valueOrUndefined(value, defaultValue) {
 function Bajotron(audioContext, options) {
 
 	'use strict';
+	var that = this;
+
+	EventDispatcher.call(this);
 
 	var outputNode = audioContext.createGain();
-
 
 	var i;
 	var vou = valueOrUndefined; // ??? maybe too tricky ???
@@ -66,6 +69,16 @@ function Bajotron(audioContext, options) {
 	if(noiseOptions) {
 		noiseGenerator.output.connect(outputNode);
 	}
+
+	Object.defineProperties(this, {
+		portamento: {
+			get: function() { return portamento; },
+			set: function(v) {
+				portamento = v;
+				that.dispatchEvent({ type: 'portamento_change', portamento: v });
+			}
+		}
+	});
 
 	// ~~~
 
