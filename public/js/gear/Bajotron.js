@@ -86,7 +86,7 @@ function Bajotron(audioContext, options) {
 		portamento = v;
 		voices.forEach(function(voice) {
 			voice.portamento = v;
-		}); // TODO ???
+		});
 		that.dispatchEvent({ type: 'portamento_change', portamento: v });
 	
 	}

@@ -18,6 +18,10 @@ function OscillatorVoice(context, options) {
 	EventDispatcher.call(this);
 
 	Object.defineProperties(this, {
+		portamento: {
+			get: function() { return portamento; },
+			set: setPortamento
+		},
 		waveType: {
 			get: function() { return waveType; },
 			set: setWaveType
@@ -30,6 +34,15 @@ function OscillatorVoice(context, options) {
 
 	// 
 	
+	function setPortamento(v) {
+		
+		portamento = v;
+
+		that.dispatchEvent({ type: 'portamento_change', portamento: v });
+
+	}
+
+
 	function setWaveType(v) {
 
 		if(internalOscillator !== null) {
@@ -78,14 +91,10 @@ function OscillatorVoice(context, options) {
 			internalOscillator.connect(gain);
 		}
 
-		lastNote = note;
-		
-		var frequency = getFrequency(note);
-
-		internalOscillator.frequency.value = frequency;
-		
-		console.log('oscillator voice note on', when, note, octave, frequency);
+		internalOscillator.frequency.value = getFrequency(note);
 		internalOscillator.start(when);
+
+		lastNote = note;
 
 	};
 

@@ -46,12 +46,7 @@ function register() {
 				this.innerHTML = bajotronTemplate;
 
 				this.portamento = this.querySelector('input[type=checkbox]');
-				this.portamento.addEventListener('change', function(ev) {
-					if(that.bajotron) {
-						that.bajotron.portamento = that.portamento.checked;
-					}
-				}, false);
-
+				
 				this.voicesContainer = this.querySelector('.voices');
 
 
@@ -67,6 +62,11 @@ function register() {
 				
 				// Portamento
 				this.portamento.checked = bajotron.portamento;
+				
+				this.portamento.addEventListener('change', function(ev) {
+					bajotron.portamento = that.portamento.checked;
+				}, false);
+
 				bajotron.addEventListener('portamento_change', function() {
 					that.portamento.checked = bajotron.portamento;
 				}, false);

@@ -1591,7 +1591,7 @@ function Bajotron(audioContext, options) {
 		portamento = v;
 		voices.forEach(function(voice) {
 			voice.portamento = v;
-		}); // TODO ???
+		});
 		that.dispatchEvent({ type: 'portamento_change', portamento: v });
 	
 	}
@@ -1756,12 +1756,7 @@ function register() {
 				this.innerHTML = bajotronTemplate;
 
 				this.portamento = this.querySelector('input[type=checkbox]');
-				this.portamento.addEventListener('change', function(ev) {
-					if(that.bajotron) {
-						that.bajotron.portamento = that.portamento.checked;
-					}
-				}, false);
-
+				
 				this.voicesContainer = this.querySelector('.voices');
 
 
@@ -1777,6 +1772,11 @@ function register() {
 				
 				// Portamento
 				this.portamento.checked = bajotron.portamento;
+				
+				this.portamento.addEventListener('change', function(ev) {
+					bajotron.portamento = that.portamento.checked;
+				}, false);
+
 				bajotron.addEventListener('portamento_change', function() {
 					that.portamento.checked = bajotron.portamento;
 				}, false);
@@ -2423,6 +2423,10 @@ function OscillatorVoice(context, options) {
 	EventDispatcher.call(this);
 
 	Object.defineProperties(this, {
+		portamento: {
+			get: function() { return portamento; },
+			set: setPortamento
+		},
 		waveType: {
 			get: function() { return waveType; },
 			set: setWaveType
@@ -2435,6 +2439,15 @@ function OscillatorVoice(context, options) {
 
 	// 
 	
+	function setPortamento(v) {
+		
+		portamento = v;
+
+		that.dispatchEvent({ type: 'portamento_change', portamento: v });
+
+	}
+
+
 	function setWaveType(v) {
 
 		if(internalOscillator !== null) {
@@ -2483,14 +2496,10 @@ function OscillatorVoice(context, options) {
 			internalOscillator.connect(gain);
 		}
 
-		lastNote = note;
-		
-		var frequency = getFrequency(note);
-
-		internalOscillator.frequency.value = frequency;
-		
-		console.log('oscillator voice note on', when, note, octave, frequency);
+		internalOscillator.frequency.value = getFrequency(note);
 		internalOscillator.start(when);
+
+		lastNote = note;
 
 	};
 
