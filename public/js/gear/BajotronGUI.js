@@ -47,14 +47,13 @@ function register() {
 
 				this.portamento = this.querySelector('input[type=checkbox]');
 				
+				this.numVoices = this.querySelector('input[type=number]');
 				this.voicesContainer = this.querySelector('.voices');
-
 
 			},
 		},
 		methods: {
 			attachTo: function(bajotron) {
-				console.log('gear-bajotron attaching to', bajotron);
 
 				var that = this;
 				
@@ -72,7 +71,15 @@ function register() {
 				}, false);
 
 				// Voices
+				this.numVoices.value = bajotron.numVoices;
+
 				updateVoicesContainer(that.voicesContainer, bajotron.voices);
+
+				this.numVoices.addEventListener('change', function() {
+					bajotron.numVoices = that.numVoices.value;
+					updateVoicesContainer(that.voicesContainer, bajotron.voices);
+				}, false);
+
 				bajotron.addEventListener('num_voices_change', function() {
 					updateVoicesContainer(that.voicesContainer, bajotron.voices);
 				}, false);
