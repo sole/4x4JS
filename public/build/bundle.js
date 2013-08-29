@@ -1297,7 +1297,10 @@ function initialiseGear(audioContext) {
 
 	// Gear GUI
 	// --------
-	guiContainer.appendChild(mixer.gui);
+	var mixerGUI = document.createElement(mixer.guiTag);
+	mixerGUI.attachTo(mixer);
+	guiContainer.appendChild(mixerGUI);
+
 	// TODO tmp, should append them all consecutively
 	var bassGUI = document.createElement(bass.guiTag);
 	bassGUI.attachTo(bass);
@@ -1447,7 +1450,7 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":8,"./gear/Bajotron":16,"./gear/Colchonator":18,"./gear/Mixer":19,"./gear/Oscilloscope":22,"./gear/Porrompom":23,"./gear/gui/GUI":28,"./quneo.js":33}],15:[function(require,module,exports){
+},{"./Orxatron/":8,"./gear/Bajotron":16,"./gear/Colchonator":18,"./gear/Mixer":19,"./gear/Oscilloscope":22,"./gear/Porrompom":23,"./gear/gui/GUI":28,"./quneo.js":34}],15:[function(require,module,exports){
 function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 	'use strict';
@@ -1954,10 +1957,6 @@ function Mixer(audioContext) {
 	});
 
 
-	var gui = new MixerGUI();
-	gui.attachTo(this);
-
-
 	//
 
 	function initFaders() {
@@ -1972,7 +1971,7 @@ function Mixer(audioContext) {
 
 	// ~~~
 	
-	this.gui = gui.domElement;
+	this.guiTag = 'gear-mixer';
 
 	this.output = output;
 
@@ -2022,106 +2021,13 @@ function Fader(audioContext, options) {
 		}
 	});
 
-	var gui = new FaderGUI();
-	gui.attachTo(this);
 
 	// ~~~
 	
-	this.gui = gui.domElement;
 
 	this.input = gain;
 	this.output = gain;
 
-}
-
-
-// TODO make these into x-tags so that we have gear-mixer, gear-fader...
-// ... and the css is easier
-function MixerGUI() {
-
-	var element = document.createElement('div');
-	element.className = 'gear-mixer';
-
-	var div = document.createElement('div');
-	div.className = 'fader';
-	element.appendChild(div);
-
-	var label = document.createElement('span');
-	label.innerHTML = 'MST';
-
-	var slider = document.createElement('input');
-	slider.type = 'range';
-	slider.min = 0.0;
-	slider.max = 1.0;
-	slider.step = 0.05;
-
-	div.appendChild(label);
-	div.appendChild(slider);
-
-	// ~~~
-	
-	this.domElement = element;
-	
-	this.attachTo = function(mixer) {
-
-		slider.value = mixer.gain;
-
-		mixer.addEventListener('gain_change', function(ev) {
-			slider.value = ev.gain;
-		}, false);
-
-		slider.addEventListener('change', function() {
-			mixer.gain = slider.value;
-		}, false);
-
-		var faders = mixer.faders;
-
-		faders.forEach(function(fader) {
-			element.appendChild(fader.gui);
-		});
-	};
-}
-
-function FaderGUI() {
-	var element = document.createElement('div');
-	element.className = 'fader';
-
-	var label = document.createElement('span');
-	var slider = document.createElement('input');
-	slider.type = 'range';
-	slider.min = 0.0;
-	slider.max = 1.0;
-	slider.step = 0.05;
-	
-	element.appendChild(label);
-	element.appendChild(slider);
-
-	// ~~~
-	
-	this.domElement = element;
-	
-	this.attachTo = function(fader) {
-
-		// Label ---
-		label.innerHTML = fader.label;
-		fader.addEventListener('label_change', function(ev) {
-			label.innerHTML = ev.label;
-		}, false);
-
-		// Slider ---
-
-		slider.value = fader.gain;
-
-		// gain changes -> slider value
-		fader.addEventListener('gain_change', function(ev) {
-			slider.value = ev.gain;
-		}, false);
-
-		// slider changes -> gain value
-		slider.addEventListener('change', function(ev) {
-			fader.gain = slider.valueAsNumber;
-		}, false);
-	};
 }
 
 module.exports = Mixer;
@@ -2881,6 +2787,7 @@ module.exports = {
 },{}],28:[function(require,module,exports){
 var Slider = require('./Slider');
 var ADSRGUI = require('./ADSRGUI');
+var MixerGUI = require('./MixerGUI');
 var NoiseGeneratorGUI = require('./NoiseGeneratorGUI');
 var OscillatorVoiceGUI = require('./OscillatorVoiceGUI');
 var BajotronGUI = require('./BajotronGUI');
@@ -2888,6 +2795,7 @@ var BajotronGUI = require('./BajotronGUI');
 var registry = [
 	Slider,
 	ADSRGUI,
+	MixerGUI,
 	NoiseGeneratorGUI,
 	OscillatorVoiceGUI,
 	BajotronGUI
@@ -2904,7 +2812,89 @@ module.exports = {
 	init: init
 };
 
-},{"./ADSRGUI":26,"./BajotronGUI":27,"./NoiseGeneratorGUI":29,"./OscillatorVoiceGUI":30,"./Slider":31}],29:[function(require,module,exports){
+},{"./ADSRGUI":26,"./BajotronGUI":27,"./MixerGUI":29,"./NoiseGeneratorGUI":30,"./OscillatorVoiceGUI":31,"./Slider":32}],29:[function(require,module,exports){
+var template = '<gear-slider class="master" label="MST" min="0.0" max="1" step="0.05"></gear-slider>' +
+	'<div class="sliders"></div>';
+
+function register() {
+
+	'use strict';
+
+	xtag.register('gear-mixer', {
+
+		lifecycle: {
+			created: function() {
+				this.innerHTML = template;
+
+				this.masterSlider = this.querySelector('.master');
+				this.slidersContainer = this.querySelector('.sliders');
+				this.sliders = [];
+			}
+		},
+		
+		methods: {
+
+			attachTo: function(mixer) {
+				var that = this;
+
+				this.mixer = mixer;
+				
+				// Length
+				this.masterSlider.value = mixer.gain;
+
+				this.masterSlider.addEventListener('change', function() {
+					that.mixer.gain = that.masterSlider.value;
+				}, false);
+
+				mixer.addEventListener('gain_change', function() {
+					that.masterSlider.value = mixer.gain;
+				}, false);
+
+				// Channel sliders/faders
+				this.slidersContainer.innerHTML = '';
+				var faders = mixer.faders;
+
+				faders.forEach(function(fader, index) {
+					var slider = document.createElement('gear-slider');
+
+					// copying same parameters for min/max/step from master
+					['min', 'max', 'step'].forEach(function(attr) {
+						slider[attr] = that.masterSlider.getAttribute(attr);
+					});
+
+					slider.label = fader.label;
+					slider.value = fader.gain;
+					console.log('fader', index, fader.label, fader.gain);
+
+					fader.addEventListener('gain_change', function() {
+						//slider.value = fader.gain;
+						console.log('gain change!', fader.gain, fader);
+					}, false);
+
+					slider.addEventListener('change', function() {
+						fader.gain = slider.value * 1.0;
+					}, false);
+
+					that.slidersContainer.appendChild(slider);
+					that.slidersContainer.appendChild(document.createElement('br'));
+				});
+
+
+			},
+
+			detach: function() {
+				console.error('detach not implemented');
+			}
+
+		}
+	});
+}
+
+module.exports = {
+	register: register
+};
+
+},{}],30:[function(require,module,exports){
 var template = '<label>colour <select><option value="white">white</option><option value="pink">pink</option><option value="brown">brown</option></select></label><br />' +
 	'<gear-slider min="44100" max="96000" step="1" label="length"></gear-slider>';
 
@@ -2964,7 +2954,7 @@ module.exports = {
 	register: register
 };
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 var template = '<label>octave <input type="number" min="0" max="10" step="1" value="5" /></label><br />' +
 	'<select><option value="sine">sine</option><option value="square">square</option><option value="sawtooth">sawtooth</option><option value="triangle">triangle</option></select>';
 
@@ -3032,17 +3022,20 @@ module.exports = {
 	register: register
 };
 
-},{}],31:[function(require,module,exports){
-var template = '<label><span class="label"></span><input type="range" min="0" max="100" step="0.0001" /> <span class="valueDisplay">0</span></label>';
+},{}],32:[function(require,module,exports){
+var template = '<label><span class="label"></span> <input type="range" min="0" max="100" step="0.0001" /> <span class="valueDisplay">0</span></label>';
 
 function register() {
 
 	'use strict';
 
 	function setValue(v) {
-		this.slider.value = v;
-		this.valueDisplay.innerHTML = this.slider.value;
-		this.value = v;
+		console.log('set value', v, this);
+		if(this !== undefined) {
+			this.slider.value = v;
+			this.valueDisplay.innerHTML = this.slider.value;
+			this.value = v;
+		}
 	}
 
 	xtag.register('gear-slider', {
@@ -3132,7 +3125,7 @@ module.exports = {
 	register: register
 };
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -3140,7 +3133,7 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":14}],33:[function(require,module,exports){
+},{"./app":14}],34:[function(require,module,exports){
 var i, j;
 var leds = {};
 var columnLeds = {};
@@ -3221,5 +3214,5 @@ module.exports = {
 	getStopLedPath: getStopLedPath
 };
 
-},{}]},{},[32])
+},{}]},{},[33])
 ;

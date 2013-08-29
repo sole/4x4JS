@@ -28,10 +28,6 @@ function Mixer(audioContext) {
 	});
 
 
-	var gui = new MixerGUI();
-	gui.attachTo(this);
-
-
 	//
 
 	function initFaders() {
@@ -46,7 +42,7 @@ function Mixer(audioContext) {
 
 	// ~~~
 	
-	this.gui = gui.domElement;
+	this.guiTag = 'gear-mixer';
 
 	this.output = output;
 
@@ -96,106 +92,13 @@ function Fader(audioContext, options) {
 		}
 	});
 
-	var gui = new FaderGUI();
-	gui.attachTo(this);
 
 	// ~~~
 	
-	this.gui = gui.domElement;
 
 	this.input = gain;
 	this.output = gain;
 
-}
-
-
-// TODO make these into x-tags so that we have gear-mixer, gear-fader...
-// ... and the css is easier
-function MixerGUI() {
-
-	var element = document.createElement('div');
-	element.className = 'gear-mixer';
-
-	var div = document.createElement('div');
-	div.className = 'fader';
-	element.appendChild(div);
-
-	var label = document.createElement('span');
-	label.innerHTML = 'MST';
-
-	var slider = document.createElement('input');
-	slider.type = 'range';
-	slider.min = 0.0;
-	slider.max = 1.0;
-	slider.step = 0.05;
-
-	div.appendChild(label);
-	div.appendChild(slider);
-
-	// ~~~
-	
-	this.domElement = element;
-	
-	this.attachTo = function(mixer) {
-
-		slider.value = mixer.gain;
-
-		mixer.addEventListener('gain_change', function(ev) {
-			slider.value = ev.gain;
-		}, false);
-
-		slider.addEventListener('change', function() {
-			mixer.gain = slider.value;
-		}, false);
-
-		var faders = mixer.faders;
-
-		faders.forEach(function(fader) {
-			element.appendChild(fader.gui);
-		});
-	};
-}
-
-function FaderGUI() {
-	var element = document.createElement('div');
-	element.className = 'fader';
-
-	var label = document.createElement('span');
-	var slider = document.createElement('input');
-	slider.type = 'range';
-	slider.min = 0.0;
-	slider.max = 1.0;
-	slider.step = 0.05;
-	
-	element.appendChild(label);
-	element.appendChild(slider);
-
-	// ~~~
-	
-	this.domElement = element;
-	
-	this.attachTo = function(fader) {
-
-		// Label ---
-		label.innerHTML = fader.label;
-		fader.addEventListener('label_change', function(ev) {
-			label.innerHTML = ev.label;
-		}, false);
-
-		// Slider ---
-
-		slider.value = fader.gain;
-
-		// gain changes -> slider value
-		fader.addEventListener('gain_change', function(ev) {
-			slider.value = ev.gain;
-		}, false);
-
-		// slider changes -> gain value
-		slider.addEventListener('change', function(ev) {
-			fader.gain = slider.valueAsNumber;
-		}, false);
-	};
 }
 
 module.exports = Mixer;

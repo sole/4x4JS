@@ -121,7 +121,10 @@ function initialiseGear(audioContext) {
 
 	// Gear GUI
 	// --------
-	guiContainer.appendChild(mixer.gui);
+	var mixerGUI = document.createElement(mixer.guiTag);
+	mixerGUI.attachTo(mixer);
+	guiContainer.appendChild(mixerGUI);
+
 	// TODO tmp, should append them all consecutively
 	var bassGUI = document.createElement(bass.guiTag);
 	bassGUI.attachTo(bass);

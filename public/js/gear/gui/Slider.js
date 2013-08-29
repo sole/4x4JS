@@ -1,13 +1,16 @@
-var template = '<label><span class="label"></span><input type="range" min="0" max="100" step="0.0001" /> <span class="valueDisplay">0</span></label>';
+var template = '<label><span class="label"></span> <input type="range" min="0" max="100" step="0.0001" /> <span class="valueDisplay">0</span></label>';
 
 function register() {
 
 	'use strict';
 
 	function setValue(v) {
-		this.slider.value = v;
-		this.valueDisplay.innerHTML = this.slider.value;
-		this.value = v;
+		console.log('set value', v, this);
+		if(this !== undefined) {
+			this.slider.value = v;
+			this.valueDisplay.innerHTML = this.slider.value;
+			this.value = v;
+		}
 	}
 
 	xtag.register('gear-slider', {
