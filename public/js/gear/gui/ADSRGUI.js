@@ -1,7 +1,7 @@
-var template = '<label>attack <input type="range" class="attack" min="0" max="1" step="0.0001"></label><br />' + 
-	'<label>decay <input type="range" class="decay" min="0" max="1" step="0.0001"></label><br />' +
-	'<label>sustain <input type="range" class="sustain" min="0" max="1" step="0.0001"></label><br />' +
-	'<label>release <input type="range" class="release" min="0" max="1" step="0.0001"></label>';
+var template = '<gear-slider label="attack" class="attack" min="0" max="1" step="0.0001"></gear-slider><br />' + 
+	'<gear-slider label="decay" class="decay" min="0" max="1" step="0.0001"></gear-slider><br />' +
+	'<gear-slider label="sustain" class="sustain" min="0" max="1" step="0.0001"></gear-slider><br />' +
+	'<gear-slider label="release" class="release" min="0" max="1" step="0.0001"></gear-slider>';
 
 var adsrProps = ['attack', 'decay', 'sustain', 'release'];
 
