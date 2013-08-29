@@ -2779,7 +2779,7 @@ module.exports = {
 },{}],27:[function(require,module,exports){
 function register() {
 	var bajotronTemplate = '<label>portamento <input type="checkbox" /></label><br/>' +
-		'<label>voices <input type="number" min="1" max="10" step="1" value="1" /></label><br />' +
+		'<gear-slider label="num voices" min="1" max="10" step="1" value="1"></gear-slider><br />' +
 		'<div class="voices">voices settings</div>' +
 		'<div class="adsr"></div>' +
 		'<div class="noise">noise<br /></div>';
@@ -2816,7 +2816,7 @@ function register() {
 
 				this.portamento = this.querySelector('input[type=checkbox]');
 				
-				this.numVoices = this.querySelector('input[type=number]');
+				this.numVoices = this.querySelector('gear-slider');
 				this.voicesContainer = this.querySelector('.voices');
 				
 				this.adsrContainer = this.querySelector('.adsr');
@@ -2994,9 +2994,13 @@ function register() {
 					that.voice.octave = that.octave.value;
 				}, false);
 
-				voice.addEventListener('octave_change', function() {
+				function octaveChangeListener() {
 					that.octave.value = voice.octave;
-				}, false);
+				}
+
+				voice.addEventListener('octave_change', octaveChangeListener, false);
+
+				this.octaveChangeListener = octaveChangeListener;
 
 				// Wave type
 				this.wave_type.value = voice.waveType;
@@ -3005,14 +3009,19 @@ function register() {
 					voice.waveType = that.wave_type.value;
 				}, false);
 
-				voice.addEventListener('wave_type_change', function(ev) {
+				function waveChangeListener(ev) {
 					that.wave_type.value = ev.wave_type;
-				}, false);
+				}
+
+				voice.addEventListener('wave_type_change', waveChangeListener, false);
+
+				this.waveChangeListener = waveChangeListener;
 
 			},
 
 			detach: function() {
-				console.error('detach not implemented');
+				this.voice.removeEventListener('octave_change', this.octaveChangeListener, false);
+				this.voice.removeEventListener('wave_type_change', this.waveTypeChangeListener, false);
 			}
 
 		}
@@ -3033,7 +3042,7 @@ function register() {
 	function setValue(v) {
 		this.slider.value = v;
 		this.valueDisplay.innerHTML = this.slider.value;
-		this.setAttribute('value', v);
+		this.value = v;
 	}
 
 	xtag.register('gear-slider', {
@@ -3048,6 +3057,7 @@ function register() {
 					ev.preventDefault();
 					ev.stopPropagation();
 					setValue.call(that, that.slider.value);
+
 					xtag.fireEvent(that, 'change', { value: that.slider.value });
 				}, false);
 				
@@ -3079,7 +3089,7 @@ function register() {
 					setValue(v);
 				},
 				get: function() {
-					return this.slider.value;
+					return this.getAttribute('value');//this.slider.value;
 				}
 			},
 			min: {

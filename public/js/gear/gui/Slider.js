@@ -7,7 +7,7 @@ function register() {
 	function setValue(v) {
 		this.slider.value = v;
 		this.valueDisplay.innerHTML = this.slider.value;
-		this.setAttribute('value', v);
+		this.value = v;
 	}
 
 	xtag.register('gear-slider', {
@@ -22,6 +22,7 @@ function register() {
 					ev.preventDefault();
 					ev.stopPropagation();
 					setValue.call(that, that.slider.value);
+
 					xtag.fireEvent(that, 'change', { value: that.slider.value });
 				}, false);
 				
@@ -53,7 +54,7 @@ function register() {
 					setValue(v);
 				},
 				get: function() {
-					return this.slider.value;
+					return this.getAttribute('value');//this.slider.value;
 				}
 			},
 			min: {

@@ -27,9 +27,13 @@ function register() {
 					that.voice.octave = that.octave.value;
 				}, false);
 
-				voice.addEventListener('octave_change', function() {
+				function octaveChangeListener() {
 					that.octave.value = voice.octave;
-				}, false);
+				}
+
+				voice.addEventListener('octave_change', octaveChangeListener, false);
+
+				this.octaveChangeListener = octaveChangeListener;
 
 				// Wave type
 				this.wave_type.value = voice.waveType;
@@ -38,14 +42,19 @@ function register() {
 					voice.waveType = that.wave_type.value;
 				}, false);
 
-				voice.addEventListener('wave_type_change', function(ev) {
+				function waveChangeListener(ev) {
 					that.wave_type.value = ev.wave_type;
-				}, false);
+				}
+
+				voice.addEventListener('wave_type_change', waveChangeListener, false);
+
+				this.waveChangeListener = waveChangeListener;
 
 			},
 
 			detach: function() {
-				console.error('detach not implemented');
+				this.voice.removeEventListener('octave_change', this.octaveChangeListener, false);
+				this.voice.removeEventListener('wave_type_change', this.waveTypeChangeListener, false);
 			}
 
 		}
