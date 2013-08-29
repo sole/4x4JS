@@ -2813,7 +2813,7 @@ module.exports = {
 };
 
 },{"./ADSRGUI":26,"./BajotronGUI":27,"./MixerGUI":29,"./NoiseGeneratorGUI":30,"./OscillatorVoiceGUI":31,"./Slider":32}],29:[function(require,module,exports){
-var template = '<gear-slider class="master" label="MST" min="0.0" max="1" step="0.05"></gear-slider>' +
+var template = '<div class="master"></div>' +
 	'<div class="sliders"></div>';
 
 function register() {
@@ -2826,7 +2826,14 @@ function register() {
 			created: function() {
 				this.innerHTML = template;
 
-				this.masterSlider = this.querySelector('.master');
+				this.masterContainer = this.querySelector('.master');
+				this.masterSlider = document.createElement('gear-slider');
+				this.masterSlider.label = 'MST';
+				this.masterSlider.min = 0.0;
+				this.masterSlider.max = 1.0;
+				this.masterSlider.step = 0.01;
+				this.masterContainer.appendChild(this.masterSlider);
+
 				this.slidersContainer = this.querySelector('.sliders');
 				this.sliders = [];
 			}
@@ -2864,11 +2871,9 @@ function register() {
 
 					slider.label = fader.label;
 					slider.value = fader.gain;
-					console.log('fader', index, fader.label, fader.gain);
 
 					fader.addEventListener('gain_change', function() {
-						//slider.value = fader.gain;
-						console.log('gain change!', fader.gain, fader);
+						slider.value = fader.gain;
 					}, false);
 
 					slider.addEventListener('change', function() {
@@ -3029,18 +3034,10 @@ function register() {
 
 	'use strict';
 
-	function setValue(v) {
-		console.log('set value', v, this);
-		if(this !== undefined) {
-			this.slider.value = v;
-			this.valueDisplay.innerHTML = this.slider.value;
-			this.value = v;
-		}
-	}
-
 	xtag.register('gear-slider', {
 		lifecycle: {
 			created: function() {
+
 				var that = this;
 
 				this.innerHTML = template;
@@ -3049,17 +3046,14 @@ function register() {
 				this.slider.addEventListener('change', function(ev) {
 					ev.preventDefault();
 					ev.stopPropagation();
-					setValue.call(that, that.slider.value);
+					that.value = that.slider.value;
 
 					xtag.fireEvent(that, 'change', { value: that.slider.value });
 				}, false);
-				
+
 				this.spanLabel = this.querySelector('.label');
 				this.valueDisplay = this.querySelector('.valueDisplay');
-				
-				// not really...
-				//setValue.call(this, this.value);
-				//this.value = this.getAttribute('value');
+
 				this.value = this.value;
 				this.min = this.min;
 				this.max = this.max;
@@ -3079,17 +3073,21 @@ function register() {
 			},
 			value: {
 				set: function(v) {
-					setValue(v);
+					if(v !== null) {
+						this.setAttribute('value', v);
+						this.slider.value = v;
+						this.valueDisplay.innerHTML = this.slider.value;
+					}
 				},
 				get: function() {
-					return this.getAttribute('value');//this.slider.value;
+					return this.getAttribute('value');
 				}
 			},
 			min: {
 				set: function(v) {
 					this.setAttribute('min', v);
 					this.slider.setAttribute('min', v);
-					setValue.call(this, this.value);
+					this.value = this.value;
 				},
 				get: function() {
 					return this.getAttribute('min');
@@ -3099,7 +3097,7 @@ function register() {
 				set: function(v) {
 					this.setAttribute('max', v);
 					this.slider.setAttribute('max', v);
-					setValue.call(this, this.value);
+					this.value = this.value;
 				},
 				get: function() {
 					return this.getAttribute('max');
@@ -3109,13 +3107,12 @@ function register() {
 				set: function(v) {
 					this.setAttribute('step', v);
 					this.slider.setAttribute('step', v);
-					setValue.call(this, this.value);
+					this.value = this.value;
 				},
 				get: function() {
 					return this.getAttribute('step');
 				}
-			},
-
+			}
 		}
 	});
 

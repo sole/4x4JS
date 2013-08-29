@@ -4,18 +4,10 @@ function register() {
 
 	'use strict';
 
-	function setValue(v) {
-		console.log('set value', v, this);
-		if(this !== undefined) {
-			this.slider.value = v;
-			this.valueDisplay.innerHTML = this.slider.value;
-			this.value = v;
-		}
-	}
-
 	xtag.register('gear-slider', {
 		lifecycle: {
 			created: function() {
+
 				var that = this;
 
 				this.innerHTML = template;
@@ -24,17 +16,14 @@ function register() {
 				this.slider.addEventListener('change', function(ev) {
 					ev.preventDefault();
 					ev.stopPropagation();
-					setValue.call(that, that.slider.value);
+					that.value = that.slider.value;
 
 					xtag.fireEvent(that, 'change', { value: that.slider.value });
 				}, false);
-				
+
 				this.spanLabel = this.querySelector('.label');
 				this.valueDisplay = this.querySelector('.valueDisplay');
-				
-				// not really...
-				//setValue.call(this, this.value);
-				//this.value = this.getAttribute('value');
+
 				this.value = this.value;
 				this.min = this.min;
 				this.max = this.max;
@@ -54,17 +43,21 @@ function register() {
 			},
 			value: {
 				set: function(v) {
-					setValue(v);
+					if(v !== null) {
+						this.setAttribute('value', v);
+						this.slider.value = v;
+						this.valueDisplay.innerHTML = this.slider.value;
+					}
 				},
 				get: function() {
-					return this.getAttribute('value');//this.slider.value;
+					return this.getAttribute('value');
 				}
 			},
 			min: {
 				set: function(v) {
 					this.setAttribute('min', v);
 					this.slider.setAttribute('min', v);
-					setValue.call(this, this.value);
+					this.value = this.value;
 				},
 				get: function() {
 					return this.getAttribute('min');
@@ -74,7 +67,7 @@ function register() {
 				set: function(v) {
 					this.setAttribute('max', v);
 					this.slider.setAttribute('max', v);
-					setValue.call(this, this.value);
+					this.value = this.value;
 				},
 				get: function() {
 					return this.getAttribute('max');
@@ -84,13 +77,12 @@ function register() {
 				set: function(v) {
 					this.setAttribute('step', v);
 					this.slider.setAttribute('step', v);
-					setValue.call(this, this.value);
+					this.value = this.value;
 				},
 				get: function() {
 					return this.getAttribute('step');
 				}
-			},
-
+			}
 		}
 	});
 

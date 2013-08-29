@@ -1,4 +1,4 @@
-var template = '<gear-slider class="master" label="MST" min="0.0" max="1" step="0.05"></gear-slider>' +
+var template = '<div class="master"></div>' +
 	'<div class="sliders"></div>';
 
 function register() {
@@ -11,7 +11,14 @@ function register() {
 			created: function() {
 				this.innerHTML = template;
 
-				this.masterSlider = this.querySelector('.master');
+				this.masterContainer = this.querySelector('.master');
+				this.masterSlider = document.createElement('gear-slider');
+				this.masterSlider.label = 'MST';
+				this.masterSlider.min = 0.0;
+				this.masterSlider.max = 1.0;
+				this.masterSlider.step = 0.01;
+				this.masterContainer.appendChild(this.masterSlider);
+
 				this.slidersContainer = this.querySelector('.sliders');
 				this.sliders = [];
 			}
@@ -49,11 +56,9 @@ function register() {
 
 					slider.label = fader.label;
 					slider.value = fader.gain;
-					console.log('fader', index, fader.label, fader.gain);
 
 					fader.addEventListener('gain_change', function() {
-						//slider.value = fader.gain;
-						console.log('gain change!', fader.gain, fader);
+						slider.value = fader.gain;
 					}, false);
 
 					slider.addEventListener('change', function() {

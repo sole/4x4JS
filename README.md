@@ -45,6 +45,8 @@ Un-be-lie-va-ble
 	- make it use the eventdispatcher packaged in node_modules --as dependency in package.json
 - Gear -> npm
 	dependencies: eventdispatcher
+- gui -> how to test *properly*
+- xtag - things in templates don't seem to be having accessors and stuff initialised properly but seem to work OK if instantiated on the fly?
 
 ## reusing
 
