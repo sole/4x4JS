@@ -2618,10 +2618,6 @@ function SampleVoice(audioContext, options) {
 module.exports = SampleVoice;
 
 },{}],26:[function(require,module,exports){
-var template = '<gear-slider label="attack" class="attack" min="0" max="1" step="0.0001"></gear-slider><br />' + 
-	'<gear-slider label="decay" class="decay" min="0" max="1" step="0.0001"></gear-slider><br />' +
-	'<gear-slider label="sustain" class="sustain" min="0" max="1" step="0.0001"></gear-slider><br />' +
-	'<gear-slider label="release" class="release" min="0" max="1" step="0.0001"></gear-slider>';
 
 var adsrProps = ['attack', 'decay', 'sustain', 'release'];
 
@@ -2636,10 +2632,15 @@ function register() {
 
 				var that = this;
 
-				this.innerHTML = template;
-
 				adsrProps.forEach(function(p) {
-					that[p] = that.querySelector('.' + p);
+					var slider = document.createElement('gear-slider');
+					slider.min = 0;
+					slider.max = 1;
+					slider.step = 0.0001;
+					slider.label = p;
+					that[p] = slider;
+					that.appendChild(slider);
+					that.appendChild(document.createElement('br'));
 				});
 
 			}
