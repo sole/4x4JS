@@ -5,7 +5,7 @@ var audioContext,
 
 var Orxatron = require('./Orxatron/'),
 	Quneo = require('./quneo.js'),
-	gearGUI = require('./gear/GUI'),
+	gearGUI = require('./gear/gui/GUI'),
 	gear;
 
 function start() {

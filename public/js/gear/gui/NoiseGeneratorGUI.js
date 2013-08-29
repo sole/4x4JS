@@ -1,17 +1,19 @@
 var template = '<label>colour <select><option value="white">white</option><option value="pink">pink</option><option value="brown">brown</option></select></label><br />' +
-	'<label>length <input type="range" min="1" max="48000" /></label>';
+	'<gear-slider min="44100" max="96000" step="1" label="length"></gear-slider>';
 
 function register() {
+
 	xtag.register('gear-noise-generator', {
+
 		lifecycle: {
 			created: function() {
 				this.innerHTML = template;
 
-				this.length = this.querySelector('input[type=range]');
+				this.length = this.querySelector('gear-slider');
 				this.type = this.querySelector('select');
-
 			}
 		},
+		
 		methods: {
 
 			attachTo: function(generator) {
