@@ -1,6 +1,6 @@
 function register() {
 	var bajotronTemplate = '<label>portamento <input type="checkbox" /></label><br/>' +
-		'<gear-slider label="num voices" min="1" max="10" step="1" value="1"></gear-slider><br />' +
+		'<div class="numVoicesContainer"></div>' +
 		'<div class="voices">voices settings</div>' +
 		'<div class="adsr"></div>' +
 		'<div class="noise">noise<br /></div>';
@@ -37,7 +37,14 @@ function register() {
 
 				this.portamento = this.querySelector('input[type=checkbox]');
 				
-				this.numVoices = this.querySelector('gear-slider');
+				this.numVoicesContainer = this.querySelector('.numVoicesContainer');
+				this.numVoices = document.createElement('gear-slider');
+				this.numVoices.label = 'num voices';
+				this.numVoices.min = 1;
+				this.numVoices.max = 10;
+				this.numVoices.step = 1;
+				this.numVoices.value = 1;
+				this.numVoicesContainer.appendChild(this.numVoices);
 				this.voicesContainer = this.querySelector('.voices');
 				
 				this.adsrContainer = this.querySelector('.adsr');
