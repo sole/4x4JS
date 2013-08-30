@@ -1,6 +1,7 @@
 var EventDispatcher = require('EventDispatcher');
 var OscillatorVoice = require('./OscillatorVoice');
 var NoiseGenerator = require('./NoiseGenerator');
+var ArithmeticMixer = require('./ArithmeticMixer');
 var ADSR = require('./ADSR.js');
 
 function valueOrUndefined(value, defaultValue) {
@@ -19,11 +20,18 @@ function Bajotron(audioContext, options) {
 	// TODO var semitones = [];
 
 	var outputNode = audioContext.createGain();
+	var arithmeticMixer = new ArithmeticMixer(audioContext);
+
+	//outputNode.connect(arithmeticMixer.output);
+	arithmeticMixer.output.connect(outputNode);
+
 	var voicesOutputNode = audioContext.createGain();
 	var noiseOutputNode = audioContext.createGain();
 
-	voicesOutputNode.connect(outputNode);
-	noiseOutputNode.connect(outputNode);
+	//voicesOutputNode.connect(outputNode);
+	//noiseOutputNode.connect(outputNode);
+	voicesOutputNode.connect(arithmeticMixer.input);
+	noiseOutputNode.connect(arithmeticMixer.input);
 
 	var adsr = new ADSR(audioContext, outputNode.gain);
 	

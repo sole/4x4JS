@@ -13,6 +13,7 @@ Un-be-lie-va-ble
 		- x-taggy -> put these things in another file, so that components can be reused
 	- deck
 - note off!!!
+- arpeggiator?
 - disconnect on note offs?
 - define Gear interfaces
 	- Our 'when' is relative - is this good?
