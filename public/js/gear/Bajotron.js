@@ -19,7 +19,14 @@ function Bajotron(audioContext, options) {
 	// TODO var semitones = [];
 
 	var outputNode = audioContext.createGain();
+	var voicesOutputNode = audioContext.createGain();
+	var noiseOutputNode = audioContext.createGain();
+
+	voicesOutputNode.connect(outputNode);
+	noiseOutputNode.connect(outputNode);
+
 	var adsr = new ADSR(audioContext, outputNode.gain);
+	
 	var noiseAmount = 0.0;
 	var noiseGenerator = new NoiseGenerator(audioContext);
 
@@ -107,7 +114,7 @@ function Bajotron(audioContext, options) {
 					waveType: defaultWaveType,
 					octave: defaultOctave
 				});
-				voice.output.connect(outputNode);
+				voice.output.connect(voicesOutputNode);
 				voices.push(voice);
 			}
 		} else {
@@ -147,15 +154,18 @@ function Bajotron(audioContext, options) {
 
 	function setNoiseAmount(v) {
 		
-		noiseAmount = v;
+		noiseAmount = Math.min(1.0, v * 1.0);
 
 		if(noiseAmount <= 0) {
 			noiseGenerator.output.disconnect();
 		} else {
-			noiseGenerator.output.connect(outputNode);
+			noiseGenerator.output.connect(noiseOutputNode);
 		}
 
-		that.dispatchEvent({ type: 'noise_amount_changed', amount: v });
+		noiseOutputNode.gain.value = noiseAmount;
+		voicesOutputNode.gain.value = 1.0 - noiseAmount;
+
+		that.dispatchEvent({ type: 'noise_amount_changed', amount: noiseAmount });
 
 	}
 
