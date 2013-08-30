@@ -4,9 +4,31 @@ function ArithmeticMixer(audioContext) {
 	// output -> script processor
 	// mix function
 	var processor = audioContext.createScriptProcessor(2048, 2, 1);
-	var mixFunction = divide;
+	var mixFunction = multiply;
 
 	processor.onaudioprocess = onProcessing;
+
+	Object.defineProperties(this, {
+		'mixFunction': {
+			'set': function(v) {
+				switch(v) {
+					case 'divide': mixFunction = divide; break;
+					case 'multiply': mixFunction = multiply; break;
+					default:
+					case 'sum': mixFunction = sum; break;
+				}
+			},
+			'get': function() {
+				if(mixFunction === divide) {
+					return 'divide';
+				} else if(mixFunction === multiply) {
+					return 'multiply';
+				} else {
+					return 'sum';
+				}
+			}
+		}
+	});
 
 	//
 	

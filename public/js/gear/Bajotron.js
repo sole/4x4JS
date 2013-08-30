@@ -64,6 +64,9 @@ function Bajotron(audioContext, options) {
 		},
 		noiseGenerator: {
 			get: function() { return noiseGenerator; }
+		},
+		arithmeticMixer: {
+			get: function() { return arithmeticMixer; }
 		}
 	});
 

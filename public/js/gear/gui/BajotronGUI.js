@@ -3,7 +3,8 @@ function register() {
 		'<div class="numVoicesContainer"></div>' +
 		'<div class="voices">voices settings</div>' +
 		'<div class="adsr"></div>' +
-		'<div class="noise">noise<br /></div>';
+		'<div class="noise">noise<br /></div>'+
+		'<div class="noiseMix">mix </div>';
 
 	function updateVoicesContainer(container, voices) {
 		
@@ -62,6 +63,10 @@ function register() {
 				this.noise = document.createElement('gear-noise-generator');
 				this.noiseContainer.appendChild(this.noise);
 
+				this.noiseMix = this.querySelector('.noiseMix');
+				this.arithmeticMixer = document.createElement('gear-arithmetic-mixer');
+				this.noiseMix.appendChild(this.arithmeticMixer);
+
 			},
 		},
 		methods: {
@@ -110,6 +115,9 @@ function register() {
 				bajotron.addEventListener('noise_amount_change', function() {
 					that.noiseAmount.value = bajotron.noiseAmount;
 				}, false);
+
+				// Noise mix
+				this.arithmeticMixer.attachTo(bajotron.arithmeticMixer);
 			}
 		}
 	});

@@ -1450,7 +1450,7 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":8,"./gear/Bajotron":17,"./gear/Colchonator":19,"./gear/Mixer":20,"./gear/Oscilloscope":23,"./gear/Porrompom":24,"./gear/gui/GUI":29,"./quneo.js":35}],15:[function(require,module,exports){
+},{"./Orxatron/":8,"./gear/Bajotron":17,"./gear/Colchonator":19,"./gear/Mixer":20,"./gear/Oscilloscope":23,"./gear/Porrompom":24,"./gear/gui/GUI":30,"./quneo.js":36}],15:[function(require,module,exports){
 function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 	'use strict';
@@ -1511,9 +1511,31 @@ function ArithmeticMixer(audioContext) {
 	// output -> script processor
 	// mix function
 	var processor = audioContext.createScriptProcessor(2048, 2, 1);
-	var mixFunction = divide;
+	var mixFunction = multiply;
 
 	processor.onaudioprocess = onProcessing;
+
+	Object.defineProperties(this, {
+		'mixFunction': {
+			'set': function(v) {
+				switch(v) {
+					case 'divide': mixFunction = divide; break;
+					case 'multiply': mixFunction = multiply; break;
+					default:
+					case 'sum': mixFunction = sum; break;
+				}
+			},
+			'get': function() {
+				if(mixFunction === divide) {
+					return 'divide';
+				} else if(mixFunction === multiply) {
+					return 'multiply';
+				} else {
+					return 'sum';
+				}
+			}
+		}
+	});
 
 	//
 	
@@ -1624,6 +1646,9 @@ function Bajotron(audioContext, options) {
 		},
 		noiseGenerator: {
 			get: function() { return noiseGenerator; }
+		},
+		arithmeticMixer: {
+			get: function() { return arithmeticMixer; }
 		}
 	});
 
@@ -2756,11 +2781,63 @@ module.exports = {
 
 },{}],28:[function(require,module,exports){
 function register() {
+	
+	'use strict';
+
+	var template = '<select></select>';
+
+	xtag.register('gear-arithmetic-mixer', {
+
+		lifecycle: {
+			created: function() {
+				
+				var that = this;
+
+				this.innerHTML = template;
+
+				this.select = this.querySelector('select');
+
+				['sum', 'multiply'].forEach(function(v) {
+					var option = document.createElement('option');
+					option.value = v;
+					option.innerHTML = v;
+					that.select.appendChild(option);
+				});
+
+			}
+		},
+
+		methods: {
+
+			attachTo: function(arithmeticMixer) {
+
+				this.select.value = arithmeticMixer.mixFunction;
+
+				this.select.addEventListener('change', function() {
+					arithmeticMixer.mixFunction = this.value;
+				}, false);
+
+				// TODO arithmeticMixer dispatch change events
+
+			}
+
+		}
+
+	});
+}
+
+module.exports = {
+	register: register
+};
+
+},{}],29:[function(require,module,exports){
+function register() {
 	var bajotronTemplate = '<label>portamento <input type="checkbox" /></label><br/>' +
 		'<div class="numVoicesContainer"></div>' +
 		'<div class="voices">voices settings</div>' +
 		'<div class="adsr"></div>' +
-		'<div class="noise">noise<br /></div>';
+		'<div class="noise">noise<br /></div>'+
+		'<div class="noiseMix">mix </div>';
 
 	function updateVoicesContainer(container, voices) {
 		
@@ -2819,6 +2896,10 @@ function register() {
 				this.noise = document.createElement('gear-noise-generator');
 				this.noiseContainer.appendChild(this.noise);
 
+				this.noiseMix = this.querySelector('.noiseMix');
+				this.arithmeticMixer = document.createElement('gear-arithmetic-mixer');
+				this.noiseMix.appendChild(this.arithmeticMixer);
+
 			},
 		},
 		methods: {
@@ -2867,6 +2948,9 @@ function register() {
 				bajotron.addEventListener('noise_amount_change', function() {
 					that.noiseAmount.value = bajotron.noiseAmount;
 				}, false);
+
+				// Noise mix
+				this.arithmeticMixer.attachTo(bajotron.arithmeticMixer);
 			}
 		}
 	});
@@ -2879,11 +2963,12 @@ module.exports = {
 };
 
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 var Slider = require('./Slider');
 var ADSRGUI = require('./ADSRGUI');
 var MixerGUI = require('./MixerGUI');
 var NoiseGeneratorGUI = require('./NoiseGeneratorGUI');
+var ArithmeticMixerGUI = require('./ArithmeticMixerGUI');
 var OscillatorVoiceGUI = require('./OscillatorVoiceGUI');
 var BajotronGUI = require('./BajotronGUI');
 
@@ -2892,6 +2977,7 @@ var registry = [
 	ADSRGUI,
 	MixerGUI,
 	NoiseGeneratorGUI,
+	ArithmeticMixerGUI,
 	OscillatorVoiceGUI,
 	BajotronGUI
 ];
@@ -2907,7 +2993,7 @@ module.exports = {
 	init: init
 };
 
-},{"./ADSRGUI":27,"./BajotronGUI":28,"./MixerGUI":30,"./NoiseGeneratorGUI":31,"./OscillatorVoiceGUI":32,"./Slider":33}],30:[function(require,module,exports){
+},{"./ADSRGUI":27,"./ArithmeticMixerGUI":28,"./BajotronGUI":29,"./MixerGUI":31,"./NoiseGeneratorGUI":32,"./OscillatorVoiceGUI":33,"./Slider":34}],31:[function(require,module,exports){
 var template = '<div class="master"></div>' +
 	'<div class="sliders"></div>';
 
@@ -2994,7 +3080,7 @@ module.exports = {
 	register: register
 };
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 var template = '<label>colour <select><option value="white">white</option><option value="pink">pink</option><option value="brown">brown</option></select></label><br />';
 
 function register() {
@@ -3058,7 +3144,7 @@ module.exports = {
 	register: register
 };
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 var template = '<label>octave <input type="number" min="0" max="10" step="1" value="5" /></label><br />' +
 	'<select><option value="sine">sine</option><option value="square">square</option><option value="sawtooth">sawtooth</option><option value="triangle">triangle</option></select>';
 
@@ -3126,7 +3212,7 @@ module.exports = {
 	register: register
 };
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 var template = '<label><span class="label"></span> <input type="range" min="0" max="100" step="0.0001" /> <span class="valueDisplay">0</span></label>';
 
 function register() {
@@ -3221,7 +3307,7 @@ module.exports = {
 	register: register
 };
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -3229,7 +3315,7 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":14}],35:[function(require,module,exports){
+},{"./app":14}],36:[function(require,module,exports){
 var i, j;
 var leds = {};
 var columnLeds = {};
@@ -3310,5 +3396,5 @@ module.exports = {
 	getStopLedPath: getStopLedPath
 };
 
-},{}]},{},[34])
+},{}]},{},[35])
 ;
