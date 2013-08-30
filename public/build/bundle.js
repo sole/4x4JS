@@ -2738,6 +2738,13 @@ function register() {
 				this.adsrContainer.appendChild(this.adsr);
 
 				this.noiseContainer = this.querySelector('.noise');
+				this.noiseAmount = document.createElement('gear-slider');
+				this.noiseAmount.label = 'amount';
+				this.noiseAmount.min = 0;
+				this.noiseAmount.max = 1.0;
+				this.noiseAmount.step = 0.001;
+				this.noiseContainer.appendChild(this.noiseAmount);
+				this.noiseContainer.appendChild(document.createElement('br'));
 				this.noise = document.createElement('gear-noise-generator');
 				this.noiseContainer.appendChild(this.noise);
 
@@ -2779,7 +2786,16 @@ function register() {
 				this.adsr.attachTo(bajotron.adsr);
 
 				// Noise
+				this.noiseAmount.value = bajotron.noiseAmount;
 				this.noise.attachTo(bajotron.noiseGenerator);
+
+				this.noiseAmount.addEventListener('change', function() {
+					bajotron.noiseAmount = that.noiseAmount.value;
+				}, false);
+
+				bajotron.addEventListener('noise_amount_change', function() {
+					that.noiseAmount.value = bajotron.noiseAmount;
+				}, false);
 			}
 		}
 	});
