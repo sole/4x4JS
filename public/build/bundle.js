@@ -2908,8 +2908,7 @@ module.exports = {
 };
 
 },{}],30:[function(require,module,exports){
-var template = '<label>colour <select><option value="white">white</option><option value="pink">pink</option><option value="brown">brown</option></select></label><br />' +
-	'<gear-slider min="44100" max="96000" step="1" label="length"></gear-slider>';
+var template = '<label>colour <select><option value="white">white</option><option value="pink">pink</option><option value="brown">brown</option></select></label><br />';
 
 function register() {
 
@@ -2919,7 +2918,12 @@ function register() {
 			created: function() {
 				this.innerHTML = template;
 
-				this.length = this.querySelector('gear-slider');
+				this.length = document.createElement('gear-slider');
+				this.length.min = 44100;
+				this.length.max = 96000;
+				this.length.step = 1;
+				this.length.label = 'length';
+				this.appendChild(this.length);
 				this.type = this.querySelector('select');
 			}
 		},
