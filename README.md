@@ -32,8 +32,13 @@ Un-be-lie-va-ble
 				someComponent.output.connect(audioContext.destination);
 		- input (in some cases --> analyser node)
 		- gui === DOM node
-	- TODO: GearBase class
+	- TODO: GearBase class (?)
 - player -> jump to position -> changes time position, etc
+- 3d
+	- ywft
+	- spectrum -> shaders
+	- notes -> shaders
+		camera
 - sliditation
 	get excited
 		affordable synthesis
