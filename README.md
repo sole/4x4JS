@@ -12,6 +12,7 @@ Un-be-lie-va-ble
 		-> associate some params to hardware controls
 		- x-taggy -> put these things in another file, so that components can be reused
 	- deck
+- vocoder
 - note off!!!
 - arpeggiator?
 - disconnect on note offs?
