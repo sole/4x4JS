@@ -32,7 +32,6 @@ Un-be-lie-va-ble
 			- also easy connection:
 				someComponent.output.connect(audioContext.destination);
 		- input (in some cases --> analyser node)
-		- gui === DOM node
 	- TODO: GearBase class (?)
 - player -> jump to position -> changes time position, etc
 - 3d
@@ -73,3 +72,12 @@ Porrompom -> SampleVoice
 - ADSR
 - SampleVoice
 - NoiseGenerator
+
+## "track list"
+
+- up the hill
+- coffee rulez
+- jasmine flowers
+- rebuild
+- stereopowergalactic
+- a.b.r.i.l. original version
