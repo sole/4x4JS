@@ -46,7 +46,82 @@ Un-be-lie-va-ble
 	go mad / LFO
 	- show gui / progressively
 	- topics
-		... discuss...
+		- quneo midi controller
+			- OSCBridge
+				- usb, send messages to local server
+					- get touch events
+				- set up local server for listening to messages
+					- control leds
+				- over UDP via node-osc
+			- server to browser
+				- listen to some messages
+					- message syntax
+					- regex
+				- send some messages
+				- socket.io
+		- node.js
+		- Gear
+			- virtual components
+				- cheap & affordable
+				- easy to travel with them
+			- they do stuff of many types
+				- audio nodes
+					- using web audio and "native blocks"
+						- oscillators, buffers, param values
+							- wrapped in helper classes
+							- oscillators and buffers get autodiscarded
+							- param values -> envelopes
+						- very modular: inputs and outputs
+							- components inside components
+					- sometimes native blocks aren't enough
+					- plugging in custom nodes using ScriptProcessor
+						- audio processing / generation in JS
+				- graphic nodes
+					- using canvas or web gl
+						- three.js
+							- composite rendering - many scenes, one renderer
+							- no time for modelling with blender/whatever
+								- so algorithmical/procedural is the way
+					- audio events can be triggered very often
+						- limit with requestAnimationFrame
+			- gui for some nodes
+				- guiTag
+				- x-tag based
+				- attachTo
+					- encapsulation: setters, getters
+					- modular again: reusing custom components inside custom compst
+		- sync -- Orxatron.Player
+			- base song/arrangement sequenced with renoise
+				- that's a tracker
+				- like sheets of music
+				- or like a pianola
+				- or "excel for musicians"
+			- song is xml based
+				- export to json?
+				- I wrote a node module because there wasn't any
+				- patterns with columns and rows, 
+				- and a list of patterns to be played in order (the order list)
+			- convert to list of events
+			- keep global time-- events are relative to this time
+			- web audio events cannot be cancelled
+			- so dispatch bursts of events - "requestAuditionFrame"
+			- things happen
+				- listen to them
+				- addEventListener
+				- EventDispatcher
+				- sadly no custom events because there's no DOM element to dispatch
+			- the player doesn't have a clue of what sort of things it's triggering
+				- agnostic: noteOn, noteOff
+				- note names (C-4...) to standard MIDI note numbers
+					- having note numbers allows you to build chords and transpose
+					- standard frequencies fit nicely with sampling
+					- I built another node module for this
+			- the music
+				- medley with some of my songs
+				- remixed for the occasion
+				- space for improvisation
+				- and errors (?)
+		... more ...
 - Orxatron -> npm
 	dependencies: eventdispatcher
 	- make it use the eventdispatcher packaged in node_modules --as dependency in package.json
