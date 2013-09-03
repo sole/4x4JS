@@ -712,6 +712,7 @@ function PatternCell(data) {
 module.exports = PatternCell;
 
 },{"midiutils":4,"stringformat.js":5}],11:[function(require,module,exports){
+// TODO many things don't need to be 'public' as for example eventsList
 var EventDispatcher = require('./libs/EventDispatcher');
 var Pattern = require('./Pattern');
 
@@ -767,12 +768,14 @@ function Player() {
 		that.dispatchEvent({ type: EVENT_ROW_CHANGE, row: value, previousRow: previousValue, pattern: that.currentPattern, order: that.currentOrder });
 	}
 
+
 	function changeToPattern( value ) {
 		var previousValue = that.currentPattern;
 
 		that.currentPattern = value;
 		that.dispatchEvent({ type: EVENT_PATTERN_CHANGE, pattern: value, previousPattern: previousValue, order: that.currentOrder, row: that.currentRow });
 	}
+
 
 	function changeToOrder( value ) {
 		var previousValue = that.currentOrder;
@@ -783,21 +786,45 @@ function Player() {
 		changeToPattern( that.orders[ value ] );
 	}
 
+
+	function updateNextEventToOrderRow(order, row) {
+
+		var p = 0;
+
+		for(var i = 0; i < that.eventsList.length; i++) {
+			
+			var ev = that.eventsList[i];
+			p = i;
+
+			if(EVENT_ROW_CHANGE === ev.type && ev.row === row && ev.order === order ) {
+				break;
+			}
+		}
+		
+		that.nextEventPosition = p;
+
+	}
+
+
 	function setLastPlayedNote(note, track, column) {
 		that.tracksLastPlayedNotes[track][column] = note;
 	}
+
 
 	function getLastPlayedNote(track, column) {
 		return that.tracksLastPlayedNotes[track][column];
 	}
 
+
 	function setLastPlayedInstrument(note, track, column) {
 		that.tracksLastPlayedInstruments[track][column] = note;
 	}
 
+
 	function getLastPlayedInstrument(track, column) {
 		return that.tracksLastPlayedInstruments[track][column];
 	}
+
 
 	var frameLength = 1000 / 60.0; // TODO move up (?)
 
@@ -807,6 +834,7 @@ function Player() {
 		return timeout;
 
 	}
+
 
 	function updateFrame(t /*, frameLength */) {
 		
@@ -945,10 +973,10 @@ function Player() {
 			that.patterns.push(pattern);
 		});
 
-		that.patterns.forEach(function(pat, idx) {
+		/*that.patterns.forEach(function(pat, idx) {
 			console.log('Pattern #', idx);
 			console.log(pat.toString());
-		});
+		});*/
 
 	};
 
@@ -1033,7 +1061,22 @@ function Player() {
 	};
 
 	this.jumpToOrder = function(order, row) {
-		console.warn('TODO Player jumpToOrder');
+
+		// TODO if the new pattern to play has less rows than the current one,
+		// make sure we don't play out of index
+		changeToOrder( order );
+
+		if( row === undefined ) {
+			row = this.currentRow;
+		}
+
+		changeToRow( row );
+
+		updateNextEventToOrderRow( order, row );
+		
+		//var prevPosition = this.position;
+		//this.position = this.eventsList[ this.nextEventPosition ].timestampSamples + loopStart;
+		this.timePosition = this.eventsList[ this.nextEventPosition ].timestamp + loopStart;
 	};
 
 }
@@ -1419,6 +1462,12 @@ function setupKeyboardAndTransport() {
 	// Just in case OSC is not available!
 	$('#play').on('click', play);
 	$('#pause').on('click', pause);
+	$('#rew').on('click', function() {
+		playerJumpTo(-1);
+	});
+	$('#fwd').on('click', function() {
+		playerJumpTo(1);
+	});
 }
 
 var playAnimation = null;
@@ -1444,6 +1493,21 @@ function pause() {
 	player.pause();
 	clearInterval(playAnimation);
 	osc.send(Quneo.getPlayLedPath(), 0);
+}
+
+function playerJumpTo(offset) {
+	
+	var newOrder = player.currentOrder + offset;
+	var numOrders = player.orders.length;
+
+	if(newOrder > numOrders) {
+		newOrder = 0;
+	} else if(newOrder < 0) {
+		newOrder = numOrders - 1;
+	}
+
+	player.jumpToOrder(newOrder, 0);
+
 }
 
 module.exports = {

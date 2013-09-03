@@ -33,7 +33,6 @@ Un-be-lie-va-ble
 				someComponent.output.connect(audioContext.destination);
 		- input (in some cases --> analyser node)
 	- TODO: GearBase class (?)
-- player -> jump to position -> changes time position, etc
 - 3d
 	- ywft
 	- spectrum -> shaders
@@ -46,6 +45,8 @@ Un-be-lie-va-ble
 	go wild
 	go mad / LFO
 	- show gui / progressively
+	- topics
+		... discuss...
 - Orxatron -> npm
 	dependencies: eventdispatcher
 	- make it use the eventdispatcher packaged in node_modules --as dependency in package.json

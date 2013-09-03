@@ -243,6 +243,12 @@ function setupKeyboardAndTransport() {
 	// Just in case OSC is not available!
 	$('#play').on('click', play);
 	$('#pause').on('click', pause);
+	$('#rew').on('click', function() {
+		playerJumpTo(-1);
+	});
+	$('#fwd').on('click', function() {
+		playerJumpTo(1);
+	});
 }
 
 var playAnimation = null;
@@ -268,6 +274,21 @@ function pause() {
 	player.pause();
 	clearInterval(playAnimation);
 	osc.send(Quneo.getPlayLedPath(), 0);
+}
+
+function playerJumpTo(offset) {
+	
+	var newOrder = player.currentOrder + offset;
+	var numOrders = player.orders.length;
+
+	if(newOrder > numOrders) {
+		newOrder = 0;
+	} else if(newOrder < 0) {
+		newOrder = numOrders - 1;
+	}
+
+	player.jumpToOrder(newOrder, 0);
+
 }
 
 module.exports = {
