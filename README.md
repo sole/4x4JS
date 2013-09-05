@@ -3,8 +3,22 @@
 Un-be-lie-va-ble
 
 ## To do
-
+- filters? better sound.
+	- with envelopes?
+- missing guis
+	- colchonator
+	- porrompom
+	- reverbetron
+- sampling + play en otras frequencies
+- gfx gear
+	- fft / spectrum
+	- abstract worlds etc
+	- things that display notes - listening to note on etc
+		- on screen piano
+		- more abstract like those youtoube videos representing classical scores
+		- cubic player style vis - note dots etc
 - noise generator dispatch events on setters
+	- needs to be event target, etc
 - get something coordinated
 	- gui
 		-> setters/getters in instruments
@@ -116,6 +130,7 @@ Un-be-lie-va-ble
 					- having note numbers allows you to build chords and transpose
 					- standard frequencies fit nicely with sampling
 					- I built another node module for this
+			- since we have the song information that's 'more accurate' than just using ffts - better, delimited sync -> drums, snares
 			- the music
 				- medley with some of my songs
 				- remixed for the occasion

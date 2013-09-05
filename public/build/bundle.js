@@ -1350,6 +1350,10 @@ function initialiseGear(audioContext) {
 	guiContainer.appendChild(bassGUI);
 
 
+	var padGUI = document.createElement(pad.guiTag);
+	padGUI.attachTo(pad);
+	guiContainer.appendChild(padGUI);
+
 	return g;
 }
 
@@ -1514,7 +1518,7 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":8,"./gear/Bajotron":17,"./gear/Colchonator":19,"./gear/Mixer":20,"./gear/Oscilloscope":23,"./gear/Porrompom":24,"./gear/gui/GUI":30,"./quneo.js":36}],15:[function(require,module,exports){
+},{"./Orxatron/":8,"./gear/Bajotron":17,"./gear/Colchonator":19,"./gear/Mixer":20,"./gear/Oscilloscope":23,"./gear/Porrompom":24,"./gear/gui/GUI":31,"./quneo.js":37}],15:[function(require,module,exports){
 function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 	'use strict';
@@ -1668,14 +1672,11 @@ function Bajotron(audioContext, options) {
 	var outputNode = audioContext.createGain();
 	var arithmeticMixer = new ArithmeticMixer(audioContext);
 
-	//outputNode.connect(arithmeticMixer.output);
 	arithmeticMixer.output.connect(outputNode);
 
 	var voicesOutputNode = audioContext.createGain();
 	var noiseOutputNode = audioContext.createGain();
 
-	//voicesOutputNode.connect(outputNode);
-	//noiseOutputNode.connect(outputNode);
 	voicesOutputNode.connect(arithmeticMixer.input);
 	noiseOutputNode.connect(arithmeticMixer.input);
 
@@ -1898,6 +1899,7 @@ function BufferLoader(audioContext) {
 module.exports = BufferLoader;
 
 },{}],19:[function(require,module,exports){
+var EventDispatcher = require('EventDispatcher');
 var MIDIUtils = require('midiutils');
 var OscillatorVoice = require('./OscillatorVoice');
 var ADSR = require('./ADSR.js');
@@ -1936,12 +1938,20 @@ function Colchonator(audioContext, options) {
 
 	setWetAmount(0.5);
 
-	initVoices(numVoices);
+	setNumVoices(numVoices);
 	
+	EventDispatcher.call(this);
+
+	Object.defineProperties(this, {
+		numVoices: {
+			set: setNumVoices,
+			get: function() { return numVoices; }
+		}
+	});
 
 	//
 
-	function initVoices(number) {
+	function setNumVoices(number) {
 		
 		var v;
 
@@ -2042,8 +2052,9 @@ function Colchonator(audioContext, options) {
 
 	// ~~~
 
-	this.output = outputNode;
+	this.guiTag = 'gear-colchonator';
 
+	this.output = outputNode;
 
 	this.noteOn = function(note, volume, when) {
 
@@ -2086,7 +2097,7 @@ function Colchonator(audioContext, options) {
 
 module.exports = Colchonator;
 
-},{"./ADSR.js":15,"./Bajotron":17,"./OscillatorVoice":22,"./Reverbetron":25,"midiutils":4}],20:[function(require,module,exports){
+},{"./ADSR.js":15,"./Bajotron":17,"./OscillatorVoice":22,"./Reverbetron":25,"EventDispatcher":1,"midiutils":4}],20:[function(require,module,exports){
 var EventDispatcher = require('eventdispatcher');
 
 // A simple mixer for avoiding early deafness
@@ -3028,6 +3039,71 @@ module.exports = {
 
 
 },{}],30:[function(require,module,exports){
+var template = '<div class="numVoicesContainer"></div>';
+
+
+function register() {
+	xtag.register('gear-colchonator', {
+		lifecycle: {
+			created: function() {
+				this.innerHTML = template;
+
+				this.numVoicesContainer = this.querySelector('.numVoicesContainer');
+				this.numVoices = document.createElement('gear-slider');
+				this.numVoices.label = 'num voices';
+				this.numVoices.min = 1;
+				this.numVoices.max = 10;
+				this.numVoices.step = 1;
+				this.numVoices.value = 1;
+				this.numVoicesContainer.appendChild(this.numVoices);
+
+			}
+		},
+		methods: {
+
+			attachTo: function(colchonator) {
+				var that = this;
+
+				this.colchonator = colchonator;
+
+				// Voices
+				// slider.attachToProperty(bajotron, 'numVoices', onSliderChange, propertyChangeEventName, listener);
+				
+				/*this.numVoices.value = bajotron.numVoices;
+
+				updateVoicesContainer(that.voicesContainer, bajotron.voices);
+
+				this.numVoices.addEventListener('change', function() {
+					bajotron.numVoices = that.numVoices.value;
+					updateVoicesContainer(that.voicesContainer, bajotron.voices);
+				}, false);
+
+				bajotron.addEventListener('num_voices_change', function() {
+					updateVoicesContainer(that.voicesContainer, bajotron.voices);
+				}, false);*/
+
+				this.numVoices.attachToObject(colchonator, 'numVoices', function() {
+					console.log('num voices changed', that.numVoices.value);
+				}, 'num_voices_change', function() {
+					console.log('colchonator num voices changed', colchonator.numVoices);
+				});
+
+			},
+
+			detach: function() {
+				//this.voice.removeEventListener('octave_change', this.octaveChangeListener, false);
+				//this.voice.removeEventListener('wave_type_change', this.waveTypeChangeListener, false);
+			}
+
+		}
+	});
+}
+
+module.exports = {
+	register: register
+};
+
+},{}],31:[function(require,module,exports){
 var Slider = require('./Slider');
 var ADSRGUI = require('./ADSRGUI');
 var MixerGUI = require('./MixerGUI');
@@ -3035,6 +3111,7 @@ var NoiseGeneratorGUI = require('./NoiseGeneratorGUI');
 var ArithmeticMixerGUI = require('./ArithmeticMixerGUI');
 var OscillatorVoiceGUI = require('./OscillatorVoiceGUI');
 var BajotronGUI = require('./BajotronGUI');
+var ColchonatorGUI = require('./ColchonatorGUI');
 
 var registry = [
 	Slider,
@@ -3043,7 +3120,8 @@ var registry = [
 	NoiseGeneratorGUI,
 	ArithmeticMixerGUI,
 	OscillatorVoiceGUI,
-	BajotronGUI
+	BajotronGUI,
+	ColchonatorGUI
 ];
 
 
@@ -3057,7 +3135,7 @@ module.exports = {
 	init: init
 };
 
-},{"./ADSRGUI":27,"./ArithmeticMixerGUI":28,"./BajotronGUI":29,"./MixerGUI":31,"./NoiseGeneratorGUI":32,"./OscillatorVoiceGUI":33,"./Slider":34}],31:[function(require,module,exports){
+},{"./ADSRGUI":27,"./ArithmeticMixerGUI":28,"./BajotronGUI":29,"./ColchonatorGUI":30,"./MixerGUI":32,"./NoiseGeneratorGUI":33,"./OscillatorVoiceGUI":34,"./Slider":35}],32:[function(require,module,exports){
 var template = '<div class="master"></div>' +
 	'<div class="sliders"></div>';
 
@@ -3144,7 +3222,7 @@ module.exports = {
 	register: register
 };
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 var template = '<label>colour <select><option value="white">white</option><option value="pink">pink</option><option value="brown">brown</option></select></label><br />';
 
 function register() {
@@ -3208,7 +3286,7 @@ module.exports = {
 	register: register
 };
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 var template = '<label>octave <input type="number" min="0" max="10" step="1" value="5" /></label><br />' +
 	'<select><option value="sine">sine</option><option value="square">square</option><option value="sawtooth">sawtooth</option><option value="triangle">triangle</option></select>';
 
@@ -3276,7 +3354,7 @@ module.exports = {
 	register: register
 };
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 var template = '<label><span class="label"></span> <input type="range" min="0" max="100" step="0.0001" /> <span class="valueDisplay">0</span></label>';
 
 function register() {
@@ -3362,6 +3440,37 @@ function register() {
 					return this.getAttribute('step');
 				}
 			}
+		},
+		methods: {
+			// slider.attachToProperty(bajotron, 'numVoices', onSliderChange, propertyChangeEventName, listener);
+
+			attachToObject: function(object, propertyName, onChange, propertyChangeEvent, propertyChangeListener) {
+				console.log('attachToObject', object, propertyName);
+
+				var that = this;
+				this.value = object[propertyName];
+				console.log('slider: my initial value', object[propertyName]);
+				
+				// Changes in our slider change the associated object property
+				this.addEventListener('change', function() {
+					object[propertyName] = that.value;
+					if(onChange) {
+						onChange();
+					}
+				}, false);
+
+				// If propertyChangeEventName not null, listen for change events in the object
+				// These will update our slider's value
+				if(propertyChangeEvent) {
+					object.addEventListener(propertyChangeEvent, function() {
+						that.value = object[propertyName];
+						if(propertyChangeListener) {
+							propertyChangeListener();
+						}
+					}, false);
+				}
+
+			}
 		}
 	});
 
@@ -3371,7 +3480,7 @@ module.exports = {
 	register: register
 };
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -3379,7 +3488,7 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":14}],36:[function(require,module,exports){
+},{"./app":14}],37:[function(require,module,exports){
 var i, j;
 var leds = {};
 var columnLeds = {};
@@ -3460,5 +3569,5 @@ module.exports = {
 	getStopLedPath: getStopLedPath
 };
 
-},{}]},{},[35])
+},{}]},{},[36])
 ;

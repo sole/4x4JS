@@ -5,6 +5,7 @@ var NoiseGeneratorGUI = require('./NoiseGeneratorGUI');
 var ArithmeticMixerGUI = require('./ArithmeticMixerGUI');
 var OscillatorVoiceGUI = require('./OscillatorVoiceGUI');
 var BajotronGUI = require('./BajotronGUI');
+var ColchonatorGUI = require('./ColchonatorGUI');
 
 var registry = [
 	Slider,
@@ -13,7 +14,8 @@ var registry = [
 	NoiseGeneratorGUI,
 	ArithmeticMixerGUI,
 	OscillatorVoiceGUI,
-	BajotronGUI
+	BajotronGUI,
+	ColchonatorGUI
 ];
 
 

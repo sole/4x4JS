@@ -83,6 +83,37 @@ function register() {
 					return this.getAttribute('step');
 				}
 			}
+		},
+		methods: {
+			// slider.attachToProperty(bajotron, 'numVoices', onSliderChange, propertyChangeEventName, listener);
+
+			attachToObject: function(object, propertyName, onChange, propertyChangeEvent, propertyChangeListener) {
+				console.log('attachToObject', object, propertyName);
+
+				var that = this;
+				this.value = object[propertyName];
+				console.log('slider: my initial value', object[propertyName]);
+				
+				// Changes in our slider change the associated object property
+				this.addEventListener('change', function() {
+					object[propertyName] = that.value;
+					if(onChange) {
+						onChange();
+					}
+				}, false);
+
+				// If propertyChangeEventName not null, listen for change events in the object
+				// These will update our slider's value
+				if(propertyChangeEvent) {
+					object.addEventListener(propertyChangeEvent, function() {
+						that.value = object[propertyName];
+						if(propertyChangeListener) {
+							propertyChangeListener();
+						}
+					}, false);
+				}
+
+			}
 		}
 	});
 

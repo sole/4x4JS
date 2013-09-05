@@ -131,6 +131,10 @@ function initialiseGear(audioContext) {
 	guiContainer.appendChild(bassGUI);
 
 
+	var padGUI = document.createElement(pad.guiTag);
+	padGUI.attachTo(pad);
+	guiContainer.appendChild(padGUI);
+
 	return g;
 }
 

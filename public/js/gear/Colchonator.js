@@ -1,3 +1,4 @@
+var EventDispatcher = require('EventDispatcher');
 var MIDIUtils = require('midiutils');
 var OscillatorVoice = require('./OscillatorVoice');
 var ADSR = require('./ADSR.js');
@@ -36,12 +37,20 @@ function Colchonator(audioContext, options) {
 
 	setWetAmount(0.5);
 
-	initVoices(numVoices);
+	setNumVoices(numVoices);
 	
+	EventDispatcher.call(this);
+
+	Object.defineProperties(this, {
+		numVoices: {
+			set: setNumVoices,
+			get: function() { return numVoices; }
+		}
+	});
 
 	//
 
-	function initVoices(number) {
+	function setNumVoices(number) {
 		
 		var v;
 
@@ -142,8 +151,9 @@ function Colchonator(audioContext, options) {
 
 	// ~~~
 
-	this.output = outputNode;
+	this.guiTag = 'gear-colchonator';
 
+	this.output = outputNode;
 
 	this.noteOn = function(note, volume, when) {
 

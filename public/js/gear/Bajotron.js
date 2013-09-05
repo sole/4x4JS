@@ -22,14 +22,11 @@ function Bajotron(audioContext, options) {
 	var outputNode = audioContext.createGain();
 	var arithmeticMixer = new ArithmeticMixer(audioContext);
 
-	//outputNode.connect(arithmeticMixer.output);
 	arithmeticMixer.output.connect(outputNode);
 
 	var voicesOutputNode = audioContext.createGain();
 	var noiseOutputNode = audioContext.createGain();
 
-	//voicesOutputNode.connect(outputNode);
-	//noiseOutputNode.connect(outputNode);
 	voicesOutputNode.connect(arithmeticMixer.input);
 	noiseOutputNode.connect(arithmeticMixer.input);
 
