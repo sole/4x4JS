@@ -2,9 +2,30 @@
 
 Un-be-lie-va-ble
 
+## TO to to do
+
+- tracker to song -> sets the rhythm/mood
+	- curves required to reuse instruments
+	- or some simple "sample" effects (because curves require some sort of vsti param which we dont have now)
+		- use volume AT LEAST
+		- arpeggio
+
+- add 3d to the mix
+	- multiple scenes etc
+- slides to song
+- improv -> link some instruments
+	- switching between instruments
+- finish gui
+	- show/hide gui toggle
+
+- control filter in instruments with quneo - HUMAN CURVES
+- keeping it simple with few instruments-like 'unplugged'
+
 ## To do
 - filters? better sound.
 	- with envelopes?
+	- renoise curves -> envelopes
+		points set value immediately
 - missing guis
 	- colchonator
 	- porrompom

@@ -888,7 +888,7 @@ function Player() {
 					if(voice) {
 						setLastPlayedNote(currentEvent.noteNumber, currentEvent.track, currentEvent.column);
 						setLastPlayedInstrument(currentEvent.instrument, currentEvent.track, currentEvent.column);
-						voice.noteOn(currentEvent.noteNumber, 1.0, timeUntilEvent);
+						voice.noteOn(currentEvent.noteNumber, currentEvent.volume, timeUntilEvent);
 					} else {
 						console.log("Attempting to call undefined voice", currentEvent.instrument);
 					}
@@ -1074,8 +1074,6 @@ function Player() {
 
 		updateNextEventToOrderRow( order, row );
 		
-		//var prevPosition = this.position;
-		//this.position = this.eventsList[ this.nextEventPosition ].timestampSamples + loopStart;
 		this.timePosition = this.eventsList[ this.nextEventPosition ].timestamp + loopStart;
 	};
 
