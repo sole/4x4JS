@@ -229,6 +229,10 @@ function setupOSC(gear, player, osc) {
 }
 
 function resetQuneo() {
+
+	// Turn play button ON to show we're ready
+	osc.send(Quneo.getPlayLedPath(), 1.0);
+
 	// Initially turn off all the pads just in case something remained
 	for(var i = 0; i < 16; i++) {
 		osc.send(Quneo.getPadLedsPath(i, 'green'), 0);
@@ -274,7 +278,6 @@ function play() {
 
 		clearInterval(playAnimation);
 		playAnimation = setInterval(updatePlayButton, 20);
-		//osc.send(Quneo.getPlayLedPath(), 1.0);
 		osc.send(Quneo.getStopLedPath(), 0.5);
 	}
 }
