@@ -1988,10 +1988,11 @@ function Bajotron(audioContext, options) {
 
 		// Because this is a monophonic instrument, `noteNumber` is quietly ignored
 		when = when !== undefined ? when : 0;
+		var audioWhen = when + audioContext.currentTime;
 
-		adsr.beginRelease(when);
+		adsr.beginRelease(audioWhen);
 
-		var releaseEndTime = when + adsr.release;
+		var releaseEndTime = audioWhen + adsr.release;
 
 		voices.forEach(function(voice) {
 			voice.noteOff(releaseEndTime);

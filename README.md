@@ -4,6 +4,7 @@ Un-be-lie-va-ble
 
 ## TO to to do
 
+- bajotron release doesn't work properly
 - improv -> link some instruments
 	X switching between instruments
 	- interactive input using quneo
