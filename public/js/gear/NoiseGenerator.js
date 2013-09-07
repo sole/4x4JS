@@ -1,4 +1,5 @@
 var SampleVoice = require('./SampleVoice');
+var EventDispatcher = require('EventDispatcher');
 
 function generateWhiteNoise(size) {
 
@@ -58,11 +59,14 @@ function generateBrownNoise(size) {
 }
 
 function NoiseGenerator(audioContext, options) {
-	
+
+	var that = this;
 	var output = audioContext.createGain();
 	var sourceVoice;
 	var type;
 	var length;
+
+	EventDispatcher.call(this);
 
 	options = options || {};
 
@@ -133,11 +137,13 @@ function NoiseGenerator(audioContext, options) {
 	function setType(t) {
 		buildBuffer(length, t);
 		type = t;
+		that.dispatchEvent({ type: 'type_changed', typeValue: t });
 	}
 
 	function setLength(v) {
 		buildBuffer(v, type);
 		length = v;
+		that.dispatchEvent({ type: 'length_changed', length: v });
 	}
 
 	// ~~~

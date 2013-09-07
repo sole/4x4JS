@@ -2045,6 +2045,7 @@ var OscillatorVoice = require('./OscillatorVoice');
 var ADSR = require('./ADSR.js');
 var Bajotron = require('./Bajotron');
 var Reverbetron = require('./Reverbetron');
+var NoiseGenerator = require('./NoiseGenerator');
 
 function Colchonator(audioContext, options) {
 	
@@ -2058,6 +2059,11 @@ function Colchonator(audioContext, options) {
 	var outputNode = audioContext.createGain();
 	var voicesNode = audioContext.createGain();
 	var reverbNode = new Reverbetron(audioContext, options.reverb);
+
+	// This dummy node is not connected anywhere-we'll just use it to
+	// set up identical properties in each of our internal Bajotron instances
+	var dummyNoiseGenerator = new NoiseGenerator(audioContext);
+	// TODO dummyNoiseGenerator.onChange -> change all instances' noise gens
 
 	reverbNode.output.connect(outputNode);
 
@@ -2076,6 +2082,9 @@ function Colchonator(audioContext, options) {
 		},
 		reverb: {
 			get: function() { return reverbNode; }
+		},
+		noiseGenerator: {
+			get: function() { return dummyNoiseGenerator; }
 		}
 	});
 
@@ -2211,7 +2220,7 @@ function Colchonator(audioContext, options) {
 
 module.exports = Colchonator;
 
-},{"./ADSR.js":16,"./Bajotron":18,"./OscillatorVoice":23,"./Reverbetron":26,"EventDispatcher":1,"midiutils":4}],21:[function(require,module,exports){
+},{"./ADSR.js":16,"./Bajotron":18,"./NoiseGenerator":22,"./OscillatorVoice":23,"./Reverbetron":26,"EventDispatcher":1,"midiutils":4}],21:[function(require,module,exports){
 var EventDispatcher = require('eventdispatcher');
 
 // A simple mixer for avoiding early deafness
@@ -2319,6 +2328,7 @@ module.exports = Mixer;
 
 },{"eventdispatcher":3}],22:[function(require,module,exports){
 var SampleVoice = require('./SampleVoice');
+var EventDispatcher = require('EventDispatcher');
 
 function generateWhiteNoise(size) {
 
@@ -2378,11 +2388,14 @@ function generateBrownNoise(size) {
 }
 
 function NoiseGenerator(audioContext, options) {
-	
+
+	var that = this;
 	var output = audioContext.createGain();
 	var sourceVoice;
 	var type;
 	var length;
+
+	EventDispatcher.call(this);
 
 	options = options || {};
 
@@ -2453,11 +2466,13 @@ function NoiseGenerator(audioContext, options) {
 	function setType(t) {
 		buildBuffer(length, t);
 		type = t;
+		that.dispatchEvent({ type: 'type_changed', typeValue: t });
 	}
 
 	function setLength(v) {
 		buildBuffer(v, type);
 		length = v;
+		that.dispatchEvent({ type: 'length_changed', length: v });
 	}
 
 	// ~~~
@@ -2484,7 +2499,7 @@ function NoiseGenerator(audioContext, options) {
 
 module.exports = NoiseGenerator;
 
-},{"./SampleVoice":27}],23:[function(require,module,exports){
+},{"./SampleVoice":27,"EventDispatcher":1}],23:[function(require,module,exports){
 var MIDIUtils = require('midiutils');
 var EventDispatcher = require('EventDispatcher');
 
@@ -3263,8 +3278,8 @@ function register() {
 
 				// voice ADSR
 
-				// noise type/colour
-				// noise amount
+				// noise
+				this.noise.attachTo(colchonator.noiseGenerator);
 
 			},
 
@@ -3437,9 +3452,9 @@ function register() {
 					that.generator.length = that.length.value;
 				}, false);
 
-				/*generator.addEventListener('length_change', function() {
+				generator.addEventListener('length_changed', function() {
 					that.length.value = generator.length;
-				}, false);*/
+				}, false);
 
 				// noise type
 				this.type.value = generator.type;
@@ -3448,9 +3463,9 @@ function register() {
 					generator.type = that.type.value;
 				}, false);
 
-				/*generator.addEventListener('type_change', function(ev) {
-					that.type.value = ev.type;
-				}, false);*/
+				generator.addEventListener('type_changed', function(ev) {
+					that.type.value = generator.type;
+				}, false);
 
 			},
 

@@ -32,9 +32,9 @@ function register() {
 					that.generator.length = that.length.value;
 				}, false);
 
-				/*generator.addEventListener('length_change', function() {
+				generator.addEventListener('length_changed', function() {
 					that.length.value = generator.length;
-				}, false);*/
+				}, false);
 
 				// noise type
 				this.type.value = generator.type;
@@ -43,9 +43,9 @@ function register() {
 					generator.type = that.type.value;
 				}, false);
 
-				/*generator.addEventListener('type_change', function(ev) {
-					that.type.value = ev.type;
-				}, false);*/
+				generator.addEventListener('type_changed', function(ev) {
+					that.type.value = generator.type;
+				}, false);
 
 			},
 

@@ -4,6 +4,7 @@ var OscillatorVoice = require('./OscillatorVoice');
 var ADSR = require('./ADSR.js');
 var Bajotron = require('./Bajotron');
 var Reverbetron = require('./Reverbetron');
+var NoiseGenerator = require('./NoiseGenerator');
 
 function Colchonator(audioContext, options) {
 	
@@ -17,6 +18,11 @@ function Colchonator(audioContext, options) {
 	var outputNode = audioContext.createGain();
 	var voicesNode = audioContext.createGain();
 	var reverbNode = new Reverbetron(audioContext, options.reverb);
+
+	// This dummy node is not connected anywhere-we'll just use it to
+	// set up identical properties in each of our internal Bajotron instances
+	var dummyNoiseGenerator = new NoiseGenerator(audioContext);
+	// TODO dummyNoiseGenerator.onChange -> change all instances' noise gens
 
 	reverbNode.output.connect(outputNode);
 
@@ -35,6 +41,9 @@ function Colchonator(audioContext, options) {
 		},
 		reverb: {
 			get: function() { return reverbNode; }
+		},
+		noiseGenerator: {
+			get: function() { return dummyNoiseGenerator; }
 		}
 	});
 

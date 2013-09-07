@@ -52,8 +52,8 @@ function register() {
 
 				// voice ADSR
 
-				// noise type/colour
-				// noise amount
+				// noise
+				this.noise.attachTo(colchonator.noiseGenerator);
 
 			},
 
