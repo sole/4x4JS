@@ -509,7 +509,7 @@ module.exports = function() {
 				if(listener.expectedValue === null || 
 					listener.expectedValue !== null && listener.expectedValue === value) {
 
-					console.log('MATCH', address, listener.regexp, match, 'expected', listener.expectedValue, 'actual value', value);
+					// console.log('MATCH', address, listener.regexp, match, 'expected', listener.expectedValue, 'actual value', value);
 					listener.callback(match, value);
 
 					break;
@@ -1442,8 +1442,45 @@ function setupOSC(gear, player, osc) {
 
 	// osc.input -> gear
 	// -----------------
+	var activePads = [];
+	for(var k = 0; k < 16; k++) {
+		activePads.push(false);
+	}
+
 	osc.on(prefix + 'pads\/(\\d+)\/drum\/pressure', null, function(match, value) {
-		console.log('pad pressure', value, match);
+		
+		//console.log('pad pressure', value, match);
+		
+		var selected = rack.selected;
+		var pressure = value;
+
+		if(selected) {
+			var padIndex = match[1] * 1;
+			var note = 44 + padIndex;
+			var activeAlready = activePads[padIndex];
+
+			if(activeAlready) {
+
+				// arbitrary 'low' threshold
+				if(pressure <= 3) {
+					// release
+					console.log('release' , note);
+					selected.noteOff(note);
+					activePads[padIndex] = false;
+				} else {
+					// Do nothing! Else we'll retrig the same note
+					// TODO we could modulate the volume of current note
+				}
+
+			} else {
+				// Another arbitrary threshold to prevent happy retrigging
+				if(pressure > 16) {
+					console.log('note on', note);
+					selected.noteOn(note);
+					activePads[padIndex] = true;
+				}
+			}
+		}
 	});
 
 	// TODO: "mixer" -> sample cue points (granular...)

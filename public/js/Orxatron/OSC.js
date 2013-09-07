@@ -24,7 +24,7 @@ module.exports = function() {
 				if(listener.expectedValue === null || 
 					listener.expectedValue !== null && listener.expectedValue === value) {
 
-					console.log('MATCH', address, listener.regexp, match, 'expected', listener.expectedValue, 'actual value', value);
+					// console.log('MATCH', address, listener.regexp, match, 'expected', listener.expectedValue, 'actual value', value);
 					listener.callback(match, value);
 
 					break;

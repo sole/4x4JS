@@ -5,7 +5,8 @@ Un-be-lie-va-ble
 ## TO to to do
 
 - improv -> link some instruments
-	- switching between instruments
+	X switching between instruments
+	- interactive input using quneo
 - finish gui
 	- show/hide gui toggle
 - tracker to song -> sets the rhythm/mood
