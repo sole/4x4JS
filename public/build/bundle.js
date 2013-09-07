@@ -2816,6 +2816,11 @@ function Reverbetron(audioContext) {
 		wetAmount: {
 			set: setWetAmount,
 			get: function() { return wetAmount; }
+		},
+		impulseResponse: {
+			get: function() {
+				return convolver.buffer;
+			}
 		}
 	});
 
@@ -2844,7 +2849,7 @@ function Reverbetron(audioContext) {
 
 	this.setImpulse = function(buffer) {
 		convolver.buffer = buffer;
-		this.dispatchEvent({ type: 'impulse_changed' });
+		this.dispatchEvent({ type: 'impulse_changed', buffer: buffer });
 	};
 
 	this.loadImpulse = function(path) {
@@ -3518,9 +3523,8 @@ module.exports = {
 
 },{}],36:[function(require,module,exports){
 var template = '<header>Reverbetron</header><div class="wetContainer"></div>' + 
-	'<div><label>Impulse response<select></select></label></div>';
+	'<div><label>Impulse response<select></select><br /><canvas width="200" height="100"></canvas></label></div>';
 
-// TODO: it'd be SUPER AWESOME to draw the impulse response, reason reverb style
 function register() {
 
 	xtag.register('gear-reverbetron', {
@@ -3538,6 +3542,8 @@ function register() {
 				this.wetAmountContainer.appendChild(this.wetAmount);
 
 				this.impulsePath = this.querySelector('select');
+				this.impulseCanvas = this.querySelector('canvas');
+				this.impulseCanvasContext = this.impulseCanvas.getContext('2d');
 
 			}
 		},
@@ -3556,8 +3562,11 @@ function register() {
 					that.reverbetron.loadImpulse(that.impulsePath.value);
 				}, false);
 
-				that.reverbetron.addEventListener('impulse_changed', function() {
+				that.reverbetron.addEventListener('impulse_changed', function(ev) {
+					that.plotImpulse(ev.buffer);
 				}, false);
+
+				that.plotImpulse(that.reverbetron.impulseResponse);
 
 				// checkbox reverb enabled (?)
 
@@ -3576,6 +3585,56 @@ function register() {
 					option.innerHTML = p;
 					that.impulsePath.appendChild(option);
 				});
+
+			},
+
+			plotImpulse: function(buffer) {
+
+				var ctx = this.impulseCanvasContext;
+				var canvasWidth = this.impulseCanvas.width;
+				var canvasHeight = this.impulseCanvas.height;
+				var canvasHalfHeight = canvasHeight * 0.5;
+
+				if(buffer === null) {
+					return;
+				}
+
+				var bufferData = buffer.getChannelData(0);
+				var bufferLength = bufferData.length;
+
+				console.log(bufferData.length, 'buffer data');
+
+				ctx.fillStyle = 'rgb(0, 0, 0)';
+				ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+				ctx.lineWidth = 1;
+				ctx.strokeStyle = 'rgb(128, 0, 0)';
+
+				ctx.beginPath();
+
+				var sliceWidth = canvasWidth * 1.0 / bufferLength;
+				var x = 0;
+
+
+				for(var i = 0; i < bufferLength; i++) {
+
+					var v = bufferData[i];
+					var y = (v + 1) * canvasHalfHeight;
+
+					if(i === 0) {
+						ctx.moveTo(x, y);
+					} else {
+						ctx.lineTo(x, y);
+					}
+
+					x += sliceWidth;
+				}
+
+				ctx.lineTo(canvasWidth, canvasHalfHeight);
+
+				ctx.stroke();
+
+
 			}
 
 		},
