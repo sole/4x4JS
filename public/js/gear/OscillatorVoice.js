@@ -78,7 +78,7 @@ function OscillatorVoice(context, options) {
 
 	this.output = gain;
 
-	this.noteOn = function(note, when) {
+	this.noteOn = function(note, volume, when) {
 
 		if(!portamento) {
 			this.noteOff();
@@ -94,6 +94,7 @@ function OscillatorVoice(context, options) {
 
 		internalOscillator.frequency.value = getFrequency(note);
 		internalOscillator.start(when);
+		gain.gain.value = volume;
 
 		lastNote = note;
 

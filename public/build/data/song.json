@@ -34,7 +34,18 @@
 						"columns": [
 							{
 								"note": "C-4",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 0
+							}
+						]
+					},
+					{
+						"row": 1,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 2
 							}
 						]
 					},
@@ -43,7 +54,18 @@
 						"columns": [
 							{
 								"note": "C-5",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 4
+							}
+						]
+					},
+					{
+						"row": 3,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 6
 							}
 						]
 					},
@@ -52,7 +74,18 @@
 						"columns": [
 							{
 								"note": "C-4",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 8
+							}
+						]
+					},
+					{
+						"row": 5,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 0
 							}
 						]
 					},
@@ -61,7 +94,18 @@
 						"columns": [
 							{
 								"note": "C-5",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 0
+							}
+						]
+					},
+					{
+						"row": 7,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 0
 							}
 						]
 					},
@@ -70,7 +114,18 @@
 						"columns": [
 							{
 								"note": "C-4",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 10
+							}
+						]
+					},
+					{
+						"row": 9,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 12
 							}
 						]
 					},
@@ -79,7 +134,18 @@
 						"columns": [
 							{
 								"note": "C-5",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 14
+							}
+						]
+					},
+					{
+						"row": 11,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 16
 							}
 						]
 					},
@@ -88,7 +154,18 @@
 						"columns": [
 							{
 								"note": "C-4",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 18
+							}
+						]
+					},
+					{
+						"row": 13,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 0
 							}
 						]
 					},
@@ -97,7 +174,18 @@
 						"columns": [
 							{
 								"note": "C-5",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 0
+							}
+						]
+					},
+					{
+						"row": 15,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 0
 							}
 						]
 					},
@@ -106,7 +194,18 @@
 						"columns": [
 							{
 								"note": "G-4",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 20
+							}
+						]
+					},
+					{
+						"row": 17,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 22
 							}
 						]
 					},
@@ -115,7 +214,18 @@
 						"columns": [
 							{
 								"note": "G-5",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 24
+							}
+						]
+					},
+					{
+						"row": 19,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 26
 							}
 						]
 					},
@@ -124,7 +234,18 @@
 						"columns": [
 							{
 								"note": "G-4",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 28
+							}
+						]
+					},
+					{
+						"row": 21,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 0
 							}
 						]
 					},
@@ -133,7 +254,18 @@
 						"columns": [
 							{
 								"note": "G-5",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 0
+							}
+						]
+					},
+					{
+						"row": 23,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 0
 							}
 						]
 					},
@@ -142,7 +274,18 @@
 						"columns": [
 							{
 								"note": "G-4",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 30
+							}
+						]
+					},
+					{
+						"row": 25,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 32
 							}
 						]
 					},
@@ -151,7 +294,18 @@
 						"columns": [
 							{
 								"note": "G-5",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 34
+							}
+						]
+					},
+					{
+						"row": 27,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 36
 							}
 						]
 					},
@@ -160,7 +314,18 @@
 						"columns": [
 							{
 								"note": "G-4",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 38
+							}
+						]
+					},
+					{
+						"row": 29,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 0
 							}
 						]
 					},
@@ -169,7 +334,18 @@
 						"columns": [
 							{
 								"note": "G-5",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 0
+							}
+						]
+					},
+					{
+						"row": 31,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 0
 							}
 						]
 					},
@@ -178,7 +354,18 @@
 						"columns": [
 							{
 								"note": "C-4",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 41
+							}
+						]
+					},
+					{
+						"row": 33,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 43
 							}
 						]
 					},
@@ -187,7 +374,18 @@
 						"columns": [
 							{
 								"note": "C-5",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 45
+							}
+						]
+					},
+					{
+						"row": 35,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 47
 							}
 						]
 					},
@@ -196,7 +394,18 @@
 						"columns": [
 							{
 								"note": "C-4",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 49
+							}
+						]
+					},
+					{
+						"row": 37,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 0
 							}
 						]
 					},
@@ -205,7 +414,18 @@
 						"columns": [
 							{
 								"note": "C-5",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 0
+							}
+						]
+					},
+					{
+						"row": 39,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 0
 							}
 						]
 					},
@@ -214,7 +434,18 @@
 						"columns": [
 							{
 								"note": "C-4",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 51
+							}
+						]
+					},
+					{
+						"row": 41,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 53
 							}
 						]
 					},
@@ -223,7 +454,18 @@
 						"columns": [
 							{
 								"note": "C-5",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 55
+							}
+						]
+					},
+					{
+						"row": 43,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 57
 							}
 						]
 					},
@@ -232,7 +474,18 @@
 						"columns": [
 							{
 								"note": "C-4",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 59
+							}
+						]
+					},
+					{
+						"row": 45,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 0
 							}
 						]
 					},
@@ -241,7 +494,18 @@
 						"columns": [
 							{
 								"note": "C-5",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 0
+							}
+						]
+					},
+					{
+						"row": 47,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 0
 							}
 						]
 					},
@@ -250,7 +514,18 @@
 						"columns": [
 							{
 								"note": "F-4",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 61
+							}
+						]
+					},
+					{
+						"row": 49,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 63
 							}
 						]
 					},
@@ -259,7 +534,18 @@
 						"columns": [
 							{
 								"note": "F-5",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 65
+							}
+						]
+					},
+					{
+						"row": 51,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 67
 							}
 						]
 					},
@@ -268,7 +554,18 @@
 						"columns": [
 							{
 								"note": "F-4",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 69
+							}
+						]
+					},
+					{
+						"row": 53,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 0
 							}
 						]
 					},
@@ -277,7 +574,18 @@
 						"columns": [
 							{
 								"note": "F-5",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 0
+							}
+						]
+					},
+					{
+						"row": 55,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 0
 							}
 						]
 					},
@@ -286,7 +594,18 @@
 						"columns": [
 							{
 								"note": "F-4",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 71
+							}
+						]
+					},
+					{
+						"row": 57,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 73
 							}
 						]
 					},
@@ -295,7 +614,18 @@
 						"columns": [
 							{
 								"note": "F-5",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 75
+							}
+						]
+					},
+					{
+						"row": 59,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 77
 							}
 						]
 					},
@@ -304,7 +634,18 @@
 						"columns": [
 							{
 								"note": "F-4",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 79
+							}
+						]
+					},
+					{
+						"row": 61,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 0
 							}
 						]
 					},
@@ -313,7 +654,18 @@
 						"columns": [
 							{
 								"note": "F-5",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 0
+							}
+						]
+					},
+					{
+						"row": 63,
+						"columns": [
+							{
+								"note": "---",
+								"instrument": 0,
+								"volume": 80
 							}
 						]
 					}

@@ -682,7 +682,7 @@ function PatternCell(data) {
 		}
 
 		scope.instrument = d.instrument !== undefined ? d.instrument : null;
-		scope.volume = d.volume !== undefined ? d.volume : null;
+		scope.volume = d.volume !== undefined ? d.volume * 1.0 / 0x80 : null;
 
 	}
 
@@ -1835,7 +1835,7 @@ function Bajotron(audioContext, options) {
 
 	this.noteOn = function(note, volume, when) {
 
-		volume = volume !== undefined ? volume : 1.0;
+		volume = volume !== undefined && volume !== null ? volume : 1.0;
 		when = when !== undefined ? when : 0;
 
 		var audioWhen = when + audioContext.currentTime;
@@ -1845,7 +1845,7 @@ function Bajotron(audioContext, options) {
 		noiseGenerator.noteOn(note, volume, audioWhen);
 
 		voices.forEach(function(voice, index) {
-			voice.noteOn(note, audioWhen);
+			voice.noteOn(note, volume, audioWhen);
 		});
 
 	};
@@ -2061,7 +2061,7 @@ function Colchonator(audioContext, options) {
 
 		var voice;
 
-		console.log('Colchonator noteOn', note, MIDIUtils.noteNumberToName(note));
+		console.log('Colchonator noteOn', note, MIDIUtils.noteNumberToName(note), volume);
 
 		voice = getFreeVoice(note);
 
@@ -2449,7 +2449,7 @@ function OscillatorVoice(context, options) {
 
 	this.output = gain;
 
-	this.noteOn = function(note, when) {
+	this.noteOn = function(note, volume, when) {
 
 		if(!portamento) {
 			this.noteOff();
@@ -2465,6 +2465,7 @@ function OscillatorVoice(context, options) {
 
 		internalOscillator.frequency.value = getFrequency(note);
 		internalOscillator.start(when);
+		gain.gain.value = volume;
 
 		lastNote = note;
 

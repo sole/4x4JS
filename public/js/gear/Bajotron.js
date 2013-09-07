@@ -187,7 +187,7 @@ function Bajotron(audioContext, options) {
 
 	this.noteOn = function(note, volume, when) {
 
-		volume = volume !== undefined ? volume : 1.0;
+		volume = volume !== undefined && volume !== null ? volume : 1.0;
 		when = when !== undefined ? when : 0;
 
 		var audioWhen = when + audioContext.currentTime;
@@ -197,7 +197,7 @@ function Bajotron(audioContext, options) {
 		noiseGenerator.noteOn(note, volume, audioWhen);
 
 		voices.forEach(function(voice, index) {
-			voice.noteOn(note, audioWhen);
+			voice.noteOn(note, volume, audioWhen);
 		});
 
 	};

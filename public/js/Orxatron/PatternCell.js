@@ -33,7 +33,7 @@ function PatternCell(data) {
 		}
 
 		scope.instrument = d.instrument !== undefined ? d.instrument : null;
-		scope.volume = d.volume !== undefined ? d.volume : null;
+		scope.volume = d.volume !== undefined ? d.volume * 1.0 / 0x80 : null;
 
 	}
 
