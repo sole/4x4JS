@@ -1,6 +1,7 @@
 var template = '<header>Reverbetron</header><div class="wetContainer"></div>' + 
 	'<div><label>Impulse response<select></select><br /><canvas width="200" height="100"></canvas></label></div>';
 
+// TODO: mindblowing === DRAW the impulse response
 function register() {
 
 	xtag.register('gear-reverbetron', {

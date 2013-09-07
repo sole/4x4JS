@@ -3209,7 +3209,9 @@ module.exports = {
 
 
 },{}],31:[function(require,module,exports){
-var template = '<header>Colchonator</header><div class="numVoicesContainer"></div><div class="reverbContainer"></div>';
+var template = '<header>Colchonator</header><div class="numVoicesContainer"></div>' + 
+	'<div class="reverbContainer"></div>' +
+	'<div class="adsrContainer"></div>';
 
 
 function register() {
@@ -3231,6 +3233,10 @@ function register() {
 				this.reverb = document.createElement('gear-reverbetron');
 				this.reverbContainer.appendChild(this.reverb);
 
+				this.adsrContainer = this.querySelector('.adsrContainer');
+				this.adsr = document.createElement('gear-adsr');
+				this.adsrContainer.appendChild(this.adsr);
+
 			}
 		},
 		methods: {
@@ -3250,6 +3256,7 @@ function register() {
 				this.reverb.attachTo(colchonator.reverb);
 
 				// voice ADSR
+
 				// noise type/colour
 				// noise amount
 
@@ -3525,6 +3532,7 @@ module.exports = {
 var template = '<header>Reverbetron</header><div class="wetContainer"></div>' + 
 	'<div><label>Impulse response<select></select><br /><canvas width="200" height="100"></canvas></label></div>';
 
+// TODO: mindblowing === DRAW the impulse response
 function register() {
 
 	xtag.register('gear-reverbetron', {

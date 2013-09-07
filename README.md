@@ -4,11 +4,9 @@ Un-be-lie-va-ble
 
 ## TO to to do
 
-- reverbetron deberia tener el control de wet amount, ser una caja con input y output
-	- wet amount
-	- impulse response
-	y metido dentro de colchonator
+- audio tags keyboard - para poder probar cosas sin el quneo
 - bajotron release doesn't work properly
+- reverb y colchonator??
 - improv -> link some instruments
 	X switching between instruments
 	- interactive input using quneo

@@ -1,4 +1,6 @@
-var template = '<header>Colchonator</header><div class="numVoicesContainer"></div><div class="reverbContainer"></div>';
+var template = '<header>Colchonator</header><div class="numVoicesContainer"></div>' + 
+	'<div class="reverbContainer"></div>' +
+	'<div class="adsrContainer"></div>';
 
 
 function register() {
@@ -20,6 +22,10 @@ function register() {
 				this.reverb = document.createElement('gear-reverbetron');
 				this.reverbContainer.appendChild(this.reverb);
 
+				this.adsrContainer = this.querySelector('.adsrContainer');
+				this.adsr = document.createElement('gear-adsr');
+				this.adsrContainer.appendChild(this.adsr);
+
 			}
 		},
 		methods: {
@@ -39,6 +45,7 @@ function register() {
 				this.reverb.attachTo(colchonator.reverb);
 
 				// voice ADSR
+
 				// noise type/colour
 				// noise amount
 
