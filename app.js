@@ -71,7 +71,7 @@ io.sockets.on('connection', function (socket) {
 });
 
 oscServer.on('message', function(msg, rinfo) {
-	console.log('mes', msg);
+	console.log('q->', msg);
 
 	if(lastSocket) {
 		lastSocket.emit('osc', msg);

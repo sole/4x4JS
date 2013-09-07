@@ -6,7 +6,8 @@ var audioContext,
 var Orxatron = require('./Orxatron/'),
 	Quneo = require('./quneo.js'),
 	gearGUI = require('./gear/gui/GUI'),
-	gear;
+	gear,
+	rack;
 
 function start() {
 
@@ -59,6 +60,8 @@ function onSongDataLoaded(data) {
 function initialiseGear(audioContext) {
 	
 	var g = [];
+	
+	rack = new Orxatron.Rack();
 
 	// Audio gear
 	// ----------
@@ -137,6 +140,9 @@ function initialiseGear(audioContext) {
 	padGUI.attachTo(pad);
 	guiContainer.appendChild(padGUI);
 
+	rack.add(bass);
+	rack.add(pad);
+
 	return g;
 }
 
@@ -164,11 +170,14 @@ function setupOSC(gear, player, osc) {
 
 	// osc.input -> player
 	// -------------------
-	// __ PLAY -> player.play
+	// PLAY -> player.play
 	osc.on(prefix + 'transport\/2\/note_velocity', 127, play);
-	// __ STOP -> player.pause
+	// STOP -> player.pause
 	osc.on(prefix + 'transport\/1\/note_velocity', 127, pause);
 
+	// up/down -> move focus to prev/next instrument in rack
+	osc.on(prefix + 'upButton\/0\/note_velocity', 0, focusPrevInstrument);
+	osc.on(prefix + 'downButton\/0\/note_velocity', 0, focusNextInstrument);
 
 	// player -> osc.output
 	// --------------------
@@ -307,6 +316,14 @@ function playerJumpTo(offset) {
 
 	player.jumpToOrder(newOrder, 0);
 
+}
+
+function focusPrevInstrument() {
+	rack.selectPrevious();
+}
+
+function focusNextInstrument() {
+	rack.selectNext();
 }
 
 module.exports = {
