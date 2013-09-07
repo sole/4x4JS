@@ -81,10 +81,9 @@ function initialiseGear(audioContext) {
 
 	// 1 / PAD
 	var Colchonator = require('./gear/Colchonator');
-	var pad = new Colchonator(audioContext, {
-		reverbImpulse: 'data/impulseResponses/cave.ogg'
-	});
+	var pad = new Colchonator(audioContext);
 	pad.reverb.wetAmount = 1.0;
+	pad.reverb.loadImpulse('data/impulseResponses/cave.ogg');
 	g.push(pad);
 	
 	// 2 / DRUM MACHINE
@@ -138,6 +137,11 @@ function initialiseGear(audioContext) {
 
 	var padGUI = document.createElement(pad.guiTag);
 	padGUI.attachTo(pad);
+	var impulsePath = 'data/impulseResponses/';
+	padGUI.reverb.impulsePaths = [
+		impulsePath + 'cave.ogg',
+		impulsePath + 'medium-room1.ogg'
+	];
 	guiContainer.appendChild(padGUI);
 
 	rack.add(bass);
@@ -166,8 +170,6 @@ function setupOSC(gear, player, osc) {
 	}
 
 	osc.on(prefix + 'pads\/(\\d+)\/drum\/pressure', null, function(match, value) {
-		
-		//console.log('pad pressure', value, match);
 		
 		var selected = rack.selected;
 		var pressure = value;
@@ -218,7 +220,7 @@ function setupOSC(gear, player, osc) {
 
 	// player -> osc.output
 	// --------------------
-	console.warn('TODO setupOSC');
+	
 	// TODO: flash play button to the beat
 	// TODO: flash stop button at 0.5
 	
@@ -328,17 +330,20 @@ function play() {
 	}
 }
 
+
 function updatePlayButton() {
 	var t = Date.now() * 0.01;
 	var v = (2 + Math.sin(t)) * 0.25;
 	osc.send(Quneo.getPlayLedPath(), v);
 }
 
+
 function pause() {
 	player.pause();
 	clearInterval(playAnimation);
 	osc.send(Quneo.getPlayLedPath(), 0);
 }
+
 
 function playerJumpTo(offset) {
 	
@@ -355,13 +360,16 @@ function playerJumpTo(offset) {
 
 }
 
+
 function focusPrevInstrument() {
 	rack.selectPrevious();
 }
 
+
 function focusNextInstrument() {
 	rack.selectNext();
 }
+
 
 module.exports = {
 	start: start

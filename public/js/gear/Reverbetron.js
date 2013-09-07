@@ -60,6 +60,7 @@ function Reverbetron(audioContext) {
 
 	this.setImpulse = function(buffer) {
 		convolver.buffer = buffer;
+		this.dispatchEvent({ type: 'impulse_changed' });
 	};
 
 	this.loadImpulse = function(path) {

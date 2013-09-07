@@ -1363,10 +1363,9 @@ function initialiseGear(audioContext) {
 
 	// 1 / PAD
 	var Colchonator = require('./gear/Colchonator');
-	var pad = new Colchonator(audioContext, {
-		reverbImpulse: 'data/impulseResponses/cave.ogg'
-	});
+	var pad = new Colchonator(audioContext);
 	pad.reverb.wetAmount = 1.0;
+	pad.reverb.loadImpulse('data/impulseResponses/cave.ogg');
 	g.push(pad);
 	
 	// 2 / DRUM MACHINE
@@ -1420,6 +1419,11 @@ function initialiseGear(audioContext) {
 
 	var padGUI = document.createElement(pad.guiTag);
 	padGUI.attachTo(pad);
+	var impulsePath = 'data/impulseResponses/';
+	padGUI.reverb.impulsePaths = [
+		impulsePath + 'cave.ogg',
+		impulsePath + 'medium-room1.ogg'
+	];
 	guiContainer.appendChild(padGUI);
 
 	rack.add(bass);
@@ -1448,8 +1452,6 @@ function setupOSC(gear, player, osc) {
 	}
 
 	osc.on(prefix + 'pads\/(\\d+)\/drum\/pressure', null, function(match, value) {
-		
-		//console.log('pad pressure', value, match);
 		
 		var selected = rack.selected;
 		var pressure = value;
@@ -1500,7 +1502,7 @@ function setupOSC(gear, player, osc) {
 
 	// player -> osc.output
 	// --------------------
-	console.warn('TODO setupOSC');
+	
 	// TODO: flash play button to the beat
 	// TODO: flash stop button at 0.5
 	
@@ -1610,17 +1612,20 @@ function play() {
 	}
 }
 
+
 function updatePlayButton() {
 	var t = Date.now() * 0.01;
 	var v = (2 + Math.sin(t)) * 0.25;
 	osc.send(Quneo.getPlayLedPath(), v);
 }
 
+
 function pause() {
 	player.pause();
 	clearInterval(playAnimation);
 	osc.send(Quneo.getPlayLedPath(), 0);
 }
+
 
 function playerJumpTo(offset) {
 	
@@ -1637,13 +1642,16 @@ function playerJumpTo(offset) {
 
 }
 
+
 function focusPrevInstrument() {
 	rack.selectPrevious();
 }
 
+
 function focusNextInstrument() {
 	rack.selectNext();
 }
+
 
 module.exports = {
 	start: start
@@ -2045,16 +2053,12 @@ function Colchonator(audioContext, options) {
 	options = options || {};
 
 	var numVoices = options.numVoices || 3;
-	var reverbImpulse = options.reverbImpulse;
 
 	var voices = [];
 	var outputNode = audioContext.createGain();
 	var voicesNode = audioContext.createGain();
-	var reverbNode = new Reverbetron(audioContext);
+	var reverbNode = new Reverbetron(audioContext, options.reverb);
 
-	if(reverbImpulse) {
-		reverbNode.loadImpulse(reverbImpulse);
-	}
 	reverbNode.output.connect(outputNode);
 
 	voicesNode.connect(reverbNode.input);
@@ -2840,6 +2844,7 @@ function Reverbetron(audioContext) {
 
 	this.setImpulse = function(buffer) {
 		convolver.buffer = buffer;
+		this.dispatchEvent({ type: 'impulse_changed' });
 	};
 
 	this.loadImpulse = function(path) {
@@ -3199,7 +3204,7 @@ module.exports = {
 
 
 },{}],31:[function(require,module,exports){
-var template = '<div class="numVoicesContainer"></div><div class="reverbContainer"></div>';
+var template = '<header>Colchonator</header><div class="numVoicesContainer"></div><div class="reverbContainer"></div>';
 
 
 function register() {
@@ -3512,9 +3517,12 @@ module.exports = {
 };
 
 },{}],36:[function(require,module,exports){
-var template = '<div class="wetContainer"></div>';
+var template = '<header>Reverbetron</header><div class="wetContainer"></div>' + 
+	'<div><label>Impulse response<select></select></label></div>';
 
+// TODO: it'd be SUPER AWESOME to draw the impulse response, reason reverb style
 function register() {
+
 	xtag.register('gear-reverbetron', {
 		lifecycle: {
 			created: function() {
@@ -3529,6 +3537,8 @@ function register() {
 				this.wetAmount.value = 0;
 				this.wetAmountContainer.appendChild(this.wetAmount);
 
+				this.impulsePath = this.querySelector('select');
+
 			}
 		},
 		methods: {
@@ -3538,22 +3548,47 @@ function register() {
 
 				this.reverbetron = reverbetron;
 
-				this.wetAmount.attachToObject(reverbetron, 'wetAmount', function() {
-					console.log('wet amount changed', that.wetAmount.value);
-				}, 'wet_amount_change', function() {
-					console.log('reverbetron num voices changed', reverbetron.wetAmount);
-				});
-
+				this.wetAmount.attachToObject(reverbetron, 'wetAmount');
+				
 				// impulse (it's a path)
+				this.impulsePath.addEventListener('change', function() {
+					console.log('ask reverbetron to load', that.impulsePath.value);
+					that.reverbetron.loadImpulse(that.impulsePath.value);
+				}, false);
+
+				that.reverbetron.addEventListener('impulse_changed', function() {
+				}, false);
+
 				// checkbox reverb enabled (?)
 
 			},
 
 			detach: function() {
+			},
+
+			updateImpulsePaths: function(paths) {
+				
+				var that = this;
+				this.impulsePath.innerHTML = '';
+				paths.forEach(function(p) {
+					var option = document.createElement('option');
+					option.value = p;
+					option.innerHTML = p;
+					that.impulsePath.appendChild(option);
+				});
 			}
 
+		},
+
+		accessors: {
+			impulsePaths: {
+				set: function(v) {
+					this.updateImpulsePaths(v);
+				}
+			}
 		}
 	});
+
 }
 
 module.exports = {

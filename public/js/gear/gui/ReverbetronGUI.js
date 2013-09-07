@@ -1,6 +1,9 @@
-var template = '<div class="wetContainer"></div>';
+var template = '<header>Reverbetron</header><div class="wetContainer"></div>' + 
+	'<div><label>Impulse response<select></select></label></div>';
 
+// TODO: it'd be SUPER AWESOME to draw the impulse response, reason reverb style
 function register() {
+
 	xtag.register('gear-reverbetron', {
 		lifecycle: {
 			created: function() {
@@ -15,6 +18,8 @@ function register() {
 				this.wetAmount.value = 0;
 				this.wetAmountContainer.appendChild(this.wetAmount);
 
+				this.impulsePath = this.querySelector('select');
+
 			}
 		},
 		methods: {
@@ -24,22 +29,47 @@ function register() {
 
 				this.reverbetron = reverbetron;
 
-				this.wetAmount.attachToObject(reverbetron, 'wetAmount', function() {
-					console.log('wet amount changed', that.wetAmount.value);
-				}, 'wet_amount_change', function() {
-					console.log('reverbetron num voices changed', reverbetron.wetAmount);
-				});
-
+				this.wetAmount.attachToObject(reverbetron, 'wetAmount');
+				
 				// impulse (it's a path)
+				this.impulsePath.addEventListener('change', function() {
+					console.log('ask reverbetron to load', that.impulsePath.value);
+					that.reverbetron.loadImpulse(that.impulsePath.value);
+				}, false);
+
+				that.reverbetron.addEventListener('impulse_changed', function() {
+				}, false);
+
 				// checkbox reverb enabled (?)
 
 			},
 
 			detach: function() {
+			},
+
+			updateImpulsePaths: function(paths) {
+				
+				var that = this;
+				this.impulsePath.innerHTML = '';
+				paths.forEach(function(p) {
+					var option = document.createElement('option');
+					option.value = p;
+					option.innerHTML = p;
+					that.impulsePath.appendChild(option);
+				});
 			}
 
+		},
+
+		accessors: {
+			impulsePaths: {
+				set: function(v) {
+					this.updateImpulsePaths(v);
+				}
+			}
 		}
 	});
+
 }
 
 module.exports = {

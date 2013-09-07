@@ -12,16 +12,12 @@ function Colchonator(audioContext, options) {
 	options = options || {};
 
 	var numVoices = options.numVoices || 3;
-	var reverbImpulse = options.reverbImpulse;
 
 	var voices = [];
 	var outputNode = audioContext.createGain();
 	var voicesNode = audioContext.createGain();
-	var reverbNode = new Reverbetron(audioContext);
+	var reverbNode = new Reverbetron(audioContext, options.reverb);
 
-	if(reverbImpulse) {
-		reverbNode.loadImpulse(reverbImpulse);
-	}
 	reverbNode.output.connect(outputNode);
 
 	voicesNode.connect(reverbNode.input);

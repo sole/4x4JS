@@ -1,4 +1,4 @@
-var template = '<div class="numVoicesContainer"></div><div class="reverbContainer"></div>';
+var template = '<header>Colchonator</header><div class="numVoicesContainer"></div><div class="reverbContainer"></div>';
 
 
 function register() {
