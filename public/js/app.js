@@ -51,6 +51,8 @@ function onSongDataLoaded(data) {
 	setupKeyboardAndTransport();
 	osc.connect('/');
 
+	resetQuneo();
+
 }
 
 
@@ -220,9 +222,18 @@ function setupOSC(gear, player, osc) {
 
 	}, false);
 
+	
 
 	// TODO: vumeters?
 
+}
+
+function resetQuneo() {
+	// Initially turn off all the pads just in case something remained
+	for(var i = 0; i < 16; i++) {
+		osc.send(Quneo.getPadLedsPath(i, 'green'), 0);
+		osc.send(Quneo.getPadLedsPath(i, 'red'), 0);
+	}
 }
 
 

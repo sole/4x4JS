@@ -3,7 +3,6 @@ module.exports = function() {
 	var listeners = [];
 
 	function onMessage(data) {
-		//console.log(data);
 
 		var address = data[0];
 		var value = data[1];
@@ -44,6 +43,7 @@ module.exports = function() {
 
 		socket = io.connect(address);
 
+		// whenever we receive an 'osc' message from the back-end, process it with onMessage
 		socket.on('osc', onMessage);
 
 	};

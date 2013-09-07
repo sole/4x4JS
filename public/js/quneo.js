@@ -50,6 +50,7 @@ function getBasePadPath(padNumber) {
 }
 
 // Path for controlling the 4 leds altogether
+// padNumber: 0..15
 function getPadLedsPath(padNumber, type) {
 	if(type === 'undefined') {
 		type = 'red';
