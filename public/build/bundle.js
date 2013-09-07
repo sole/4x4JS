@@ -2056,12 +2056,10 @@ function Colchonator(audioContext, options) {
 
 	this.noteOn = function(note, volume, when) {
 
-		volume = volume !== undefined ? volume : 1.0;
+		volume = volume !== undefined && volume !== null ? volume : 1.0;
 		when = when !== undefined ? when : 0;
 
 		var voice;
-
-		console.log('Colchonator noteOn', note, MIDIUtils.noteNumberToName(note), volume);
 
 		voice = getFreeVoice(note);
 
@@ -2072,8 +2070,6 @@ function Colchonator(audioContext, options) {
 
 	this.noteOff = function(noteNumber, when) {
 		
-		console.log('Colchonator NOTE OFF', noteNumber);
-
 		var voice = getVoiceByNote(noteNumber);
 
 		console.log('voice = ', voice);
@@ -2082,7 +2078,7 @@ function Colchonator(audioContext, options) {
 			voice.noteOff(when);
 		}
 
-		// if number of active voices = 1 -> noise note off
+		// TODO if number of active voices = 1 -> noise note off
 
 	};
 
