@@ -3211,7 +3211,8 @@ module.exports = {
 },{}],31:[function(require,module,exports){
 var template = '<header>Colchonator</header><div class="numVoicesContainer"></div>' + 
 	'<div class="reverbContainer"></div>' +
-	'<div class="adsrContainer"></div>';
+	'<div class="adsrContainer"></div>' +
+	'<div class="noiseContainer"></div>';
 
 
 function register() {
@@ -3236,6 +3237,11 @@ function register() {
 				this.adsrContainer = this.querySelector('.adsrContainer');
 				this.adsr = document.createElement('gear-adsr');
 				this.adsrContainer.appendChild(this.adsr);
+
+				this.noiseContainer = this.querySelector('.noiseContainer');
+				this.noise = document.createElement('gear-noise-generator');
+				this.noiseContainer.appendChild(this.noise);
+
 
 			}
 		},
