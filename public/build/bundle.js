@@ -1366,7 +1366,7 @@ function initialiseGear(audioContext) {
 	var pad = new Colchonator(audioContext, {
 		reverbImpulse: 'data/impulseResponses/cave.ogg'
 	});
-	pad.setWetAmount(1.0);
+	pad.reverb.wetAmount = 1.0;
 	g.push(pad);
 	
 	// 2 / DRUM MACHINE
@@ -1394,7 +1394,7 @@ function initialiseGear(audioContext) {
 		mixer.plug(index, instrument.output);
 	});
 	mixer.setFaderGain(0, 0.1);
-	mixer.setFaderGain(1, 0.0);
+	//mixer.setFaderGain(1, 0.0);
 	
 	var Oscilloscope = require('./gear/Oscilloscope');
 	var oscilloscope = new Oscilloscope(audioContext);
@@ -1649,7 +1649,7 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":8,"./gear/Bajotron":18,"./gear/Colchonator":20,"./gear/Mixer":21,"./gear/Oscilloscope":24,"./gear/Porrompom":25,"./gear/gui/GUI":32,"./quneo.js":38}],16:[function(require,module,exports){
+},{"./Orxatron/":8,"./gear/Bajotron":18,"./gear/Colchonator":20,"./gear/Mixer":21,"./gear/Oscilloscope":24,"./gear/Porrompom":25,"./gear/gui/GUI":32,"./quneo.js":39}],16:[function(require,module,exports){
 function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 	'use strict';
@@ -2040,7 +2040,7 @@ var Reverbetron = require('./Reverbetron');
 
 function Colchonator(audioContext, options) {
 	
-	// TODO should we have a global ADSR or go on with the per voice ADSR
+	// TODO should we have a global ADSR or go on with the per voice ADSR?
 
 	options = options || {};
 
@@ -2050,34 +2050,28 @@ function Colchonator(audioContext, options) {
 	var voices = [];
 	var outputNode = audioContext.createGain();
 	var voicesNode = audioContext.createGain();
-	var dryOutputNode = audioContext.createGain();
-	var wetOutputNode = audioContext.createGain();
 	var reverbNode = new Reverbetron(audioContext);
 
 	if(reverbImpulse) {
 		reverbNode.loadImpulse(reverbImpulse);
 	}
-	reverbNode.output.connect(wetOutputNode);
+	reverbNode.output.connect(outputNode);
 
-	voicesNode.connect(dryOutputNode);
 	voicesNode.connect(reverbNode.input);
 
-	dryOutputNode.connect(outputNode);
-	wetOutputNode.connect(outputNode);
-
-
-
-
-	setWetAmount(0.5);
-
 	setNumVoices(numVoices);
+	reverbNode.wetAmount = 0.5;
 	
 	EventDispatcher.call(this);
+
 
 	Object.defineProperties(this, {
 		numVoices: {
 			set: setNumVoices,
 			get: function() { return numVoices; }
+		},
+		reverb: {
+			get: function() { return reverbNode; }
 		}
 	});
 
@@ -2174,14 +2168,6 @@ function Colchonator(audioContext, options) {
 	}
 
 
-	function setWetAmount(v) {
-		// 0 = totally dry
-		var dryAmount = 1.0 - v;
-		dryOutputNode.gain.value = dryAmount;
-		wetOutputNode.gain.value = v;
-	}
-
-
 	// ~~~
 
 	this.guiTag = 'gear-colchonator';
@@ -2216,10 +2202,6 @@ function Colchonator(audioContext, options) {
 
 	};
 
-
-	this.setWetAmount = function(v) {
-		setWetAmount(v);
-	};
 
 }
 
@@ -2796,16 +2778,65 @@ function Porrompom(audioContext, options) {
 module.exports = Porrompom;
 
 },{"./BufferLoader":19,"./SampleVoice":27,"MIDIUtils":2}],26:[function(require,module,exports){
+var EventDispatcher = require('EventDispatcher');
+
 function Reverbetron(audioContext) {
 
 	var that = this;
+
+	EventDispatcher.call(this);
+
+	var inputNode = audioContext.createChannelSplitter();
+	var outputNode = audioContext.createGain();
+	
 	var convolver = audioContext.createConvolver();
+	var dryOutputNode = audioContext.createGain();
+	var wetOutputNode = audioContext.createGain();
+
+	var wetAmount = 0;  // default == unfiltered output
+
+	// Build the node chain
+	// WET: input -> convolver -> wetOutput (gainNode) -> outputNode
+	inputNode.connect(convolver);
+	convolver.connect(wetOutputNode);
+	wetOutputNode.connect(outputNode);
+
+	// DRY: input -> dryOutput (gainNode) -> outputNode
+	inputNode.connect(dryOutputNode);
+	dryOutputNode.connect(outputNode);
+
+	setWetAmount(0);
+
+	// Properties
+	Object.defineProperties(this, {
+		wetAmount: {
+			set: setWetAmount,
+			get: function() { return wetAmount; }
+		}
+	});
+
+	//
+	
+	function setWetAmount(v) {
+
+		// 0 = totally dry
+		wetAmount = v;
+		var dryAmount = 1.0 - wetAmount;
+		dryOutputNode.gain.value = dryAmount;
+		wetOutputNode.gain.value = v;
+
+		that.dispatchEvent({ type: 'wet_amount_change', wetAmount: v });
+
+	}
 
 
 	// ~~~
 	
-	this.input = convolver;
-	this.output = convolver;
+	this.guiTag = 'gear-reverbetron';
+
+	this.input = inputNode;
+	this.output = outputNode;
+
 
 	this.setImpulse = function(buffer) {
 		convolver.buffer = buffer;
@@ -2836,7 +2867,7 @@ function Reverbetron(audioContext) {
 
 module.exports = Reverbetron;
 
-},{}],27:[function(require,module,exports){
+},{"EventDispatcher":1}],27:[function(require,module,exports){
 // This voice plays a buffer / sample, and it's capable of regenerating the buffer source once noteOff has been called
 // TODO set a base note and use it + noteOn note to play relatively pitched notes
 
@@ -3168,7 +3199,7 @@ module.exports = {
 
 
 },{}],31:[function(require,module,exports){
-var template = '<div class="numVoicesContainer"></div>';
+var template = '<div class="numVoicesContainer"></div><div class="reverbContainer"></div>';
 
 
 function register() {
@@ -3186,6 +3217,10 @@ function register() {
 				this.numVoices.value = 1;
 				this.numVoicesContainer.appendChild(this.numVoices);
 
+				this.reverbContainer = this.querySelector('.reverbContainer');
+				this.reverb = document.createElement('gear-reverbetron');
+				this.reverbContainer.appendChild(this.reverb);
+
 			}
 		},
 		methods: {
@@ -3195,27 +3230,18 @@ function register() {
 
 				this.colchonator = colchonator;
 
-				// Voices
-				// slider.attachToProperty(bajotron, 'numVoices', onSliderChange, propertyChangeEventName, listener);
-				
-				/*this.numVoices.value = bajotron.numVoices;
-
-				updateVoicesContainer(that.voicesContainer, bajotron.voices);
-
-				this.numVoices.addEventListener('change', function() {
-					bajotron.numVoices = that.numVoices.value;
-					updateVoicesContainer(that.voicesContainer, bajotron.voices);
-				}, false);
-
-				bajotron.addEventListener('num_voices_change', function() {
-					updateVoicesContainer(that.voicesContainer, bajotron.voices);
-				}, false);*/
-
 				this.numVoices.attachToObject(colchonator, 'numVoices', function() {
 					console.log('num voices changed', that.numVoices.value);
 				}, 'num_voices_change', function() {
 					console.log('colchonator num voices changed', colchonator.numVoices);
 				});
+
+				// reverb settings/gui
+				this.reverb.attachTo(colchonator.reverb);
+
+				// voice ADSR
+				// noise type/colour
+				// noise amount
 
 			},
 
@@ -3239,6 +3265,7 @@ var MixerGUI = require('./MixerGUI');
 var NoiseGeneratorGUI = require('./NoiseGeneratorGUI');
 var ArithmeticMixerGUI = require('./ArithmeticMixerGUI');
 var OscillatorVoiceGUI = require('./OscillatorVoiceGUI');
+var ReverbetronGUI = require('./ReverbetronGUI');
 var BajotronGUI = require('./BajotronGUI');
 var ColchonatorGUI = require('./ColchonatorGUI');
 
@@ -3249,6 +3276,7 @@ var registry = [
 	NoiseGeneratorGUI,
 	ArithmeticMixerGUI,
 	OscillatorVoiceGUI,
+	ReverbetronGUI,
 	BajotronGUI,
 	ColchonatorGUI
 ];
@@ -3264,7 +3292,7 @@ module.exports = {
 	init: init
 };
 
-},{"./ADSRGUI":28,"./ArithmeticMixerGUI":29,"./BajotronGUI":30,"./ColchonatorGUI":31,"./MixerGUI":33,"./NoiseGeneratorGUI":34,"./OscillatorVoiceGUI":35,"./Slider":36}],33:[function(require,module,exports){
+},{"./ADSRGUI":28,"./ArithmeticMixerGUI":29,"./BajotronGUI":30,"./ColchonatorGUI":31,"./MixerGUI":33,"./NoiseGeneratorGUI":34,"./OscillatorVoiceGUI":35,"./ReverbetronGUI":36,"./Slider":37}],33:[function(require,module,exports){
 var template = '<div class="master"></div>' +
 	'<div class="sliders"></div>';
 
@@ -3484,6 +3512,55 @@ module.exports = {
 };
 
 },{}],36:[function(require,module,exports){
+var template = '<div class="wetContainer"></div>';
+
+function register() {
+	xtag.register('gear-reverbetron', {
+		lifecycle: {
+			created: function() {
+				this.innerHTML = template;
+
+				this.wetAmountContainer = this.querySelector('.wetContainer');
+				this.wetAmount = document.createElement('gear-slider');
+				this.wetAmount.label = 'wet amount';
+				this.wetAmount.min = 0;
+				this.wetAmount.max = 1;
+				this.wetAmount.step = 0.001;
+				this.wetAmount.value = 0;
+				this.wetAmountContainer.appendChild(this.wetAmount);
+
+			}
+		},
+		methods: {
+
+			attachTo: function(reverbetron) {
+				var that = this;
+
+				this.reverbetron = reverbetron;
+
+				this.wetAmount.attachToObject(reverbetron, 'wetAmount', function() {
+					console.log('wet amount changed', that.wetAmount.value);
+				}, 'wet_amount_change', function() {
+					console.log('reverbetron num voices changed', reverbetron.wetAmount);
+				});
+
+				// impulse (it's a path)
+				// checkbox reverb enabled (?)
+
+			},
+
+			detach: function() {
+			}
+
+		}
+	});
+}
+
+module.exports = {
+	register: register
+};
+
+},{}],37:[function(require,module,exports){
 var template = '<label><span class="label"></span> <input type="range" min="0" max="100" step="0.0001" /> <span class="valueDisplay">0</span></label>';
 
 function register() {
@@ -3609,7 +3686,7 @@ module.exports = {
 	register: register
 };
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -3617,7 +3694,7 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":15}],38:[function(require,module,exports){
+},{"./app":15}],39:[function(require,module,exports){
 var i, j;
 var leds = {};
 var columnLeds = {};
@@ -3699,5 +3776,5 @@ module.exports = {
 	getStopLedPath: getStopLedPath
 };
 
-},{}]},{},[37])
+},{}]},{},[38])
 ;

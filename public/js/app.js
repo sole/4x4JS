@@ -84,7 +84,7 @@ function initialiseGear(audioContext) {
 	var pad = new Colchonator(audioContext, {
 		reverbImpulse: 'data/impulseResponses/cave.ogg'
 	});
-	pad.setWetAmount(1.0);
+	pad.reverb.wetAmount = 1.0;
 	g.push(pad);
 	
 	// 2 / DRUM MACHINE
@@ -112,7 +112,7 @@ function initialiseGear(audioContext) {
 		mixer.plug(index, instrument.output);
 	});
 	mixer.setFaderGain(0, 0.1);
-	mixer.setFaderGain(1, 0.0);
+	//mixer.setFaderGain(1, 0.0);
 	
 	var Oscilloscope = require('./gear/Oscilloscope');
 	var oscilloscope = new Oscilloscope(audioContext);

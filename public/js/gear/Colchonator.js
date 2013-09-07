@@ -7,7 +7,7 @@ var Reverbetron = require('./Reverbetron');
 
 function Colchonator(audioContext, options) {
 	
-	// TODO should we have a global ADSR or go on with the per voice ADSR
+	// TODO should we have a global ADSR or go on with the per voice ADSR?
 
 	options = options || {};
 
@@ -17,34 +17,28 @@ function Colchonator(audioContext, options) {
 	var voices = [];
 	var outputNode = audioContext.createGain();
 	var voicesNode = audioContext.createGain();
-	var dryOutputNode = audioContext.createGain();
-	var wetOutputNode = audioContext.createGain();
 	var reverbNode = new Reverbetron(audioContext);
 
 	if(reverbImpulse) {
 		reverbNode.loadImpulse(reverbImpulse);
 	}
-	reverbNode.output.connect(wetOutputNode);
+	reverbNode.output.connect(outputNode);
 
-	voicesNode.connect(dryOutputNode);
 	voicesNode.connect(reverbNode.input);
 
-	dryOutputNode.connect(outputNode);
-	wetOutputNode.connect(outputNode);
-
-
-
-
-	setWetAmount(0.5);
-
 	setNumVoices(numVoices);
+	reverbNode.wetAmount = 0.5;
 	
 	EventDispatcher.call(this);
+
 
 	Object.defineProperties(this, {
 		numVoices: {
 			set: setNumVoices,
 			get: function() { return numVoices; }
+		},
+		reverb: {
+			get: function() { return reverbNode; }
 		}
 	});
 
@@ -141,14 +135,6 @@ function Colchonator(audioContext, options) {
 	}
 
 
-	function setWetAmount(v) {
-		// 0 = totally dry
-		var dryAmount = 1.0 - v;
-		dryOutputNode.gain.value = dryAmount;
-		wetOutputNode.gain.value = v;
-	}
-
-
 	// ~~~
 
 	this.guiTag = 'gear-colchonator';
@@ -183,10 +169,6 @@ function Colchonator(audioContext, options) {
 
 	};
 
-
-	this.setWetAmount = function(v) {
-		setWetAmount(v);
-	};
 
 }
 

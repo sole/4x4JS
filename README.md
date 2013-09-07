@@ -4,6 +4,10 @@ Un-be-lie-va-ble
 
 ## TO to to do
 
+- reverbetron deberia tener el control de wet amount, ser una caja con input y output
+	- wet amount
+	- impulse response
+	y metido dentro de colchonator
 - bajotron release doesn't work properly
 - improv -> link some instruments
 	X switching between instruments

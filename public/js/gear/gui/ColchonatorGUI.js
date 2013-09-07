@@ -1,4 +1,4 @@
-var template = '<div class="numVoicesContainer"></div>';
+var template = '<div class="numVoicesContainer"></div><div class="reverbContainer"></div>';
 
 
 function register() {
@@ -16,6 +16,10 @@ function register() {
 				this.numVoices.value = 1;
 				this.numVoicesContainer.appendChild(this.numVoices);
 
+				this.reverbContainer = this.querySelector('.reverbContainer');
+				this.reverb = document.createElement('gear-reverbetron');
+				this.reverbContainer.appendChild(this.reverb);
+
 			}
 		},
 		methods: {
@@ -25,27 +29,18 @@ function register() {
 
 				this.colchonator = colchonator;
 
-				// Voices
-				// slider.attachToProperty(bajotron, 'numVoices', onSliderChange, propertyChangeEventName, listener);
-				
-				/*this.numVoices.value = bajotron.numVoices;
-
-				updateVoicesContainer(that.voicesContainer, bajotron.voices);
-
-				this.numVoices.addEventListener('change', function() {
-					bajotron.numVoices = that.numVoices.value;
-					updateVoicesContainer(that.voicesContainer, bajotron.voices);
-				}, false);
-
-				bajotron.addEventListener('num_voices_change', function() {
-					updateVoicesContainer(that.voicesContainer, bajotron.voices);
-				}, false);*/
-
 				this.numVoices.attachToObject(colchonator, 'numVoices', function() {
 					console.log('num voices changed', that.numVoices.value);
 				}, 'num_voices_change', function() {
 					console.log('colchonator num voices changed', colchonator.numVoices);
 				});
+
+				// reverb settings/gui
+				this.reverb.attachTo(colchonator.reverb);
+
+				// voice ADSR
+				// noise type/colour
+				// noise amount
 
 			},
 
