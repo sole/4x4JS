@@ -2063,13 +2063,24 @@ function Colchonator(audioContext, options) {
 	// This dummy node is not connected anywhere-we'll just use it to
 	// set up identical properties in each of our internal Bajotron instances
 	var dummyNoiseGenerator = new NoiseGenerator(audioContext);
-	// TODO dummyNoiseGenerator.onChange -> change all instances' noise gens
+	var noiseAmount = 0;
+
+	// When the dummyNoiseGenerator changes, we'll change all voices' noise gens
+	dummyNoiseGenerator.addEventListener('type_changed', function() {
+		setVoicesNoiseProperty('type', dummyNoiseGenerator.type);
+	});
+
+	dummyNoiseGenerator.addEventListener('length_changed', function() {
+		setVoicesNoiseProperty('length', dummyNoiseGenerator.length);
+	});
+
 
 	reverbNode.output.connect(outputNode);
 
 	voicesNode.connect(reverbNode.input);
 
 	setNumVoices(numVoices);
+	setVoicesNoiseAmount(0.3);
 	reverbNode.wetAmount = 0.5;
 	
 	EventDispatcher.call(this);
@@ -2085,6 +2096,10 @@ function Colchonator(audioContext, options) {
 		},
 		noiseGenerator: {
 			get: function() { return dummyNoiseGenerator; }
+		},
+		noiseAmount: {
+			get: function() { return noiseAmount; },
+			set: setVoicesNoiseAmount
 		}
 	});
 
@@ -2178,6 +2193,20 @@ function Colchonator(audioContext, options) {
 		if(index !== -1) {
 			return voices[index].voice;
 		}
+	}
+
+
+	function setVoicesNoiseProperty(property, value) {
+		voices.forEach(function(v) {
+			v.noiseGenerator[property] = value;
+		});
+	}
+
+
+	function setVoicesNoiseAmount(value) {
+		voices.forEach(function(v) {
+			v.noiseAmount = v;
+		});
 	}
 
 
@@ -3256,6 +3285,13 @@ function register() {
 				this.noiseContainer = this.querySelector('.noiseContainer');
 				this.noise = document.createElement('gear-noise-generator');
 				this.noiseContainer.appendChild(this.noise);
+
+				this.noiseAmount = document.createElement('gear-slider');
+				this.noiseAmount.label = 'noise amount';
+				this.noiseAmount.min = 0;
+				this.noiseAmount.max = 1;
+				this.noiseAmount.step = 0.001;
+				this.noiseAmount.value = 0;
 
 
 			}

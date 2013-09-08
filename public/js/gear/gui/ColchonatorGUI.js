@@ -31,6 +31,13 @@ function register() {
 				this.noise = document.createElement('gear-noise-generator');
 				this.noiseContainer.appendChild(this.noise);
 
+				this.noiseAmount = document.createElement('gear-slider');
+				this.noiseAmount.label = 'noise amount';
+				this.noiseAmount.min = 0;
+				this.noiseAmount.max = 1;
+				this.noiseAmount.step = 0.001;
+				this.noiseAmount.value = 0;
+
 
 			}
 		},
