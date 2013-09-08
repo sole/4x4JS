@@ -5,6 +5,7 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 	'use strict';
 
 	var that = this;
+	var values = {};
 
 	EventDispatcher.call(this);
 
@@ -17,32 +18,32 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 	['attack', 'decay', 'sustain', 'release'].forEach(function(param) {
 		Object.defineProperty(that, param, {
-			get: makeGetter(that, param),
-			set: makeSetter(that, param)
+			get: makeGetter(param),
+			set: makeSetter(param)
 		});
 	});
 
 	//
 
-	function makeGetter(obj, param) {
+	function makeGetter(param) {
 		return function() {
-			return obj[param];
+			return values[param];
 		};
 	}
 
 	function makeSetter(obj, param) {
 		var paramChanged = param + '_changed';
 		return function(v) {
-			obj[param] = v;
-			obj.dispatchEvent({ type: paramChanged, value: v });
+			values[param] = v;
+			that.dispatchEvent({ type: paramChanged, value: v });
 		};
 	}
 
 	function setParams(params) {
-		that.attack = params.attack !== undefined ? params.attack : 0.0;
-		that.decay = params.decay !== undefined ? params.decay : 0.02;
-		that.sustain = params.sustain !== undefined ? params.sustain : 0.5;
-		that.release = params.release !== undefined ? params.release : 0.10;
+		values.attack = params.attack !== undefined ? params.attack : 0.0;
+		values.decay = params.decay !== undefined ? params.decay : 0.02;
+		values.sustain = params.sustain !== undefined ? params.sustain : 0.5;
+		values.release = params.release !== undefined ? params.release : 0.10;
 	}
 	
 	// ~~~
