@@ -1,7 +1,8 @@
 var template = '<header>Colchonator</header><div class="numVoicesContainer"></div>' + 
-	'<div class="reverbContainer"></div>' +
+	'<div class="bajotronContainer"></div>' +
+	'<div class="reverbContainer"></div>' /*+
 	'<div class="adsrContainer"></div>' +
-	'<div class="noiseContainer"></div>';
+	'<div class="noiseContainer"></div>'*/;
 
 
 function register() {
@@ -19,11 +20,19 @@ function register() {
 				this.numVoices.value = 1;
 				this.numVoicesContainer.appendChild(this.numVoices);
 
+				this.bajotronContainer = this.querySelector('.bajotronContainer');
+				this.bajotron = document.createElement('gear-bajotron');
+				this.bajotronContainer.appendChild(this.bajotron);
+
+				// TODO - hide some things like the number of voices?
+
 				this.reverbContainer = this.querySelector('.reverbContainer');
 				this.reverb = document.createElement('gear-reverbetron');
 				this.reverbContainer.appendChild(this.reverb);
 
-				this.adsrContainer = this.querySelector('.adsrContainer');
+
+
+				/*this.adsrContainer = this.querySelector('.adsrContainer');
 				this.adsr = document.createElement('gear-adsr');
 				this.adsrContainer.appendChild(this.adsr);
 
@@ -36,7 +45,7 @@ function register() {
 				this.noiseAmount.min = 0;
 				this.noiseAmount.max = 1;
 				this.noiseAmount.step = 0.001;
-				this.noiseAmount.value = 0;
+				this.noiseAmount.value = 0;*/
 
 
 			}
@@ -57,10 +66,13 @@ function register() {
 				// reverb settings/gui
 				this.reverb.attachTo(colchonator.reverb);
 
+				// fake bajotron
+				this.bajotron.attachTo(colchonator.bajotron);
+
 				// voice ADSR
 
 				// noise
-				this.noise.attachTo(colchonator.noiseGenerator);
+				// this.noise.attachTo(colchonator.noiseGenerator);
 
 			},
 

@@ -82,7 +82,7 @@ function initialiseGear(audioContext) {
 	// 1 / PAD
 	var Colchonator = require('./gear/Colchonator');
 	var pad = new Colchonator(audioContext);
-	pad.reverb.wetAmount = 1.0;
+	//pad.reverb.wetAmount = 1.0;
 	pad.reverb.loadImpulse('data/impulseResponses/cave.ogg');
 	g.push(pad);
 	

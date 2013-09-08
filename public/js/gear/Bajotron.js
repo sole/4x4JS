@@ -105,7 +105,7 @@ function Bajotron(audioContext, options) {
 		voices.forEach(function(voice) {
 			voice.portamento = v;
 		});
-		that.dispatchEvent({ type: 'portamento_change', portamento: v });
+		that.dispatchEvent({ type: 'portamento_changed', portamento: v });
 	
 	}
 
@@ -132,6 +132,8 @@ function Bajotron(audioContext, options) {
 				voice.output.disconnect();
 			}
 		}
+
+		that.dispatchEvent({ type: 'num_voices_changed', num_voices: v });
 
 	}
 

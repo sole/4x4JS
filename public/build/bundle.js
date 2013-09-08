@@ -1364,7 +1364,7 @@ function initialiseGear(audioContext) {
 	// 1 / PAD
 	var Colchonator = require('./gear/Colchonator');
 	var pad = new Colchonator(audioContext);
-	pad.reverb.wetAmount = 1.0;
+	//pad.reverb.wetAmount = 1.0;
 	pad.reverb.loadImpulse('data/impulseResponses/cave.ogg');
 	g.push(pad);
 	
@@ -1658,11 +1658,16 @@ module.exports = {
 };
 
 },{"./Orxatron/":8,"./gear/Bajotron":18,"./gear/Colchonator":20,"./gear/Mixer":21,"./gear/Oscilloscope":24,"./gear/Porrompom":25,"./gear/gui/GUI":32,"./quneo.js":39}],16:[function(require,module,exports){
+var EventDispatcher = require('EventDispatcher');
+
 function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 	'use strict';
 
 	var that = this;
+	var values = {};
+
+	EventDispatcher.call(this);
 
 	setParams({
 		attack: attack,
@@ -1671,15 +1676,34 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 		release: release
 	});
 
+	['attack', 'decay', 'sustain', 'release'].forEach(function(param) {
+		Object.defineProperty(that, param, {
+			get: makeGetter(param),
+			set: makeSetter(param)
+		});
+	});
 
 	//
 
+	function makeGetter(param) {
+		return function() {
+			return values[param];
+		};
+	}
+
+	function makeSetter(obj, param) {
+		var paramChanged = param + '_changed';
+		return function(v) {
+			values[param] = v;
+			that.dispatchEvent({ type: paramChanged, value: v });
+		};
+	}
 
 	function setParams(params) {
-		that.attack = params.attack !== undefined ? params.attack : 0.0;
-		that.decay = params.decay !== undefined ? params.decay : 0.02;
-		that.sustain = params.sustain !== undefined ? params.sustain : 0.5;
-		that.release = params.release !== undefined ? params.release : 0.10;
+		values.attack = params.attack !== undefined ? params.attack : 0.0;
+		values.decay = params.decay !== undefined ? params.decay : 0.02;
+		values.sustain = params.sustain !== undefined ? params.sustain : 0.5;
+		values.release = params.release !== undefined ? params.release : 0.10;
 	}
 	
 	// ~~~
@@ -1711,14 +1735,21 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 module.exports = ADSR;
 
-},{}],17:[function(require,module,exports){
+},{"EventDispatcher":1}],17:[function(require,module,exports){
+var EventDispatcher = require('EventDispatcher');
+
 function ArithmeticMixer(audioContext) {
+	
+	var that = this;
+
 	// input A -> channel 0
 	// input B -> channel 1
 	// output -> script processor
 	// mix function
 	var processor = audioContext.createScriptProcessor(2048, 2, 1);
 	var mixFunction = multiply;
+
+	EventDispatcher.call(this);
 
 	processor.onaudioprocess = onProcessing;
 
@@ -1731,6 +1762,7 @@ function ArithmeticMixer(audioContext) {
 					default:
 					case 'sum': mixFunction = sum; break;
 				}
+				that.dispatchEvent({ type: 'mix_function_changed', value: v });
 			},
 			'get': function() {
 				if(mixFunction === divide) {
@@ -1786,7 +1818,7 @@ function ArithmeticMixer(audioContext) {
 
 module.exports = ArithmeticMixer;
 
-},{}],18:[function(require,module,exports){
+},{"EventDispatcher":1}],18:[function(require,module,exports){
 var EventDispatcher = require('EventDispatcher');
 var OscillatorVoice = require('./OscillatorVoice');
 var NoiseGenerator = require('./NoiseGenerator');
@@ -1894,7 +1926,7 @@ function Bajotron(audioContext, options) {
 		voices.forEach(function(voice) {
 			voice.portamento = v;
 		});
-		that.dispatchEvent({ type: 'portamento_change', portamento: v });
+		that.dispatchEvent({ type: 'portamento_changed', portamento: v });
 	
 	}
 
@@ -1921,6 +1953,8 @@ function Bajotron(audioContext, options) {
 				voice.output.disconnect();
 			}
 		}
+
+		that.dispatchEvent({ type: 'num_voices_changed', num_voices: v });
 
 	}
 
@@ -2049,8 +2083,6 @@ var NoiseGenerator = require('./NoiseGenerator');
 
 function Colchonator(audioContext, options) {
 	
-	// TODO should we have a global ADSR or go on with the per voice ADSR?
-
 	options = options || {};
 
 	var numVoices = options.numVoices || 3;
@@ -2062,25 +2094,35 @@ function Colchonator(audioContext, options) {
 
 	// This dummy node is not connected anywhere-we'll just use it to
 	// set up identical properties in each of our internal Bajotron instances
-	var dummyNoiseGenerator = new NoiseGenerator(audioContext);
-	var noiseAmount = 0;
+	var dummyBajotron = new Bajotron(audioContext);
 
-	// When the dummyNoiseGenerator changes, we'll change all voices' noise gens
-	dummyNoiseGenerator.addEventListener('type_changed', function() {
-		setVoicesNoiseProperty('type', dummyNoiseGenerator.type);
-	});
+	// bajotron events and propagating them...
+	dummyBajotron.addEventListener('portamento_changed', setVoicesPortamento);
+	dummyBajotron.addEventListener('num_voices_changed', setVoicesNumVoices);
 
-	dummyNoiseGenerator.addEventListener('length_changed', function() {
-		setVoicesNoiseProperty('length', dummyNoiseGenerator.length);
-	});
+	// voiceSettings - octaves and shapes
+	// TODO not sure how to do that :-(
+	
+	for(var prop in dummyBajotron.adsr) {
+		if(dummyBajotron.adsr.hasOwnProperty(prop)) {
+			dummyBajotron.adsr.addEventListener(prop + '_changed', makeADSRListener(dummyBajotron.adsr, prop));
+		}
+	}
+
+	dummyBajotron.noiseGenerator.addEventListener('type_changed', setVoicesNoiseType);
+	dummyBajotron.noiseGenerator.addEventListener('length_changed', setVoicesNoiseLength);
+	dummyBajotron.arithmeticMixer.addEventListener('mix_function_changed', setVoicesNoiseMixFunction);
+	
 
 
 	reverbNode.output.connect(outputNode);
 
 	voicesNode.connect(reverbNode.input);
-
+	
 	setNumVoices(numVoices);
 	setVoicesNoiseAmount(0.3);
+	setVoicesPortamento(false);
+
 	reverbNode.wetAmount = 0.5;
 	
 	EventDispatcher.call(this);
@@ -2094,12 +2136,8 @@ function Colchonator(audioContext, options) {
 		reverb: {
 			get: function() { return reverbNode; }
 		},
-		noiseGenerator: {
-			get: function() { return dummyNoiseGenerator; }
-		},
-		noiseAmount: {
-			get: function() { return noiseAmount; },
-			set: setVoicesNoiseAmount
+		bajotron: {
+			get: function() { return dummyBajotron; }
 		}
 	});
 
@@ -2123,6 +2161,7 @@ function Colchonator(audioContext, options) {
 
 			console.log('Colchonator - increasing polyphony', voices.length, '=>', number);
 
+			// TODO should clone values from dummy -- clone?
 			while(number > voices.length) {
 				v = {
 					timestamp: 0,
@@ -2203,10 +2242,68 @@ function Colchonator(audioContext, options) {
 	}
 
 
-	function setVoicesNoiseAmount(value) {
+	function setVoicesProperty(propertyPath, value) {
+		console.log('set voices property', propertyPath, value);
+		var propertyParts = propertyPath.split('.');
 		voices.forEach(function(v) {
-			v.noiseAmount = v;
+
+			if(propertyParts.length === 1) {
+
+				v[propertyParts[0]] = value;
+
+			} else {
+
+				console.log("acceder a 0", propertyParts[0]);
+
+				var prop = v[propertyParts[0]];
+
+				var i = 1;
+
+				while(i < propertyParts.length - 1) {
+					var key = propertyParts[i];
+					console.log('acceder a ', i, key);
+					prop = prop[key];
+					i++;
+				}
+
+				var lastKey = propertyParts[propertyParts.length - 1];
+				console.log('acceder a lo ultimo', lastKey);
+				prop[lastKey] = value;
+				
+			}
+
 		});
+
+	}
+
+	function setVoicesPortamento(value) {
+		setVoicesProperty('portamento', value);
+	}
+
+	function setVoicesNumVoices(value) {
+		setVoicesProperty('numVoices', value);
+	}
+
+	function makeADSRListener(adsr, property) {
+		return function(ev) {
+			setVoicesProperty('adsr.' + property, adsr[property]);
+		};
+	}
+
+	function setVoicesNoiseType(value) {
+		setVoicesProperty('noiseGenerator.type', value);
+	}
+
+	function setVoicesNoiseLength(value) {
+		setVoicesProperty('noiseGenerator.length', value);
+	}
+
+	function setVoicesNoiseAmount(value) {
+		setVoicesProperty('noiseAmount', value);
+	}
+
+	function setVoicesNoiseMixFunction(value) {
+		setVoicesProperty('arithmeticMixer.mixFunction', value);
 	}
 
 
@@ -3205,7 +3302,7 @@ function register() {
 					bajotron.portamento = that.portamento.checked;
 				}, false);
 
-				bajotron.addEventListener('portamento_change', function() {
+				bajotron.addEventListener('portamento_changed', function() {
 					that.portamento.checked = bajotron.portamento;
 				}, false);
 
@@ -3254,9 +3351,10 @@ module.exports = {
 
 },{}],31:[function(require,module,exports){
 var template = '<header>Colchonator</header><div class="numVoicesContainer"></div>' + 
-	'<div class="reverbContainer"></div>' +
+	'<div class="bajotronContainer"></div>' +
+	'<div class="reverbContainer"></div>' /*+
 	'<div class="adsrContainer"></div>' +
-	'<div class="noiseContainer"></div>';
+	'<div class="noiseContainer"></div>'*/;
 
 
 function register() {
@@ -3274,11 +3372,19 @@ function register() {
 				this.numVoices.value = 1;
 				this.numVoicesContainer.appendChild(this.numVoices);
 
+				this.bajotronContainer = this.querySelector('.bajotronContainer');
+				this.bajotron = document.createElement('gear-bajotron');
+				this.bajotronContainer.appendChild(this.bajotron);
+
+				// TODO - hide some things like the number of voices?
+
 				this.reverbContainer = this.querySelector('.reverbContainer');
 				this.reverb = document.createElement('gear-reverbetron');
 				this.reverbContainer.appendChild(this.reverb);
 
-				this.adsrContainer = this.querySelector('.adsrContainer');
+
+
+				/*this.adsrContainer = this.querySelector('.adsrContainer');
 				this.adsr = document.createElement('gear-adsr');
 				this.adsrContainer.appendChild(this.adsr);
 
@@ -3291,7 +3397,7 @@ function register() {
 				this.noiseAmount.min = 0;
 				this.noiseAmount.max = 1;
 				this.noiseAmount.step = 0.001;
-				this.noiseAmount.value = 0;
+				this.noiseAmount.value = 0;*/
 
 
 			}
@@ -3312,10 +3418,13 @@ function register() {
 				// reverb settings/gui
 				this.reverb.attachTo(colchonator.reverb);
 
+				// fake bajotron
+				this.bajotron.attachTo(colchonator.bajotron);
+
 				// voice ADSR
 
 				// noise
-				this.noise.attachTo(colchonator.noiseGenerator);
+				// this.noise.attachTo(colchonator.noiseGenerator);
 
 			},
 

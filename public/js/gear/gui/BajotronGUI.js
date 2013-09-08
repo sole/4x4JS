@@ -83,7 +83,7 @@ function register() {
 					bajotron.portamento = that.portamento.checked;
 				}, false);
 
-				bajotron.addEventListener('portamento_change', function() {
+				bajotron.addEventListener('portamento_changed', function() {
 					that.portamento.checked = bajotron.portamento;
 				}, false);
 

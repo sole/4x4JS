@@ -8,8 +8,6 @@ var NoiseGenerator = require('./NoiseGenerator');
 
 function Colchonator(audioContext, options) {
 	
-	// TODO should we have a global ADSR or go on with the per voice ADSR?
-
 	options = options || {};
 
 	var numVoices = options.numVoices || 3;
@@ -21,25 +19,35 @@ function Colchonator(audioContext, options) {
 
 	// This dummy node is not connected anywhere-we'll just use it to
 	// set up identical properties in each of our internal Bajotron instances
-	var dummyNoiseGenerator = new NoiseGenerator(audioContext);
-	var noiseAmount = 0;
+	var dummyBajotron = new Bajotron(audioContext);
 
-	// When the dummyNoiseGenerator changes, we'll change all voices' noise gens
-	dummyNoiseGenerator.addEventListener('type_changed', function() {
-		setVoicesNoiseProperty('type', dummyNoiseGenerator.type);
-	});
+	// bajotron events and propagating them...
+	dummyBajotron.addEventListener('portamento_changed', setVoicesPortamento);
+	dummyBajotron.addEventListener('num_voices_changed', setVoicesNumVoices);
 
-	dummyNoiseGenerator.addEventListener('length_changed', function() {
-		setVoicesNoiseProperty('length', dummyNoiseGenerator.length);
-	});
+	// voiceSettings - octaves and shapes
+	// TODO not sure how to do that :-(
+	
+	for(var prop in dummyBajotron.adsr) {
+		if(dummyBajotron.adsr.hasOwnProperty(prop)) {
+			dummyBajotron.adsr.addEventListener(prop + '_changed', makeADSRListener(dummyBajotron.adsr, prop));
+		}
+	}
+
+	dummyBajotron.noiseGenerator.addEventListener('type_changed', setVoicesNoiseType);
+	dummyBajotron.noiseGenerator.addEventListener('length_changed', setVoicesNoiseLength);
+	dummyBajotron.arithmeticMixer.addEventListener('mix_function_changed', setVoicesNoiseMixFunction);
+	
 
 
 	reverbNode.output.connect(outputNode);
 
 	voicesNode.connect(reverbNode.input);
-
+	
 	setNumVoices(numVoices);
 	setVoicesNoiseAmount(0.3);
+	setVoicesPortamento(false);
+
 	reverbNode.wetAmount = 0.5;
 	
 	EventDispatcher.call(this);
@@ -53,12 +61,8 @@ function Colchonator(audioContext, options) {
 		reverb: {
 			get: function() { return reverbNode; }
 		},
-		noiseGenerator: {
-			get: function() { return dummyNoiseGenerator; }
-		},
-		noiseAmount: {
-			get: function() { return noiseAmount; },
-			set: setVoicesNoiseAmount
+		bajotron: {
+			get: function() { return dummyBajotron; }
 		}
 	});
 
@@ -82,6 +86,7 @@ function Colchonator(audioContext, options) {
 
 			console.log('Colchonator - increasing polyphony', voices.length, '=>', number);
 
+			// TODO should clone values from dummy -- clone?
 			while(number > voices.length) {
 				v = {
 					timestamp: 0,
@@ -162,10 +167,68 @@ function Colchonator(audioContext, options) {
 	}
 
 
-	function setVoicesNoiseAmount(value) {
+	function setVoicesProperty(propertyPath, value) {
+		console.log('set voices property', propertyPath, value);
+		var propertyParts = propertyPath.split('.');
 		voices.forEach(function(v) {
-			v.noiseAmount = v;
+
+			if(propertyParts.length === 1) {
+
+				v[propertyParts[0]] = value;
+
+			} else {
+
+				console.log("acceder a 0", propertyParts[0]);
+
+				var prop = v[propertyParts[0]];
+
+				var i = 1;
+
+				while(i < propertyParts.length - 1) {
+					var key = propertyParts[i];
+					console.log('acceder a ', i, key);
+					prop = prop[key];
+					i++;
+				}
+
+				var lastKey = propertyParts[propertyParts.length - 1];
+				console.log('acceder a lo ultimo', lastKey);
+				prop[lastKey] = value;
+				
+			}
+
 		});
+
+	}
+
+	function setVoicesPortamento(value) {
+		setVoicesProperty('portamento', value);
+	}
+
+	function setVoicesNumVoices(value) {
+		setVoicesProperty('numVoices', value);
+	}
+
+	function makeADSRListener(adsr, property) {
+		return function(ev) {
+			setVoicesProperty('adsr.' + property, adsr[property]);
+		};
+	}
+
+	function setVoicesNoiseType(value) {
+		setVoicesProperty('noiseGenerator.type', value);
+	}
+
+	function setVoicesNoiseLength(value) {
+		setVoicesProperty('noiseGenerator.length', value);
+	}
+
+	function setVoicesNoiseAmount(value) {
+		setVoicesProperty('noiseAmount', value);
+	}
+
+	function setVoicesNoiseMixFunction(value) {
+		setVoicesProperty('arithmeticMixer.mixFunction', value);
 	}
 
 
