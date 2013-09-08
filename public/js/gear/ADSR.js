@@ -1,8 +1,12 @@
+var EventDispatcher = require('EventDispatcher');
+
 function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 	'use strict';
 
 	var that = this;
+
+	EventDispatcher.call(this);
 
 	setParams({
 		attack: attack,
@@ -11,9 +15,28 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 		release: release
 	});
 
+	['attack', 'decay', 'sustain', 'release'].forEach(function(param) {
+		Object.defineProperty(that, param, {
+			get: makeGetter(that, param),
+			set: makeSetter(that, param)
+		});
+	});
 
 	//
 
+	function makeGetter(obj, param) {
+		return function() {
+			return obj[param];
+		};
+	}
+
+	function makeSetter(obj, param) {
+		var paramChanged = param + '_changed';
+		return function(v) {
+			obj[param] = v;
+			obj.dispatchEvent({ type: paramChanged, value: v });
+		};
+	}
 
 	function setParams(params) {
 		that.attack = params.attack !== undefined ? params.attack : 0.0;
