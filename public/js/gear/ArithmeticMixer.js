@@ -1,10 +1,17 @@
+var EventDispatcher = require('EventDispatcher');
+
 function ArithmeticMixer(audioContext) {
+	
+	var that = this;
+
 	// input A -> channel 0
 	// input B -> channel 1
 	// output -> script processor
 	// mix function
 	var processor = audioContext.createScriptProcessor(2048, 2, 1);
 	var mixFunction = multiply;
+
+	EventDispatcher.call(this);
 
 	processor.onaudioprocess = onProcessing;
 
@@ -17,6 +24,7 @@ function ArithmeticMixer(audioContext) {
 					default:
 					case 'sum': mixFunction = sum; break;
 				}
+				that.dispatchEvent({ type: 'mix_function_changed', value: v });
 			},
 			'get': function() {
 				if(mixFunction === divide) {
