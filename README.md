@@ -4,6 +4,7 @@ Un-be-lie-va-ble
 
 ## TO to to do
 
+- drum machine no deja tocar con quneo una nota dos veces (?!)
 - audio tags keyboard - para poder probar cosas sin el quneo
 - bajotron release doesn't work properly
 - reverb y colchonator??
@@ -84,20 +85,121 @@ Un-be-lie-va-ble
 	go mad / LFO
 	- show gui / progressively
 	- topics
-		- quneo midi controller
-			- OSCBridge
-				- usb, send messages to local server
-					- get touch events
-				- set up local server for listening to messages
-					- control leds
-				- over UDP via node-osc
-			- server to browser
-				- listen to some messages
-					- message syntax
-					- regex
-				- send some messages
-				- socket.io
-		- node.js
+		1- I /love/ music
+			- one of my first christmas gifts was a 2xLP - one was BLUE!!!
+			- wouldn't stop asking my parents to play it once and once again
+			- early challenge: reach the turntable, put the needle back
+		2- Music everywhere on my town
+			- annual festivities ~ 1 wk of street music
+			- sit on a narrow street, listen to band after band
+			- wondering how did those wind instruments work
+		3- Fascinated with machines of all sorts
+			- valve radios
+			- huge radios
+			- tapes
+		4- the 80s were good times
+			- cheesy electropop
+			- videogames
+			- casio keyboards
+		5- PT-100: composing music
+			- limited configurability
+			- recording to a tape
+			- it was OK
+		6- OMG MULTIMEDIA!!!
+			- Trackers!
+			- Sample based
+			- Early visualisations
+		7- Demoscene
+			- VJing
+			- live gigs!
+			- fame (sort of)
+		8- Software synthesis
+			- C/C++
+			- VSTi
+			- Hard to distribute, proprietary
+		9- OMG JavaScript!
+			- Web Audio!
+			- Web GL!
+			- Node.js!
+		10- One-woman orchestra, with JS
+			- Audio & Video output
+			- Hardware input
+			- Node.js glues things together
+		11- HW: quneo midi controller
+			- "for hackers"
+			- LEDs
+			- smallish ~ iPad size
+		12- Hardware -> node: with OSCBridge
+			- usb -> send messages to local server
+				- get touch events
+			- connect to local server for listening to messages
+				- not a synth, so just led control
+			- over UDP via node-osc
+		13- server to browser
+			- glued with socket.io
+			- "subscribe" to some messages
+				- message syntax e.g. /quneo/pads/2/drum/pressure
+				- regex /quneo/pads\/(\\d+)\/drum\/pressure
+			- also send some messages (led control)
+		14- Gear
+			- evidently, virtual
+			- proof of concept
+			- audio and video gear
+		15- Audio gear
+			- Modular, Web Audio philosophy
+				- inputs, outputs
+				- components inside components
+			- Wrapping basic blocks in helpers
+				- oscillators & buffers autodiscarded
+				- param values -> envelopes
+			- Also custom nodes with ScriptProcessor - audio processing in JS
+		16- Video gear
+			- webgl via three.js for maximum performance
+			- composite rendering - many scenes, 1 renderer
+			- I &lt;3  procedural
+		17- GUI! (bring it up NOW)
+			- Web components (based in x-tag)
+			- attachTo a component
+			- event based
+		18- Sync: Player
+			- base song sequenced in renoise
+			- it's a tracker
+			- future: web editing too
+		19- renoise song xml based
+			- export to json
+				- wrote node module because there wasn't any
+			- patterns, columns and rows
+			- list of patterns to be played in order (order list)
+		20- List of events
+			- time sorted
+			- web audio events cannot be cancelled
+			- dispatch bursts of events - 'requestAuditionFrame'
+		21- Agnostic player (doesn't have a clue of what sort of things it's triggering)
+			- noteOn, noteOff
+			- note names to standard MIDI note numbers
+				- good for building chords + transposing!
+				- standard frequencies fit with tuned samples
+			- video gear can use those values too (e.g. scaling)
+		22- Accuracy
+			- song data: more accurate than FFT (e.g. dancer.js)
+			- tempo, notes
+			- we can react to very specific events (drum, snare, instr note)
+		23- Listening to events
+			- addEventListener
+			- EventDispatcher
+			- sadly no custom events because there's no DOM element to dispatch
+		24- What you're listening to
+			- My songs in exclusive arrangement for this event
+			- space for improvisation
+			- ... and errors!
+		25- You can play too
+			- Mention @supersole or @jsconfeu
+			- Hopefully the network will behave
+			- Fingers crossed!
+		26 - PARTY!!!
+			(FREE STYLE)
+			...
+		- Thanks!
 		- Gear
 			- virtual components
 				- cheap & affordable
@@ -192,7 +294,49 @@ Porrompom -> SampleVoice
 
 - up the hill
 - coffee rulez
-- jasmine flowers
+- jasmine flowers (C, Am, Dm, Bb / C, Am, F, G) | bridge: Em, C, Em, C, / Dm, G, Dm, G 
 - rebuild
 - stereopowergalactic
 - a.b.r.i.l. original version
+- oldie times
+- dark tech (partially)
+- pi^2
+- happy zonan
+- when I try to forget
+- VLC091011 (would be nice to play bells/lead)
+- tururu chimpum
+- last night in atlantis (chords Am/C/Em/G)
+- resurrection ethnic (v good intro! chords Am, C, G, Dm)
+- over the atmosphere (ethnic)
+- hyperaktive dancing (play bongos)
+
+semi hard (arpeggios/portamento/retriggers)
+
+- travelling around - heavily sample based but ethnic so makes a difference
+	- improvising -> percussion
+- ladrilloids
+- 10 years ago
+- i'm ok - you're ok
+	(playing the lead/guitars - without keyboard)
+	- so rhythm would be easier!
+- tokyo garden simplified + needs super reverb in the lead
+- m41d4 v4l3 (arpeggios)
+- you're so nice
+- puni puni
+- pika pika polka
+- como mola (doable chords Am/Dm/G/C)
+- the sweetest song (vocoder, chords easy Am, Dm, C, G)
+- semos los vengatas (chords easy Am, G, Am, C)
+- they are still shining (vocoder) & slightly confusing
+	- chords Am, F, Dm, Em
+- hard dreamings (chords Am, C, Dm, F)
+- sunny day (chord C Em F G)
+
+possibly too hard:
+
+- a dream of sorts
+- horizon blue
+- flight 5135 (would be nice to play the lead)
+- tomorrow (vocoder) <-- PUNTAZO
+- 71st grooving heaven (sample based for the groove bass)
+- near the limits (vocoder) samples Dm, Am, Bb, F-C
