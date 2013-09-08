@@ -43,8 +43,6 @@ Un-be-lie-va-ble
 		- on screen piano
 		- more abstract like those youtoube videos representing classical scores
 		- cubic player style vis - note dots etc
-- noise generator dispatch events on setters
-	- needs to be event target, etc
 - get something coordinated
 	- gui
 		-> setters/getters in instruments
