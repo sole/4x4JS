@@ -105,6 +105,11 @@ function OscillatorVoice(context, options) {
 		if(internalOscillator === null) {
 			return;
 		}
+
+		if(when === undefined) {
+			when = 0;
+		}
+
 		internalOscillator.stop(when);
 		internalOscillator = null;
 
