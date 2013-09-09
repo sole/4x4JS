@@ -257,14 +257,12 @@ function setupOSC(gear, player, osc) {
 		
 		var columnNumber = ev.row % 8;
 		var columnLeds = Quneo.getColumnLeds(columnNumber);
-		var patternLength = 128; // XXX WARNING HARDCODED!!!
+		var patternLength = 128; // XXX TODO WARNING HARDCODED!!!
 		var patternQuarterLength = patternLength >> 2;
 		var rowNumber = ((patternLength - 1 - ev.row) / patternQuarterLength) | 0;
 		var rowPads = Quneo.getRowPads(rowNumber);
 
-		console.log(rowNumber, ev.row, patternQuarterLength);
-
-		transportOrder.innerHTML = StringFormat.pad(ev.order, 2);
+		transportOrder.innerHTML = 'Order: ' + ev.order + ', Pattern: ' + StringFormat.pad(ev.pattern | 0, 2, '0') + ', Row: ' + StringFormat.pad(ev.row | 0, 2, '0') + '/' + StringFormat.pad(patternLength, 2, '0');
 		
 		if(lastColumn !== null) {
 			// Turn older off
