@@ -58,7 +58,7 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 		param.cancelScheduledValues(now);
 		param.setValueAtTime(0, now);
 		param.linearRampToValueAtTime(1, now + this.attack);
-		param.linearRampToValueAtTime(sustain, now + this.attack + this.decay);
+		param.linearRampToValueAtTime(this.sustain, now + this.attack + this.decay);
 	};
 
 	this.beginRelease = function(when) {
