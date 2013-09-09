@@ -4,7 +4,8 @@ var audioContext,
 	renderer,
 	deck,
 	guiContainer,
-	transportTime;
+	transportTime,
+	transportOrder;
 
 var Orxatron = require('./Orxatron/'),
 	Quneo = require('./quneo.js'),
@@ -256,10 +257,14 @@ function setupOSC(gear, player, osc) {
 		
 		var columnNumber = ev.row % 8;
 		var columnLeds = Quneo.getColumnLeds(columnNumber);
-		var patternLength = 128; // WARNING HARDCODE!!!
-		var patternQuarterLength = patternLength / 4;
-		var rowNumber = ((patternLength - ev.row) / patternQuarterLength) | 0;
+		var patternLength = 128; // XXX WARNING HARDCODED!!!
+		var patternQuarterLength = patternLength >> 2;
+		var rowNumber = ((patternLength - 1 - ev.row) / patternQuarterLength) | 0;
 		var rowPads = Quneo.getRowPads(rowNumber);
+
+		console.log(rowNumber, ev.row, patternQuarterLength);
+
+		transportOrder.innerHTML = StringFormat.pad(ev.order, 2);
 		
 		if(lastColumn !== null) {
 			// Turn older off
@@ -343,6 +348,7 @@ function setupKeyboardAndTransport() {
 		playerJumpTo(1);
 	});
 	transportTime = document.getElementById('time');
+	transportOrder = document.getElementById('order');
 }
 
 function play() {
