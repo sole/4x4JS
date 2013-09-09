@@ -85,8 +85,14 @@ function initialiseGear(audioContext) {
 	// 1 / PAD
 	var Colchonator = require('./gear/Colchonator');
 	var pad = new Colchonator(audioContext);
-	//pad.reverb.wetAmount = 1.0;
-	pad.reverb.loadImpulse('data/impulseResponses/cave.ogg');
+	pad.numVoices = 3;
+	pad.reverb.wetAmount = 0.0;
+	pad.bajotron.adsr.attack = 0.3;
+	pad.bajotron.adsr.decay = 0.1;
+	pad.bajotron.adsr.sustain = 0.5;
+	pad.bajotron.adsr.release = 1;
+
+	//pad.reverb.loadImpulse('data/impulseResponses/cave.ogg');
 	g.push(pad);
 	
 	// 2 / DRUM MACHINE
@@ -250,9 +256,11 @@ function setupOSC(gear, player, osc) {
 		
 		var columnNumber = ev.row % 8;
 		var columnLeds = Quneo.getColumnLeds(columnNumber);
-		var rowNumber = ((63 - ev.row) / 16) | 0;
+		var patternLength = 128; // WARNING HARDCODE!!!
+		var patternQuarterLength = patternLength / 4;
+		var rowNumber = ((patternLength - ev.row) / patternQuarterLength) | 0;
 		var rowPads = Quneo.getRowPads(rowNumber);
-
+		
 		if(lastColumn !== null) {
 			// Turn older off
 			var prevLeds = Quneo.getColumnLeds(lastColumn);
