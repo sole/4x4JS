@@ -34,6 +34,7 @@ canvas {
 	right: 0;
 	width: 100%;
 	text-align: right;
+	z-index: 10;
 }
 
 #oscilloscope {
