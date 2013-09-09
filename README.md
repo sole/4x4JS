@@ -4,6 +4,7 @@ Un-be-lie-va-ble
 
 ## TO to to do
 
+- Patrones/16 filas -> slide
 - drum machine no deja tocar con quneo una nota dos veces (?!)
 - audio tags keyboard - para poder probar cosas sin el quneo
 - bajotron release doesn't work properly
@@ -157,7 +158,7 @@ Un-be-lie-va-ble
 			- webgl via three.js for maximum performance
 			- composite rendering - many scenes, 1 renderer
 			- I &lt;3  procedural
-		17- GUI! (bring it up NOW)
+		17- GUI! (bring it up NOW) (touch bass)
 			- Web components (based in x-tag)
 			- attachTo a component
 			- event based
@@ -292,6 +293,13 @@ Porrompom -> SampleVoice
 
 ## "track list"
 
+ACTUAL
+- pseudo resurrection ethnic mix
+- up the hill
+- stereopowergalactic
+-
+
+PROPOSED
 - up the hill
 - coffee rulez
 - jasmine flowers (C, Am, Dm, Bb / C, Am, F, G) | bridge: Em, C, Em, C, / Dm, G, Dm, G 

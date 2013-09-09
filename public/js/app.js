@@ -146,6 +146,7 @@ function initialiseGear(audioContext) {
 
 	rack.add(bass);
 	rack.add(pad);
+	rack.add(dm808);
 
 	return g;
 }
