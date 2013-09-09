@@ -126,7 +126,8 @@ function initialiseGear(audioContext) {
 		console.log('plug', instrument, index);
 		mixer.plug(index, instrument.output);
 	});
-	mixer.setFaderGain(0, 0.1);
+	
+	//mixer.setFaderGain(0, 0.1);
 	//mixer.setFaderGain(1, 0.0);
 	
 	var Oscilloscope = require('./gear/Oscilloscope');
@@ -315,10 +316,10 @@ function setupDeck(player, deck) {
 		var activeCard = deck.getSelectedCard();
 		var activeCardIndex = deck.getCardIndex(activeCard);
 
-		if(activeCardIndex !== slideIndex) {
+		/*if(activeCardIndex !== slideIndex) {
 			console.log('deck ⇒ shuffle to', slideIndex);
 			deck.shuffleTo(slideIndex);
-		}
+		}*/
 	}, false);
 }
 

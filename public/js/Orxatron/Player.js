@@ -176,7 +176,7 @@ function Player() {
 						setLastPlayedInstrument(currentEvent.instrument, currentEvent.track, currentEvent.column);
 						voice.noteOn(currentEvent.noteNumber, currentEvent.volume, timeUntilEvent);
 					} else {
-						console.log("Attempting to call undefined voice", currentEvent.instrument);
+						console.log("Attempting to call undefined voice", currentEvent.instrument, currentEvent);
 					}
 
 				} else if( currentEvent.type === EVENT_NOTE_OFF ) {
