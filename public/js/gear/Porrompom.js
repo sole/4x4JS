@@ -74,6 +74,8 @@ function Porrompom(audioContext, options) {
 
 		var noteKey = MIDIUtils.noteNumberToName(note);
 		var mapping = mappings[noteKey];
+
+		
 		
 		if(mapping) {
 			// play sample
@@ -81,7 +83,13 @@ function Porrompom(audioContext, options) {
 
 			// It might not have loaded yet
 			if(sample) {
-				sample.noteOn(44100, 1.0, 0);
+
+				volume = volume !== undefined && volume !== null ? volume : 1.0;
+				when = when !== undefined ? when : 0;
+
+				var audioWhen = when + audioContext.currentTime;
+
+				sample.noteOn(44100, volume, audioWhen);
 			}
 
 		}
@@ -98,7 +106,11 @@ function Porrompom(audioContext, options) {
 			var sample = samples[mapping];
 
 			if(sample) {
-				sample.noteOff(when);
+				when = when !== undefined ? when : 0;
+
+				var audioWhen = when + audioContext.currentTime;
+
+				sample.noteOff(audioWhen);
 			}
 
 		}
