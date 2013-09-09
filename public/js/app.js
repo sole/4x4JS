@@ -108,6 +108,19 @@ function initialiseGear(audioContext) {
 	});
 	g.push(dm808);
 
+	// 3 / Congas drum machine
+	var pCongas = 'data/samples/congas/';
+	var dmCongas = new Porrompom(audioContext, {
+		mappings: {
+			'C-4': pCongas + 'CONGUI.wav',
+			'C#4': pCongas + 'CONGUI2.wav',
+			'D-4': pCongas + 'CONGUI3.wav',
+			'D#4': pCongas + 'CONGUI4.wav',
+			'E-4': pCongas + 'CONGUI5.wav'
+		}
+	});
+	g.push(dmCongas);
+
 	// Plug instruments into the mixer
 	g.forEach(function(instrument, index) {
 		console.log('plug', instrument, index);

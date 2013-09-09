@@ -1406,6 +1406,19 @@ function initialiseGear(audioContext) {
 	});
 	g.push(dm808);
 
+	// 3 / Congas drum machine
+	var pCongas = 'data/samples/congas/';
+	var dmCongas = new Porrompom(audioContext, {
+		mappings: {
+			'C-4': pCongas + 'CONGUI.wav',
+			'C#4': pCongas + 'CONGUI2.wav',
+			'D-4': pCongas + 'CONGUI3.wav',
+			'D#4': pCongas + 'CONGUI4.wav',
+			'E-4': pCongas + 'CONGUI5.wav'
+		}
+	});
+	g.push(dmCongas);
+
 	// Plug instruments into the mixer
 	g.forEach(function(instrument, index) {
 		console.log('plug', instrument, index);
@@ -1621,14 +1634,10 @@ function setupKeyboardAndTransport() {
 	transportTime = document.getElementById('time');
 }
 
-var playAnimation = null;
-
 function play() {
 	if(!player.isPlaying()) {
 		player.play();
 
-		clearInterval(playAnimation);
-		//playAnimation = setInterval(updatePlayStatus, 20);
 		updatePlayStatus();
 		osc.send(Quneo.getStopLedPath(), 0.5);
 	}
@@ -1646,8 +1655,7 @@ function updatePlayStatus() {
 
 function pause() {
 	player.pause();
-	//clearInterval(playAnimation);
-	clearAnimationFrame(updatePlayStatus);
+	cancelAnimationFrame(updatePlayStatus);
 	osc.send(Quneo.getPlayLedPath(), 0);
 }
 
