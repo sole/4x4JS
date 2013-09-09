@@ -88,6 +88,25 @@ function Porrompom(audioContext, options) {
 
 	};
 
+	this.noteOff = function(note, when) {
+
+		var noteKey = MIDIUtils.noteNumberToName(note);
+		var mapping = mappings[noteKey];
+	
+		if(mapping) {
+
+			var sample = samples[mapping];
+
+			if(sample) {
+				sample.noteOff(when);
+			}
+
+		}
+
+	};
+
+
+
 }
 
 module.exports = Porrompom;
