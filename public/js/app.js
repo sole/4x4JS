@@ -323,14 +323,10 @@ function setupKeyboardAndTransport() {
 	transportTime = document.getElementById('time');
 }
 
-var playAnimation = null;
-
 function play() {
 	if(!player.isPlaying()) {
 		player.play();
 
-		clearInterval(playAnimation);
-		//playAnimation = setInterval(updatePlayStatus, 20);
 		updatePlayStatus();
 		osc.send(Quneo.getStopLedPath(), 0.5);
 	}
@@ -348,8 +344,7 @@ function updatePlayStatus() {
 
 function pause() {
 	player.pause();
-	//clearInterval(playAnimation);
-	clearAnimationFrame(updatePlayStatus);
+	cancelAnimationFrame(updatePlayStatus);
 	osc.send(Quneo.getPlayLedPath(), 0);
 }
 
