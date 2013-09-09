@@ -19,7 +19,8 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 	['attack', 'decay', 'sustain', 'release'].forEach(function(param) {
 		Object.defineProperty(that, param, {
 			get: makeGetter(param),
-			set: makeSetter(param)
+			set: makeSetter(param),
+			enumerable: true
 		});
 	});
 
@@ -31,9 +32,11 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 		};
 	}
 
-	function makeSetter(obj, param) {
+	function makeSetter(param) {
+		console.log('make setter', param);
 		var paramChanged = param + '_changed';
 		return function(v) {
+			console.log('ADSR set', param, '=>', v);
 			values[param] = v;
 			that.dispatchEvent({ type: paramChanged, value: v });
 		};

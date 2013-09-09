@@ -28,11 +28,9 @@ function Colchonator(audioContext, options) {
 	// voiceSettings - octaves and shapes
 	// TODO not sure how to do that :-(
 	
-	for(var prop in dummyBajotron.adsr) {
-		if(dummyBajotron.adsr.hasOwnProperty(prop)) {
-			dummyBajotron.adsr.addEventListener(prop + '_changed', makeADSRListener(dummyBajotron.adsr, prop));
-		}
-	}
+	['attack', 'decay', 'sustain', 'release'].forEach(function(prop) {
+		dummyBajotron.adsr.addEventListener(prop + '_changed', makeADSRListener(prop));
+	});
 
 	dummyBajotron.noiseGenerator.addEventListener('type_changed', setVoicesNoiseType);
 	dummyBajotron.noiseGenerator.addEventListener('length_changed', setVoicesNoiseLength);
@@ -160,42 +158,25 @@ function Colchonator(audioContext, options) {
 	}
 
 
-	function setVoicesNoiseProperty(property, value) {
-		voices.forEach(function(v) {
-			v.noiseGenerator[property] = value;
-		});
-	}
-
-
+	// propertyPath can be any series of dot-delimited nested properties
+	// e.g. noiseAmount, adsr.attack, etc...
+	// The function takes care of splitting the propertyPath and accessing
+	// the final property for setting its value
 	function setVoicesProperty(propertyPath, value) {
-		console.log('set voices property', propertyPath, value);
-		var propertyParts = propertyPath.split('.');
-		voices.forEach(function(v) {
+		var keys = propertyPath.split('.');
+		var lastKey = keys.pop();
+		var numKeys = keys.length;
 
-			if(propertyParts.length === 1) {
+		voices.forEach(function(voiceTuple) {
 
-				v[propertyParts[0]] = value;
+			var voice = voiceTuple.voice;
+			var obj = voice;
 
-			} else {
-
-				console.log("acceder a 0", propertyParts[0]);
-
-				var prop = v[propertyParts[0]];
-
-				var i = 1;
-
-				while(i < propertyParts.length - 1) {
-					var key = propertyParts[i];
-					console.log('acceder a ', i, key);
-					prop = prop[key];
-					i++;
-				}
-
-				var lastKey = propertyParts[propertyParts.length - 1];
-				console.log('acceder a lo ultimo', lastKey);
-				prop[lastKey] = value;
-				
+			for(var i = 0; i < numKeys; i++) {
+				obj = obj[keys[i]];
 			}
+
+			obj[lastKey] = value;
 
 		});
 
@@ -209,9 +190,11 @@ function Colchonator(audioContext, options) {
 		setVoicesProperty('numVoices', value);
 	}
 
-	function makeADSRListener(adsr, property) {
+	function makeADSRListener(property) {
+		console.log('make adsr listener for', property);
 		return function(ev) {
-			setVoicesProperty('adsr.' + property, adsr[property]);
+			console.log('changed pad adsr', property, ev.value);
+			setVoicesProperty('adsr.' + property, ev.value);
 		};
 	}
 
