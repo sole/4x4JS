@@ -1,7 +1,10 @@
+var StringFormat = require('stringformat.js');
+
 var audioContext,
 	renderer,
 	deck,
-	guiContainer;
+	guiContainer,
+	transportTime;
 
 var Orxatron = require('./Orxatron/'),
 	Quneo = require('./quneo.js'),
@@ -317,6 +320,7 @@ function setupKeyboardAndTransport() {
 	$('#fwd').on('click', function() {
 		playerJumpTo(1);
 	});
+	transportTime = document.getElementById('time');
 }
 
 var playAnimation = null;
@@ -326,22 +330,26 @@ function play() {
 		player.play();
 
 		clearInterval(playAnimation);
-		playAnimation = setInterval(updatePlayButton, 20);
+		//playAnimation = setInterval(updatePlayStatus, 20);
+		updatePlayStatus();
 		osc.send(Quneo.getStopLedPath(), 0.5);
 	}
 }
 
 
-function updatePlayButton() {
+function updatePlayStatus() {
 	var t = Date.now() * 0.01;
 	var v = (2 + Math.sin(t)) * 0.25;
 	osc.send(Quneo.getPlayLedPath(), v);
+	transportTime.innerHTML = StringFormat.secondsToHHMMSS(audioContext.currentTime);
+	requestAnimationFrame(updatePlayStatus);
 }
 
 
 function pause() {
 	player.pause();
-	clearInterval(playAnimation);
+	//clearInterval(playAnimation);
+	clearAnimationFrame(updatePlayStatus);
 	osc.send(Quneo.getPlayLedPath(), 0);
 }
 

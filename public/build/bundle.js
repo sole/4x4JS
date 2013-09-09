@@ -1296,10 +1296,13 @@ module.exports = EventDispatcher;
 }
 
 },{}],15:[function(require,module,exports){
+var StringFormat = require('stringformat.js');
+
 var audioContext,
 	renderer,
 	deck,
-	guiContainer;
+	guiContainer,
+	transportTime;
 
 var Orxatron = require('./Orxatron/'),
 	Quneo = require('./quneo.js'),
@@ -1615,6 +1618,7 @@ function setupKeyboardAndTransport() {
 	$('#fwd').on('click', function() {
 		playerJumpTo(1);
 	});
+	transportTime = document.getElementById('time');
 }
 
 var playAnimation = null;
@@ -1624,22 +1628,26 @@ function play() {
 		player.play();
 
 		clearInterval(playAnimation);
-		playAnimation = setInterval(updatePlayButton, 20);
+		//playAnimation = setInterval(updatePlayStatus, 20);
+		updatePlayStatus();
 		osc.send(Quneo.getStopLedPath(), 0.5);
 	}
 }
 
 
-function updatePlayButton() {
+function updatePlayStatus() {
 	var t = Date.now() * 0.01;
 	var v = (2 + Math.sin(t)) * 0.25;
 	osc.send(Quneo.getPlayLedPath(), v);
+	transportTime.innerHTML = StringFormat.secondsToHHMMSS(audioContext.currentTime);
+	requestAnimationFrame(updatePlayStatus);
 }
 
 
 function pause() {
 	player.pause();
-	clearInterval(playAnimation);
+	//clearInterval(playAnimation);
+	clearAnimationFrame(updatePlayStatus);
 	osc.send(Quneo.getPlayLedPath(), 0);
 }
 
@@ -1674,7 +1682,7 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":8,"./gear/Bajotron":18,"./gear/Colchonator":20,"./gear/Mixer":21,"./gear/Oscilloscope":24,"./gear/Porrompom":25,"./gear/gui/GUI":32,"./quneo.js":39}],16:[function(require,module,exports){
+},{"./Orxatron/":8,"./gear/Bajotron":18,"./gear/Colchonator":20,"./gear/Mixer":21,"./gear/Oscilloscope":24,"./gear/Porrompom":25,"./gear/gui/GUI":32,"./quneo.js":39,"stringformat.js":5}],16:[function(require,module,exports){
 var EventDispatcher = require('EventDispatcher');
 
 function ADSR(audioContext, param, attack, decay, sustain, release) {
