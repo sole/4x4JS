@@ -1,5 +1,8 @@
 function BufferLoader(audioContext) {
 
+	function voidCallback() {
+	}
+
 	this.load = function(path, loadedCallback, errorCallback) {
 	
 		var request = new XMLHttpRequest();
@@ -10,6 +13,11 @@ function BufferLoader(audioContext) {
 
 			// loadedCallback gets the decoded buffer as parameter
 			// errorCallback gets nothing as parameter
+
+			if(!errorCallback) {
+				errorCallback = voidCallback;
+			}
+
 			audioContext.decodeAudioData(request.response, loadedCallback, errorCallback);
 
 		};

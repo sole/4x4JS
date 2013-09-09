@@ -375,7 +375,7 @@ function renoiseToOrxatron(json) {
 	var patterns = song.PatternPool.Patterns.Pattern;
 	var tracksSettings = [];
 
-	patterns.forEach(function(pattern) {
+	patterns.forEach(function(pattern, patternIndex) {
 
 		var tracks = pattern.Tracks.PatternTrack;
 
@@ -392,16 +392,22 @@ function renoiseToOrxatron(json) {
 				lines = [ lines ];
 			}
 
-			lines.forEach(function(line) {
-				var noteColumns = line.NoteColumns.NoteColumn;
+			lines.forEach(function(line, lineIndex) {
+				var noteColumns;
 				var numColumns;
 
-				if(noteColumns.indexOf) {
-					numColumns = noteColumns.length;
+				// Not all lines contain necessarily note columns--there could be EffectColumns instead
+				if(line.NoteColumns !== undefined) {
+					noteColumns = line.NoteColumns.NoteColumn;
+
+					if(noteColumns.indexOf) {
+						numColumns = noteColumns.length;
+					} else {
+						numColumns = 1;
+					}
 				} else {
 					numColumns = 1;
 				}
-
 				tracksSettings[trackIndex] = Math.max(numColumns, tracksSettings[trackIndex]);
 			});
 
@@ -438,30 +444,40 @@ function renoiseToOrxatron(json) {
 
 			lines.forEach(function(line) {
 				var rowNumber = line.$.index | 0;
-				var noteColumns = line.NoteColumns.NoteColumn;
 				var lineData = {
 					row: rowNumber,
 					columns: []
 				};
-				
-				if(noteColumns.indexOf === undefined) {
-					noteColumns = [ noteColumns ];
-				}
 
-				noteColumns.forEach(function(column, columnIndex) {
-					var columnData = {};
+
+				if(line.NoteColumns) {
+					var noteColumns = line.NoteColumns.NoteColumn;
 					
-					columnData.note = column.Note || null;
-
-					// TODO when instrument is ..
-					columnData.instrument = column.Instrument | 0;
-
-					if(column.Volume !== undefined && column.Volume !== '..') {
-						columnData.volume = column.Volume | 0;
+					if(noteColumns.indexOf === undefined) {
+						noteColumns = [ noteColumns ];
 					}
 
-					lineData.columns.push(columnData);
-				});
+					noteColumns.forEach(function(column, columnIndex) {
+						var columnData = {};
+						
+						columnData.note = column.Note || null;
+
+						// TODO when instrument is '..'
+						columnData.instrument = column.Instrument | 0;
+
+						if(column.Volume !== undefined && column.Volume !== '..') {
+							columnData.volume = column.Volume | 0;
+						}
+
+						lineData.columns.push(columnData);
+					});
+				}
+
+				// TODO: Parse effects. Consider uni or multi columns?
+				if(line.EffectColumns) {
+					//console.log('with effect', line);
+					//console.log(line.$.index, 'effect number', line.EffectColumns.EffectColumn.Number , line.EffectColumns.EffectColumn.Value);
+				}
 				
 				trackData.push(lineData);
 
@@ -2051,6 +2067,9 @@ module.exports = Bajotron;
 },{"./ADSR.js":16,"./ArithmeticMixer":17,"./NoiseGenerator":22,"./OscillatorVoice":23,"EventDispatcher":1}],19:[function(require,module,exports){
 function BufferLoader(audioContext) {
 
+	function voidCallback() {
+	}
+
 	this.load = function(path, loadedCallback, errorCallback) {
 	
 		var request = new XMLHttpRequest();
@@ -2061,6 +2080,11 @@ function BufferLoader(audioContext) {
 
 			// loadedCallback gets the decoded buffer as parameter
 			// errorCallback gets nothing as parameter
+
+			if(!errorCallback) {
+				errorCallback = voidCallback;
+			}
+
 			audioContext.decodeAudioData(request.response, loadedCallback, errorCallback);
 
 		};
