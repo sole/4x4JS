@@ -50,8 +50,8 @@ function Oscilloscope(audioContext, options) {
 
 		for(var i = 0; i < bufferLength; i++) {
 			
-			var v = timeDomainArray[i] / 256.0 - 0.5;
-			var y = (v + 1) * canvasHalfHeight;
+			var v = timeDomainArray[i] / 128.0 /*- 0.5*/;
+			var y = (v /*+ 1*/) * canvasHalfHeight;
 
 			if(i === 0) {
 				ctx.moveTo(x, y);
