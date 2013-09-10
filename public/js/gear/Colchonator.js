@@ -15,9 +15,12 @@ function Colchonator(audioContext, options) {
 	var voices = [];
 	var volumeAttenuation = 1.0;
 	var outputNode = audioContext.createGain();
+	var compressorNode = audioContext.createDynamicsCompressor();
 	var voicesNode = audioContext.createGain();
 	var reverbNode = new Reverbetron(audioContext, options.reverb);
 
+	compressorNode.threshold.value = -60;
+	
 	// This dummy node is not connected anywhere-we'll just use it to
 	// set up identical properties in each of our internal Bajotron instances
 	var dummyBajotron = new Bajotron(audioContext);
@@ -46,9 +49,10 @@ function Colchonator(audioContext, options) {
 	dummyBajotron.noiseGenerator.addEventListener('length_changed', setVoicesNoiseLength);
 	dummyBajotron.arithmeticMixer.addEventListener('mix_function_changed', setVoicesNoiseMixFunction);
 	
+	compressorNode.connect(outputNode);
 	
-	reverbNode.output.connect(outputNode);
 	voicesNode.connect(reverbNode.input);
+	reverbNode.output.connect(compressorNode);
 	
 	setNumVoices(numVoices);
 	setVoicesNoiseAmount(0.3);
@@ -125,7 +129,6 @@ function Colchonator(audioContext, options) {
 
 		// Adjust volumes to prevent clipping
 		volumeAttenuation = 0.8 / voices.length;
-		console.log('vol att', volumeAttenuation);
 	}
 
 
