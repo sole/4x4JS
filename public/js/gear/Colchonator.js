@@ -13,6 +13,7 @@ function Colchonator(audioContext, options) {
 	var numVoices = options.numVoices || 3;
 
 	var voices = [];
+	var volumeAttenuation = 1.0;
 	var outputNode = audioContext.createGain();
 	var voicesNode = audioContext.createGain();
 	var reverbNode = new Reverbetron(audioContext, options.reverb);
@@ -45,10 +46,8 @@ function Colchonator(audioContext, options) {
 	dummyBajotron.noiseGenerator.addEventListener('length_changed', setVoicesNoiseLength);
 	dummyBajotron.arithmeticMixer.addEventListener('mix_function_changed', setVoicesNoiseMixFunction);
 	
-
-
+	
 	reverbNode.output.connect(outputNode);
-
 	voicesNode.connect(reverbNode.input);
 	
 	setNumVoices(numVoices);
@@ -98,20 +97,6 @@ function Colchonator(audioContext, options) {
 				v = {
 					timestamp: 0,
 					note: 0,
-					/*voice: new Bajotron(audioContext, {
-						// this one is pretty crazy!
-						// numVoices: 3,
-						// octaves: [ -1, 0, 1 ],
-						numVoices: dummyBajotron.numVoices,
-						adsr: {
-							attack: 0.1,
-							sustain: 0.7,
-							release: 0.5
-						},
-						noise: {
-							type: 'white'
-						}
-					})*/
 				};
 
 				var voice = new Bajotron(audioContext);
@@ -138,13 +123,14 @@ function Colchonator(audioContext, options) {
 
 		}
 
+		// Adjust volumes to prevent clipping
+		volumeAttenuation = 0.8 / voices.length;
+		console.log('vol att', volumeAttenuation);
 	}
 
 
 
 	function getFreeVoice(noteNumber) {
-
-		var freeVoice;
 
 		// criteria is to return the oldest one
 		
@@ -249,6 +235,7 @@ function Colchonator(audioContext, options) {
 	this.noteOn = function(note, volume, when) {
 
 		volume = volume !== undefined && volume !== null ? volume : 1.0;
+		volume *= volumeAttenuation;
 		when = when !== undefined ? when : 0;
 
 		var voice;
