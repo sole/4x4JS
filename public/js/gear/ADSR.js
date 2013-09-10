@@ -33,10 +33,8 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 	}
 
 	function makeSetter(param) {
-		console.log('make setter', param);
 		var paramChanged = param + '_changed';
 		return function(v) {
-			console.log('ADSR set', param, '=>', v);
 			values[param] = v;
 			that.dispatchEvent({ type: paramChanged, value: v });
 		};

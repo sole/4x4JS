@@ -907,7 +907,7 @@ function Player() {
 						setLastPlayedInstrument(currentEvent.instrument, currentEvent.track, currentEvent.column);
 						voice.noteOn(currentEvent.noteNumber, currentEvent.volume, timeUntilEvent);
 					} else {
-						console.log("Attempting to call undefined voice", currentEvent.instrument);
+						console.log("Attempting to call undefined voice", currentEvent.instrument, currentEvent);
 					}
 
 				} else if( currentEvent.type === EVENT_NOTE_OFF ) {
@@ -1302,7 +1302,8 @@ var audioContext,
 	renderer,
 	deck,
 	guiContainer,
-	transportTime;
+	transportTime,
+	transportOrder;
 
 var Orxatron = require('./Orxatron/'),
 	Quneo = require('./quneo.js'),
@@ -1383,8 +1384,15 @@ function initialiseGear(audioContext) {
 	// 1 / PAD
 	var Colchonator = require('./gear/Colchonator');
 	var pad = new Colchonator(audioContext);
-	//pad.reverb.wetAmount = 1.0;
-	pad.reverb.loadImpulse('data/impulseResponses/cave.ogg');
+	pad.numVoices = 3;
+	pad.bajotron.noiseAmount = 0.1234567;
+	pad.reverb.wetAmount = 0.0;
+	pad.bajotron.adsr.attack = 0.3;
+	pad.bajotron.adsr.decay = 0.1;
+	pad.bajotron.adsr.sustain = 0.5;
+	pad.bajotron.adsr.release = 1;
+
+	//pad.reverb.loadImpulse('data/impulseResponses/cave.ogg');
 	g.push(pad);
 	
 	// 2 / DRUM MACHINE
@@ -1424,7 +1432,8 @@ function initialiseGear(audioContext) {
 		console.log('plug', instrument, index);
 		mixer.plug(index, instrument.output);
 	});
-	mixer.setFaderGain(0, 0.1);
+	
+	//mixer.setFaderGain(0, 0.1);
 	//mixer.setFaderGain(1, 0.0);
 	
 	var Oscilloscope = require('./gear/Oscilloscope');
@@ -1461,6 +1470,7 @@ function initialiseGear(audioContext) {
 	rack.add(bass);
 	rack.add(pad);
 	rack.add(dm808);
+	rack.add(dmCongas);
 
 	return g;
 }
@@ -1491,7 +1501,7 @@ function setupOSC(gear, player, osc) {
 
 		if(selected) {
 			var padIndex = match[1] * 1;
-			var note = 44 + padIndex;
+			var note = 40 /* middle C */ + padIndex;
 			var activeAlready = activePads[padIndex];
 
 			if(activeAlready) {
@@ -1547,9 +1557,13 @@ function setupOSC(gear, player, osc) {
 		
 		var columnNumber = ev.row % 8;
 		var columnLeds = Quneo.getColumnLeds(columnNumber);
-		var rowNumber = ((63 - ev.row) / 16) | 0;
+		var patternLength = 128; // XXX TODO WARNING HARDCODED!!!
+		var patternQuarterLength = patternLength >> 2;
+		var rowNumber = ((patternLength - 1 - ev.row) / patternQuarterLength) | 0;
 		var rowPads = Quneo.getRowPads(rowNumber);
 
+		transportOrder.innerHTML = 'Order: ' + ev.order + ', Pattern: ' + StringFormat.pad(ev.pattern | 0, 2, '0') + ', Row: ' + StringFormat.pad(ev.row | 0, 2, '0') + '/' + StringFormat.pad(patternLength, 2, '0');
+		
 		if(lastColumn !== null) {
 			// Turn older off
 			var prevLeds = Quneo.getColumnLeds(lastColumn);
@@ -1613,10 +1627,10 @@ function setupDeck(player, deck) {
 		var activeCard = deck.getSelectedCard();
 		var activeCardIndex = deck.getCardIndex(activeCard);
 
-		if(activeCardIndex !== slideIndex) {
+		/*if(activeCardIndex !== slideIndex) {
 			console.log('deck ⇒ shuffle to', slideIndex);
 			deck.shuffleTo(slideIndex);
-		}
+		}*/
 	}, false);
 }
 
@@ -1632,6 +1646,7 @@ function setupKeyboardAndTransport() {
 		playerJumpTo(1);
 	});
 	transportTime = document.getElementById('time');
+	transportOrder = document.getElementById('order');
 }
 
 function play() {
@@ -1712,7 +1727,8 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 	['attack', 'decay', 'sustain', 'release'].forEach(function(param) {
 		Object.defineProperty(that, param, {
 			get: makeGetter(param),
-			set: makeSetter(param)
+			set: makeSetter(param),
+			enumerable: true
 		});
 	});
 
@@ -1724,7 +1740,7 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 		};
 	}
 
-	function makeSetter(obj, param) {
+	function makeSetter(param) {
 		var paramChanged = param + '_changed';
 		return function(v) {
 			values[param] = v;
@@ -2017,10 +2033,10 @@ function Bajotron(audioContext, options) {
 
 
 	function setNoiseAmount(v) {
-		
 		noiseAmount = Math.min(1.0, v * 1.0);
 
 		if(noiseAmount <= 0) {
+			noiseAmount = 0;
 			noiseGenerator.output.disconnect();
 		} else {
 			noiseGenerator.output.connect(noiseOutputNode);
@@ -2138,17 +2154,24 @@ function Colchonator(audioContext, options) {
 	var dummyBajotron = new Bajotron(audioContext);
 
 	// bajotron events and propagating them...
-	dummyBajotron.addEventListener('portamento_changed', setVoicesPortamento);
-	dummyBajotron.addEventListener('num_voices_changed', setVoicesNumVoices);
+	dummyBajotron.addEventListener('portamento_changed', function(ev) {
+		setVoicesPortamento(ev.portamento);
+	});
+
+	dummyBajotron.addEventListener('num_voices_changed', function(ev) {
+		setVoicesNumVoices(ev.num_voices);
+	});
+
+	dummyBajotron.addEventListener('noise_amount_changed', function(ev) {
+		setVoicesNoiseAmount(ev.amount);
+	});
 
 	// voiceSettings - octaves and shapes
 	// TODO not sure how to do that :-(
 	
-	for(var prop in dummyBajotron.adsr) {
-		if(dummyBajotron.adsr.hasOwnProperty(prop)) {
-			dummyBajotron.adsr.addEventListener(prop + '_changed', makeADSRListener(dummyBajotron.adsr, prop));
-		}
-	}
+	['attack', 'decay', 'sustain', 'release'].forEach(function(prop) {
+		dummyBajotron.adsr.addEventListener(prop + '_changed', makeADSRListener(prop));
+	});
 
 	dummyBajotron.noiseGenerator.addEventListener('type_changed', setVoicesNoiseType);
 	dummyBajotron.noiseGenerator.addEventListener('length_changed', setVoicesNoiseLength);
@@ -2202,16 +2225,16 @@ function Colchonator(audioContext, options) {
 
 			console.log('Colchonator - increasing polyphony', voices.length, '=>', number);
 
-			// TODO should clone values from dummy -- clone?
+			// TODO maybe this pseudo cloning thing should be implemented in Bajotron itself
 			while(number > voices.length) {
 				v = {
 					timestamp: 0,
 					note: 0,
-					voice: new Bajotron(audioContext, {
+					/*voice: new Bajotron(audioContext, {
 						// this one is pretty crazy!
 						// numVoices: 3,
 						// octaves: [ -1, 0, 1 ],
-						numVoices: 1,
+						numVoices: dummyBajotron.numVoices,
 						adsr: {
 							attack: 0.1,
 							sustain: 0.7,
@@ -2220,8 +2243,25 @@ function Colchonator(audioContext, options) {
 						noise: {
 							type: 'white'
 						}
-					})
+					})*/
 				};
+
+				var voice = new Bajotron(audioContext);
+
+				voice.adsr.setParams({
+					attack: dummyBajotron.adsr.attack,
+					decay: dummyBajotron.adsr.decay,
+					sustain: dummyBajotron.adsr.sustain,
+					release: dummyBajotron.adsr.release
+				});
+
+				voice.numVoices = dummyBajotron.numVoices;
+				voice.noiseAmount = dummyBajotron.noiseAmount;
+				voice.noiseGenerator.type = dummyBajotron.noiseGenerator.type;
+				voice.noiseGenerator.length = dummyBajotron.noiseGenerator.length;
+				voice.arithmeticMixer.mixFunction = dummyBajotron.arithmeticMixer.mixFunction;
+
+				v.voice = voice;
 
 				v.voice.output.connect(voicesNode);
 				
@@ -2276,42 +2316,26 @@ function Colchonator(audioContext, options) {
 	}
 
 
-	function setVoicesNoiseProperty(property, value) {
-		voices.forEach(function(v) {
-			v.noiseGenerator[property] = value;
-		});
-	}
-
-
+	// propertyPath can be any series of dot-delimited nested properties
+	// e.g. noiseAmount, adsr.attack, etc...
+	// The function takes care of splitting the propertyPath and accessing
+	// the final property for setting its value
 	function setVoicesProperty(propertyPath, value) {
-		console.log('set voices property', propertyPath, value);
-		var propertyParts = propertyPath.split('.');
-		voices.forEach(function(v) {
 
-			if(propertyParts.length === 1) {
+		var keys = propertyPath.split('.');
+		var lastKey = keys.pop();
+		var numKeys = keys.length;
 
-				v[propertyParts[0]] = value;
+		voices.forEach(function(voiceTuple) {
 
-			} else {
+			var voice = voiceTuple.voice;
+			var obj = voice;
 
-				console.log("acceder a 0", propertyParts[0]);
-
-				var prop = v[propertyParts[0]];
-
-				var i = 1;
-
-				while(i < propertyParts.length - 1) {
-					var key = propertyParts[i];
-					console.log('acceder a ', i, key);
-					prop = prop[key];
-					i++;
-				}
-
-				var lastKey = propertyParts[propertyParts.length - 1];
-				console.log('acceder a lo ultimo', lastKey);
-				prop[lastKey] = value;
-				
+			for(var i = 0; i < numKeys; i++) {
+				obj = obj[keys[i]];
 			}
+
+			obj[lastKey] = value;
 
 		});
 
@@ -2325,9 +2349,9 @@ function Colchonator(audioContext, options) {
 		setVoicesProperty('numVoices', value);
 	}
 
-	function makeADSRListener(adsr, property) {
+	function makeADSRListener(property) {
 		return function(ev) {
-			setVoicesProperty('adsr.' + property, adsr[property]);
+			setVoicesProperty('adsr.' + property, ev.value);
 		};
 	}
 
@@ -2372,7 +2396,7 @@ function Colchonator(audioContext, options) {
 		
 		var voice = getVoiceByNote(noteNumber);
 
-		console.log('voice = ', voice);
+		console.log('voice note off => ', voice);
 
 		if(voice) {
 			voice.noteOff(when);
@@ -2774,6 +2798,11 @@ function OscillatorVoice(context, options) {
 		if(internalOscillator === null) {
 			return;
 		}
+
+		if(when === undefined) {
+			when = 0;
+		}
+
 		internalOscillator.stop(when);
 		internalOscillator = null;
 
@@ -2945,6 +2974,8 @@ function Porrompom(audioContext, options) {
 
 		var noteKey = MIDIUtils.noteNumberToName(note);
 		var mapping = mappings[noteKey];
+
+		
 		
 		if(mapping) {
 			// play sample
@@ -2952,12 +2983,41 @@ function Porrompom(audioContext, options) {
 
 			// It might not have loaded yet
 			if(sample) {
-				sample.noteOn(44100, 1.0, 0);
+
+				volume = volume !== undefined && volume !== null ? volume : 1.0;
+				when = when !== undefined ? when : 0;
+
+				var audioWhen = when + audioContext.currentTime;
+
+				sample.noteOn(44100, volume, audioWhen);
 			}
 
 		}
 
 	};
+
+	this.noteOff = function(note, when) {
+
+		var noteKey = MIDIUtils.noteNumberToName(note);
+		var mapping = mappings[noteKey];
+	
+		if(mapping) {
+
+			var sample = samples[mapping];
+
+			if(sample) {
+				when = when !== undefined ? when : 0;
+
+				var audioWhen = when + audioContext.currentTime;
+
+				sample.noteOff(audioWhen);
+			}
+
+		}
+
+	};
+
+
 
 }
 

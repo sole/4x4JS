@@ -163,10 +163,10 @@ function Bajotron(audioContext, options) {
 
 
 	function setNoiseAmount(v) {
-		
 		noiseAmount = Math.min(1.0, v * 1.0);
 
 		if(noiseAmount <= 0) {
+			noiseAmount = 0;
 			noiseGenerator.output.disconnect();
 		} else {
 			noiseGenerator.output.connect(noiseOutputNode);

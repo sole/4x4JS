@@ -87,6 +87,7 @@ function initialiseGear(audioContext) {
 	var Colchonator = require('./gear/Colchonator');
 	var pad = new Colchonator(audioContext);
 	pad.numVoices = 3;
+	pad.bajotron.noiseAmount = 0.1234567;
 	pad.reverb.wetAmount = 0.0;
 	pad.bajotron.adsr.attack = 0.3;
 	pad.bajotron.adsr.decay = 0.1;
@@ -171,6 +172,7 @@ function initialiseGear(audioContext) {
 	rack.add(bass);
 	rack.add(pad);
 	rack.add(dm808);
+	rack.add(dmCongas);
 
 	return g;
 }
@@ -201,7 +203,7 @@ function setupOSC(gear, player, osc) {
 
 		if(selected) {
 			var padIndex = match[1] * 1;
-			var note = 44 + padIndex;
+			var note = 40 /* middle C */ + padIndex;
 			var activeAlready = activePads[padIndex];
 
 			if(activeAlready) {

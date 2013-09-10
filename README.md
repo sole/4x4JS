@@ -4,11 +4,19 @@ Un-be-lie-va-ble
 
 ## TO to to do
 
-- Patrones/16 filas -> slide
-- drum machine no deja tocar con quneo una nota dos veces (?!)
-- audio tags keyboard - para poder probar cosas sin el quneo
+SUPER BROKEN
+
+- configure colchonator >_<
+	dummy -> propagate
+		noise type seems broken
+	reverb
 - bajotron release doesn't work properly
 - reverb y colchonator??
+
+- en porrompom, adsr por sample para dejar que acaben (?)
+- bajotron adsr times (gui?) need to be > 1
+- Patrones/16 filas -> slide
+- audio tags keyboard - para poder probar cosas sin el quneo
 - improv -> link some instruments
 	X switching between instruments
 	- interactive input using quneo
@@ -296,8 +304,8 @@ Porrompom -> SampleVoice
 ACTUAL
 - pseudo resurrection ethnic mix
 - up the hill
-- stereopowergalactic
--
+- stereopowergalactic (~2 min!)
+- hyperaktive dancing
 
 PROPOSED
 - up the hill

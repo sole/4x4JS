@@ -22,8 +22,17 @@ function Colchonator(audioContext, options) {
 	var dummyBajotron = new Bajotron(audioContext);
 
 	// bajotron events and propagating them...
-	dummyBajotron.addEventListener('portamento_changed', setVoicesPortamento);
-	dummyBajotron.addEventListener('num_voices_changed', setVoicesNumVoices);
+	dummyBajotron.addEventListener('portamento_changed', function(ev) {
+		setVoicesPortamento(ev.portamento);
+	});
+
+	dummyBajotron.addEventListener('num_voices_changed', function(ev) {
+		setVoicesNumVoices(ev.num_voices);
+	});
+
+	dummyBajotron.addEventListener('noise_amount_changed', function(ev) {
+		setVoicesNoiseAmount(ev.amount);
+	});
 
 	// voiceSettings - octaves and shapes
 	// TODO not sure how to do that :-(
@@ -84,16 +93,16 @@ function Colchonator(audioContext, options) {
 
 			console.log('Colchonator - increasing polyphony', voices.length, '=>', number);
 
-			// TODO should clone values from dummy -- clone?
+			// TODO maybe this pseudo cloning thing should be implemented in Bajotron itself
 			while(number > voices.length) {
 				v = {
 					timestamp: 0,
 					note: 0,
-					voice: new Bajotron(audioContext, {
+					/*voice: new Bajotron(audioContext, {
 						// this one is pretty crazy!
 						// numVoices: 3,
 						// octaves: [ -1, 0, 1 ],
-						numVoices: 1,
+						numVoices: dummyBajotron.numVoices,
 						adsr: {
 							attack: 0.1,
 							sustain: 0.7,
@@ -102,8 +111,25 @@ function Colchonator(audioContext, options) {
 						noise: {
 							type: 'white'
 						}
-					})
+					})*/
 				};
+
+				var voice = new Bajotron(audioContext);
+
+				voice.adsr.setParams({
+					attack: dummyBajotron.adsr.attack,
+					decay: dummyBajotron.adsr.decay,
+					sustain: dummyBajotron.adsr.sustain,
+					release: dummyBajotron.adsr.release
+				});
+
+				voice.numVoices = dummyBajotron.numVoices;
+				voice.noiseAmount = dummyBajotron.noiseAmount;
+				voice.noiseGenerator.type = dummyBajotron.noiseGenerator.type;
+				voice.noiseGenerator.length = dummyBajotron.noiseGenerator.length;
+				voice.arithmeticMixer.mixFunction = dummyBajotron.arithmeticMixer.mixFunction;
+
+				v.voice = voice;
 
 				v.voice.output.connect(voicesNode);
 				
@@ -163,6 +189,7 @@ function Colchonator(audioContext, options) {
 	// The function takes care of splitting the propertyPath and accessing
 	// the final property for setting its value
 	function setVoicesProperty(propertyPath, value) {
+
 		var keys = propertyPath.split('.');
 		var lastKey = keys.pop();
 		var numKeys = keys.length;
@@ -191,9 +218,7 @@ function Colchonator(audioContext, options) {
 	}
 
 	function makeADSRListener(property) {
-		console.log('make adsr listener for', property);
 		return function(ev) {
-			console.log('changed pad adsr', property, ev.value);
 			setVoicesProperty('adsr.' + property, ev.value);
 		};
 	}
@@ -239,7 +264,7 @@ function Colchonator(audioContext, options) {
 		
 		var voice = getVoiceByNote(noteNumber);
 
-		console.log('voice = ', voice);
+		console.log('voice note off => ', voice);
 
 		if(voice) {
 			voice.noteOff(when);
