@@ -21,8 +21,8 @@ function Mixer(audioContext) {
 		gain: {
 			get: function() { return output.gain.value; },
 			set: function(v) {
-				that.dispatchEvent({ type: 'gain_change', gain: v });
 				output.gain.value = v;
+				that.dispatchEvent({ type: 'gain_change', gain: v });
 			}
 		}
 	});
@@ -77,8 +77,8 @@ function Fader(audioContext, options) {
 				return gain.gain.value;
 			},
 			set: function(v) {
-				that.dispatchEvent({ type: 'gain_change', gain: v });
 				gain.gain.value = v;
+				that.dispatchEvent({ type: 'gain_change', gain: v });
 			}
 		},
 		label: {
@@ -86,8 +86,8 @@ function Fader(audioContext, options) {
 				return label;
 			},
 			set: function(v) {
-				that.dispatchEvent({ type: 'label_change', label: v });
 				label = v;
+				that.dispatchEvent({ type: 'label_change', label: v });
 			}
 		}
 	});
