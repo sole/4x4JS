@@ -16,7 +16,7 @@ function register() {
 				this.masterSlider.label = 'MST';
 				this.masterSlider.min = 0.0;
 				this.masterSlider.max = 1.0;
-				this.masterSlider.step = 0.01;
+				this.masterSlider.step = 0.001;
 				this.masterContainer.appendChild(this.masterSlider);
 
 				this.slidersContainer = this.querySelector('.sliders');
