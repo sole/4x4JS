@@ -9,12 +9,15 @@ SUPER BROKEN
 - configure colchonator >_<
 	dummy -> propagate
 		noise type seems broken
+		voice wave type propagate when gui changes
+			- generate event listener for each voice when changing num voices
+				maybe set as property in each voice to avoid leaks (sort of dirty)
 	reverb
 - bajotron release doesn't work properly
 - reverb y colchonator??
 
+- volume effect, arpeggio
 - en porrompom, adsr por sample para dejar que acaben (?)
-- bajotron adsr times (gui?) need to be > 1
 - Patrones/16 filas -> slide
 - audio tags keyboard - para poder probar cosas sin el quneo
 - improv -> link some instruments
@@ -197,6 +200,10 @@ SUPER BROKEN
 			- addEventListener
 			- EventDispatcher
 			- sadly no custom events because there's no DOM element to dispatch
+		[TODO]
+			- GOTCHAS
+				- compressors and reduce volumes to avoid distortion
+				- 
 		24- What you're listening to
 			- My songs in exclusive arrangement for this event
 			- space for improvisation

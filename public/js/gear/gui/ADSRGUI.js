@@ -15,7 +15,7 @@ function register() {
 				adsrProps.forEach(function(p) {
 					var slider = document.createElement('gear-slider');
 					slider.min = 0;
-					slider.max = 1;
+					slider.max = p === 'sustain' ? 1.0 : 10.0;
 					slider.step = 0.0001;
 					slider.label = p;
 					that[p] = slider;
