@@ -87,14 +87,14 @@ function initialiseGear(audioContext) {
 	var Colchonator = require('./gear/Colchonator');
 	var pad = new Colchonator(audioContext);
 	pad.numVoices = 3;
-	pad.bajotron.noiseAmount = 0.1234567;
-	pad.reverb.wetAmount = 0.0;
+	pad.bajotron.noiseAmount = 0;
 	pad.bajotron.adsr.attack = 0.3;
 	pad.bajotron.adsr.decay = 0.1;
-	pad.bajotron.adsr.sustain = 0.5;
-	pad.bajotron.adsr.release = 1;
+	pad.bajotron.adsr.sustain = 0.95;
+	pad.bajotron.adsr.release = 3;
 
-	//pad.reverb.loadImpulse('data/impulseResponses/cave.ogg');
+	pad.reverb.loadImpulse('data/impulseResponses/medium-room1.ogg');
+	pad.reverb.wetAmount = 0.5;
 	g.push(pad);
 	
 	// 2 / DRUM MACHINE
@@ -129,9 +129,17 @@ function initialiseGear(audioContext) {
 	});
 	g.push(dmCongas);
 
+	// 4 / Arpeggiator sort of
+	var arp = new Bajotron(audioContext, {
+		portamento: false,
+		waveType: ['square', 'triangle'],
+		octaves: [3, 4]
+	});
+	g.push(arp);
+
+
 	// Plug instruments into the mixer
 	g.forEach(function(instrument, index) {
-		console.log('plug', instrument, index);
 		mixer.plug(index, instrument.output);
 	});
 	
@@ -169,10 +177,15 @@ function initialiseGear(audioContext) {
 	];
 	guiContainer.appendChild(padGUI);
 
+	var arpGUI = document.createElement(arp.guiTag);
+	arpGUI.attachTo(arp);
+	guiContainer.appendChild(arpGUI);
+
 	rack.add(bass);
 	rack.add(pad);
 	rack.add(dm808);
 	rack.add(dmCongas);
+	rack.add(arp);
 
 	return g;
 }
