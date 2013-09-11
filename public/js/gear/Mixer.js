@@ -64,7 +64,8 @@ function Mixer(audioContext) {
 
 
 function Fader(audioContext, options) {
-	
+
+	var compressor = audioContext.createDynamicsCompressor();
 	var gain = audioContext.createGain();
 	var label = 'fader';
 	var that = this;
@@ -92,11 +93,12 @@ function Fader(audioContext, options) {
 		}
 	});
 
+	compressor.connect(gain);
 
 	// ~~~
 	
 
-	this.input = gain;
+	this.input = compressor;
 	this.output = gain;
 
 }
