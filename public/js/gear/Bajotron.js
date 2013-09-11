@@ -17,6 +17,7 @@ function Bajotron(audioContext, options) {
 	var defaultOctave = 4;
 	var portamento;
 	var voices = [];
+	var volumeAttenuation = 1.0;
 	// TODO var semitones = [];
 
 	var outputNode = audioContext.createGain();
@@ -133,6 +134,8 @@ function Bajotron(audioContext, options) {
 			}
 		}
 
+		volumeAttenuation = v > 0 ? 1.0 / v : 1.0;
+		
 		that.dispatchEvent({ type: 'num_voices_changed', num_voices: v });
 
 	}
@@ -195,6 +198,8 @@ function Bajotron(audioContext, options) {
 		var audioWhen = when + audioContext.currentTime;
 
 		adsr.beginAttack(audioWhen);
+
+		volume *= volumeAttenuation * 0.5; // half noise, half note, though unsure
 
 		noiseGenerator.noteOn(note, volume, audioWhen);
 
