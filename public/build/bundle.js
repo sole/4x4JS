@@ -446,7 +446,8 @@ function renoiseToOrxatron(json) {
 				var rowNumber = line.$.index | 0;
 				var lineData = {
 					row: rowNumber,
-					columns: []
+					columns: [],
+					effects: []
 				};
 
 
@@ -473,10 +474,22 @@ function renoiseToOrxatron(json) {
 					});
 				}
 
-				// TODO: Parse effects. Consider uni or multi columns?
 				if(line.EffectColumns) {
 					//console.log('with effect', line);
-					//console.log(line.$.index, 'effect number', line.EffectColumns.EffectColumn.Number , line.EffectColumns.EffectColumn.Value);
+
+					var effectColumns = line.EffectColumns.EffectColumn;
+
+					if(effectColumns.indexOf === undefined) {
+						effectColumns = [ effectColumns ];
+					}
+
+					effectColumns.forEach(function(column) {
+						var name = column.Number;
+						var value = column.Value;
+						lineData.effects.push({ name: name, value: value });
+					});
+					
+					// console.log(line.$.index, 'effect number', line.EffectColumns.EffectColumn.Number , line.EffectColumns.EffectColumn.Value);
 				}
 				
 				trackData.push(lineData);
@@ -983,6 +996,11 @@ function Player() {
 					
 					});
 
+					line.effects.forEach(function(column, columnIndex) {
+
+						patternTrackLine.effects.push(column);
+
+					});
 				});
 
 			});
@@ -1023,6 +1041,10 @@ function Player() {
 
 					var line = pattern.get(i, j);
 					var cells = line.cells;
+
+					if(line.effects.length > 0) {
+						// console.log(i, j, 'effects', line.effects);
+					}
 
 					cells.forEach(function(cell, columnIndex) {
 
@@ -1187,6 +1209,7 @@ var Cell = require('./PatternCell');
 function TrackLine(numColumns) {
 
 	this.cells = [];
+	this.effects = [];
 
 	for(var i = 0; i < numColumns; i++) {
 		var cell = new Cell();
@@ -1385,14 +1408,14 @@ function initialiseGear(audioContext) {
 	var Colchonator = require('./gear/Colchonator');
 	var pad = new Colchonator(audioContext);
 	pad.numVoices = 3;
-	pad.bajotron.noiseAmount = 0.1234567;
-	pad.reverb.wetAmount = 0.0;
+	pad.bajotron.noiseAmount = 0;
 	pad.bajotron.adsr.attack = 0.3;
 	pad.bajotron.adsr.decay = 0.1;
-	pad.bajotron.adsr.sustain = 0.5;
-	pad.bajotron.adsr.release = 1;
+	pad.bajotron.adsr.sustain = 0.95;
+	pad.bajotron.adsr.release = 3;
 
-	//pad.reverb.loadImpulse('data/impulseResponses/cave.ogg');
+	pad.reverb.loadImpulse('data/impulseResponses/medium-room1.ogg');
+	pad.reverb.wetAmount = 0.5;
 	g.push(pad);
 	
 	// 2 / DRUM MACHINE
@@ -1427,9 +1450,17 @@ function initialiseGear(audioContext) {
 	});
 	g.push(dmCongas);
 
+	// 4 / Arpeggiator sort of
+	var arp = new Bajotron(audioContext, {
+		portamento: false,
+		waveType: ['square', 'triangle'],
+		octaves: [3, 4]
+	});
+	g.push(arp);
+
+
 	// Plug instruments into the mixer
 	g.forEach(function(instrument, index) {
-		console.log('plug', instrument, index);
 		mixer.plug(index, instrument.output);
 	});
 	
@@ -1467,10 +1498,15 @@ function initialiseGear(audioContext) {
 	];
 	guiContainer.appendChild(padGUI);
 
+	var arpGUI = document.createElement(arp.guiTag);
+	arpGUI.attachTo(arp);
+	guiContainer.appendChild(arpGUI);
+
 	rack.add(bass);
 	rack.add(pad);
 	rack.add(dm808);
 	rack.add(dmCongas);
+	rack.add(arp);
 
 	return g;
 }
@@ -1887,6 +1923,7 @@ function Bajotron(audioContext, options) {
 	var defaultOctave = 4;
 	var portamento;
 	var voices = [];
+	var volumeAttenuation = 1.0;
 	// TODO var semitones = [];
 
 	var outputNode = audioContext.createGain();
@@ -2003,6 +2040,8 @@ function Bajotron(audioContext, options) {
 			}
 		}
 
+		volumeAttenuation = v > 0 ? 1.0 / v : 1.0;
+		
 		that.dispatchEvent({ type: 'num_voices_changed', num_voices: v });
 
 	}
@@ -2065,6 +2104,8 @@ function Bajotron(audioContext, options) {
 		var audioWhen = when + audioContext.currentTime;
 
 		adsr.beginAttack(audioWhen);
+
+		volume *= volumeAttenuation * 0.5; // half noise, half note, though unsure
 
 		noiseGenerator.noteOn(note, volume, audioWhen);
 
@@ -2145,10 +2186,14 @@ function Colchonator(audioContext, options) {
 	var numVoices = options.numVoices || 3;
 
 	var voices = [];
+	var volumeAttenuation = 1.0;
 	var outputNode = audioContext.createGain();
+	var compressorNode = audioContext.createDynamicsCompressor();
 	var voicesNode = audioContext.createGain();
 	var reverbNode = new Reverbetron(audioContext, options.reverb);
 
+	compressorNode.threshold.value = -60;
+	
 	// This dummy node is not connected anywhere-we'll just use it to
 	// set up identical properties in each of our internal Bajotron instances
 	var dummyBajotron = new Bajotron(audioContext);
@@ -2177,11 +2222,10 @@ function Colchonator(audioContext, options) {
 	dummyBajotron.noiseGenerator.addEventListener('length_changed', setVoicesNoiseLength);
 	dummyBajotron.arithmeticMixer.addEventListener('mix_function_changed', setVoicesNoiseMixFunction);
 	
-
-
-	reverbNode.output.connect(outputNode);
-
+	compressorNode.connect(outputNode);
+	
 	voicesNode.connect(reverbNode.input);
+	reverbNode.output.connect(compressorNode);
 	
 	setNumVoices(numVoices);
 	setVoicesNoiseAmount(0.3);
@@ -2230,20 +2274,6 @@ function Colchonator(audioContext, options) {
 				v = {
 					timestamp: 0,
 					note: 0,
-					/*voice: new Bajotron(audioContext, {
-						// this one is pretty crazy!
-						// numVoices: 3,
-						// octaves: [ -1, 0, 1 ],
-						numVoices: dummyBajotron.numVoices,
-						adsr: {
-							attack: 0.1,
-							sustain: 0.7,
-							release: 0.5
-						},
-						noise: {
-							type: 'white'
-						}
-					})*/
 				};
 
 				var voice = new Bajotron(audioContext);
@@ -2256,6 +2286,8 @@ function Colchonator(audioContext, options) {
 				});
 
 				voice.numVoices = dummyBajotron.numVoices;
+				// TODO clone voice types
+				// And octaves
 				voice.noiseAmount = dummyBajotron.noiseAmount;
 				voice.noiseGenerator.type = dummyBajotron.noiseGenerator.type;
 				voice.noiseGenerator.length = dummyBajotron.noiseGenerator.length;
@@ -2270,13 +2302,13 @@ function Colchonator(audioContext, options) {
 
 		}
 
+		// Adjust volumes to prevent clipping
+		volumeAttenuation = 0.8 / voices.length;
 	}
 
 
 
 	function getFreeVoice(noteNumber) {
-
-		var freeVoice;
 
 		// criteria is to return the oldest one
 		
@@ -2381,6 +2413,7 @@ function Colchonator(audioContext, options) {
 	this.noteOn = function(note, volume, when) {
 
 		volume = volume !== undefined && volume !== null ? volume : 1.0;
+		volume *= volumeAttenuation;
 		when = when !== undefined ? when : 0;
 
 		var voice;
@@ -2435,8 +2468,8 @@ function Mixer(audioContext) {
 		gain: {
 			get: function() { return output.gain.value; },
 			set: function(v) {
-				that.dispatchEvent({ type: 'gain_change', gain: v });
 				output.gain.value = v;
+				that.dispatchEvent({ type: 'gain_change', gain: v });
 			}
 		}
 	});
@@ -2478,7 +2511,8 @@ function Mixer(audioContext) {
 
 
 function Fader(audioContext, options) {
-	
+
+	var compressor = audioContext.createDynamicsCompressor();
 	var gain = audioContext.createGain();
 	var label = 'fader';
 	var that = this;
@@ -2491,8 +2525,8 @@ function Fader(audioContext, options) {
 				return gain.gain.value;
 			},
 			set: function(v) {
-				that.dispatchEvent({ type: 'gain_change', gain: v });
 				gain.gain.value = v;
+				that.dispatchEvent({ type: 'gain_change', gain: v });
 			}
 		},
 		label: {
@@ -2500,17 +2534,18 @@ function Fader(audioContext, options) {
 				return label;
 			},
 			set: function(v) {
-				that.dispatchEvent({ type: 'label_change', label: v });
 				label = v;
+				that.dispatchEvent({ type: 'label_change', label: v });
 			}
 		}
 	});
 
+	compressor.connect(gain);
 
 	// ~~~
 	
 
-	this.input = gain;
+	this.input = compressor;
 	this.output = gain;
 
 }
@@ -2869,8 +2904,8 @@ function Oscilloscope(audioContext, options) {
 
 		for(var i = 0; i < bufferLength; i++) {
 			
-			var v = timeDomainArray[i] / 256.0 - 0.5;
-			var y = (v + 1) * canvasHalfHeight;
+			var v = timeDomainArray[i] / 128.0 /*- 0.5*/;
+			var y = (v /*+ 1*/) * canvasHalfHeight;
 
 			if(i === 0) {
 				ctx.moveTo(x, y);
@@ -3218,7 +3253,7 @@ function register() {
 				adsrProps.forEach(function(p) {
 					var slider = document.createElement('gear-slider');
 					slider.min = 0;
-					slider.max = 1;
+					slider.max = p === 'sustain' ? 1.0 : 10.0;
 					slider.step = 0.0001;
 					slider.label = p;
 					that[p] = slider;
@@ -3595,7 +3630,7 @@ function register() {
 				this.masterSlider.label = 'MST';
 				this.masterSlider.min = 0.0;
 				this.masterSlider.max = 1.0;
-				this.masterSlider.step = 0.01;
+				this.masterSlider.step = 0.001;
 				this.masterContainer.appendChild(this.masterSlider);
 
 				this.slidersContainer = this.querySelector('.sliders');

@@ -252,6 +252,11 @@ function Player() {
 					
 					});
 
+					line.effects.forEach(function(column, columnIndex) {
+
+						patternTrackLine.effects.push(column);
+
+					});
 				});
 
 			});
@@ -292,6 +297,10 @@ function Player() {
 
 					var line = pattern.get(i, j);
 					var cells = line.cells;
+
+					if(line.effects.length > 0) {
+						// console.log(i, j, 'effects', line.effects);
+					}
 
 					cells.forEach(function(cell, columnIndex) {
 

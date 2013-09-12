@@ -95,7 +95,8 @@ function renoiseToOrxatron(json) {
 				var rowNumber = line.$.index | 0;
 				var lineData = {
 					row: rowNumber,
-					columns: []
+					columns: [],
+					effects: []
 				};
 
 
@@ -122,10 +123,22 @@ function renoiseToOrxatron(json) {
 					});
 				}
 
-				// TODO: Parse effects. Consider uni or multi columns?
 				if(line.EffectColumns) {
 					//console.log('with effect', line);
-					//console.log(line.$.index, 'effect number', line.EffectColumns.EffectColumn.Number , line.EffectColumns.EffectColumn.Value);
+
+					var effectColumns = line.EffectColumns.EffectColumn;
+
+					if(effectColumns.indexOf === undefined) {
+						effectColumns = [ effectColumns ];
+					}
+
+					effectColumns.forEach(function(column) {
+						var name = column.Number;
+						var value = column.Value;
+						lineData.effects.push({ name: name, value: value });
+					});
+					
+					// console.log(line.$.index, 'effect number', line.EffectColumns.EffectColumn.Number , line.EffectColumns.EffectColumn.Value);
 				}
 				
 				trackData.push(lineData);
