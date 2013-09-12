@@ -1,6 +1,7 @@
 // TODO many things don't need to be 'public' as for example eventsList
 var EventDispatcher = require('./libs/EventDispatcher');
 var Pattern = require('./Pattern');
+var MIDIUtils = require('MIDIUtils');
 
 function Player() {
 
@@ -187,12 +188,13 @@ function Player() {
 						var lastNote = getLastPlayedNote(currentEvent.track, currentEvent.column);
 						lastVoice.noteOff(lastNote, timeUntilEvent);
 					}
+
 				} else if( currentEvent.type === EVENT_VOLUME_CHANGE ) {
 
 					var instrumentIndex = currentEvent.instrument;
 					var volume = currentEvent.volume;
 					var noteNumber = currentEvent.noteNumber;
-					console.log('new volume', 'inst', instrumentIndex, 'v', volume, 'num', noteNumber, currentEvent.row);
+					
 					if(instrumentIndex) {
 						var instrument = that.gear[instrumentIndex];
 						instrument.setVolume(noteNumber, volume, timeUntilEvent);
@@ -282,6 +284,66 @@ function Player() {
 
 	};
 
+	function isArpeggio(ef) {
+		return ef.name === '0A';
+	}
+
+	function buildArpeggio(cell, arpeggio, secondsPerRow, timestamp, orderIndex, patternIndex, rowIndex, trackIndex, columnIndex) {
+
+		var arpBaseNote;
+		var arpInstrument;
+		var volume = cell.volume !== null ? cell.volume : 1.0;
+
+		if(cell.noteNumber) {
+			arpBaseNote = cell.noteNumber;
+		} else {
+			arpBaseNote = getLastPlayedNote(trackIndex, columnIndex);
+		}
+
+		if(cell.instrument) {
+			arpInstrument = cell.instrument;
+		} else {
+			arpInstrument = getLastPlayedInstrument(trackIndex, columnIndex);
+		}
+
+		var arpValue = arpeggio.value;
+		var arpInterval = secondsPerRow / 3.0;
+
+		var semitones = [0];
+
+		for(var i = 0; i < arpValue.length; i++) {
+			var semitone = arpValue[i];
+			semitone = parseInt(semitone, 16);
+			semitones.push(semitone);
+		}
+
+		var arpTimestamp = timestamp;
+
+		semitones.forEach(function(semitone) {
+			
+			var noteNumber = arpBaseNote + semitone;
+			var noteName = MIDIUtils.noteNumberToName(noteNumber);
+
+			addEvent( EVENT_NOTE_ON, {
+				timestamp: arpTimestamp,
+				note: noteName,
+				noteNumber: noteNumber,
+				instrument: arpInstrument,
+				volume: volume,
+				order: orderIndex,
+				pattern: patternIndex,
+				row: rowIndex,
+				track: trackIndex,
+				column: columnIndex,
+				arpeggio: true
+			} );
+
+			arpTimestamp += arpInterval;
+
+		});
+
+	}
+
 	this.buildEvents = function() {
 		that.eventsList = [];
 		that.nextEventPosition = 0;
@@ -309,22 +371,19 @@ function Player() {
 					var line = pattern.get(i, j);
 					var cells = line.cells;
 					var hasEffects = line.effects.length > 0;
+					
+					var arpeggio = line.effects.filter(isArpeggio);
+					var hasArpeggio = arpeggio.length > 0;
 
-					if(line.effects.length > 0) {
-						// console.log(i, j, 'effects', line.effects);
+					if(arpeggio.length) {
+						arpeggio = arpeggio.pop();
 					}
 
+					/*if(line.effects.length > 0) {
+						console.log(i, j, 'effects', line.effects);
+					}*/
+
 					cells.forEach(function(cell, columnIndex) {
-
-						/*if(cell.noteNumber) {
-
-							addEvent( EVENT_NOTE_ON, { timestamp: timestamp, note: cell.note, noteNumber: cell.noteNumber, instrument: cell.instrument, volume: cell.volume, order: orderIndex, pattern: patternIndex, row: i, track: j, column: columnIndex } );
-
-						} else if(cell.noteOff) {
-							
-							addEvent( EVENT_NOTE_OFF, { timestamp: timestamp, instrument: cell.instrument, order: orderIndex, pattern: patternIndex, row: i, track: j, column: columnIndex } );
-
-						}*/
 
 						var lastNote = getLastPlayedNote(j, columnIndex);
 						var lastInstrument = getLastPlayedInstrument(j, columnIndex);
@@ -335,18 +394,29 @@ function Player() {
 							setLastPlayedInstrument(null, j, columnIndex);
 
 						} else {
-							//if(!hasEffects) {
-							if(cell.noteNumber) {
-								addEvent( EVENT_NOTE_ON, { timestamp: timestamp, note: cell.note, noteNumber: cell.noteNumber, instrument: cell.instrument, volume: cell.volume, order: orderIndex, pattern: patternIndex, row: i, track: j, column: columnIndex } );
-								setLastPlayedNote(cell.noteNumber, j, columnIndex);
-								setLastPlayedInstrument(cell.instrument, j, columnIndex);
+							if(hasArpeggio) {
 
-							} else if(cell.volume !== null && lastNote !== null) {
-								addEvent( EVENT_VOLUME_CHANGE, { timestamp: timestamp, noteNumber: lastNote, instrument: lastInstrument, volume: cell.volume, order: orderIndex, pattern: patternIndex, row: i, track: j, column: columnIndex });
+								buildArpeggio(cell, arpeggio, secondsPerRow, timestamp, orderIndex, patternIndex, i, j, columnIndex);
+								
+								if(cell.noteNumber) {
+									setLastPlayedNote(cell.noteNumber, j, columnIndex);
+								}
 
+								if(cell.instrument) {
+									setLastPlayedInstrument(cell.instrument, j, columnIndex);
+								}
+
+							} else {
+								if(cell.noteNumber) {
+									addEvent( EVENT_NOTE_ON, { timestamp: timestamp, note: cell.note, noteNumber: cell.noteNumber, instrument: cell.instrument, volume: cell.volume, order: orderIndex, pattern: patternIndex, row: i, track: j, column: columnIndex } );
+									setLastPlayedNote(cell.noteNumber, j, columnIndex);
+									setLastPlayedInstrument(cell.instrument, j, columnIndex);
+
+								} else if(cell.volume !== null && lastNote !== null) {
+									addEvent( EVENT_VOLUME_CHANGE, { timestamp: timestamp, noteNumber: lastNote, instrument: lastInstrument, volume: cell.volume, order: orderIndex, pattern: patternIndex, row: i, track: j, column: columnIndex });
+
+								}
 							}
-							//} else {
-							//}
 						}
 
 					});
