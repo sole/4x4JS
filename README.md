@@ -12,24 +12,17 @@ SUPER BROKEN
 		voice wave type propagate when gui changes
 			- generate event listener for each voice when changing num voices
 				maybe set as property in each voice to avoid leaks (sort of dirty)
-	reverb
 - bajotron release doesn't work properly
-- reverb y colchonator??
+	- weirdness if it doesnt reach sustain (?) then on release goes directly to 0
 
-- volume effect, arpeggio
 - en porrompom, adsr por sample para dejar que acaben (?)
 - Patrones/16 filas -> slide
 - audio tags keyboard - para poder probar cosas sin el quneo
-- improv -> link some instruments
-	X switching between instruments
-	- interactive input using quneo
 - finish gui
 	- show/hide gui toggle
 - tracker to song -> sets the rhythm/mood
 	- curves required to reuse instruments
 	- or some simple "sample" effects (because curves require some sort of vsti param which we dont have now)
-		- use volume AT LEAST
-		- arpeggio
 
 - add 3d to the mix
 	- multiple scenes etc
