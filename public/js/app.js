@@ -50,6 +50,8 @@ function onSongDataLoaded(data) {
 	gear = initialiseGear(audioContext);
 	player.gear = gear; // TODO setter?
 
+	initialiseGraphics();
+
 	setupGearPlayerListeners(gear, player);
 	setupDeck(player, deck);
 	setupOSC(gear, player, osc);
@@ -144,18 +146,12 @@ function initialiseGear(audioContext) {
 		mixer.plug(index, instrument.output);
 	});
 	
-	//mixer.setFaderGain(0, 0.1);
-	//mixer.setFaderGain(1, 0.0);
-	
-	var Oscilloscope = require('./gear/Oscilloscope');
+	/*var Oscilloscope = require('./gear/Oscilloscope');
 	var oscilloscope = new Oscilloscope(audioContext);
 	mixer.output.connect(oscilloscope.input);
 	oscilloscope.domElement.id = 'oscilloscope';
-	document.body.appendChild(oscilloscope.domElement);
+	document.body.appendChild(oscilloscope.domElement);*/
 
-	// GFX gear
-	// --------
-	// TODO gfx gear!
 
 	// Gear GUI
 	// --------
@@ -191,6 +187,28 @@ function initialiseGear(audioContext) {
 	return g;
 }
 
+function initialiseGraphics() {
+	renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
+	renderer.autoClear = false;
+	renderer.setClearColorHex(0xFF0000);
+	rendererContainer.appendChild(renderer.domElement);
+	onWindowResize();
+
+	window.addEventListener('resize', onWindowResize, false);
+}
+
+function onWindowResize() {
+	var width = window.innerWidth,
+		height = window.innerHeight;
+
+	renderer.setSize(width, height);
+}
+
+function render() {
+	requestAnimationFrame(render);
+	console.log('go');
+	// sequencer.update(player.currentTime);
+}
 
 function setupGearPlayerListeners(gear, player) {
 	// listeners player <-> gear
@@ -390,6 +408,9 @@ function play() {
 
 		updatePlayStatus();
 		osc.send(Quneo.getStopLedPath(), 0.5);
+
+		cancelAnimationFrame(render);
+		requestAnimationFrame(render);
 	}
 }
 
