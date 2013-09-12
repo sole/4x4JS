@@ -6,6 +6,8 @@ function Reverbetron(audioContext) {
 
 	EventDispatcher.call(this);
 
+	var impulsePath = '';
+
 	var inputNode = audioContext.createChannelSplitter();
 	var outputNode = audioContext.createGain();
 	
@@ -37,6 +39,9 @@ function Reverbetron(audioContext) {
 			get: function() {
 				return convolver.buffer;
 			}
+		},
+		impulsePath: {
+			get: function() { return impulsePath; }
 		}
 	});
 
@@ -69,7 +74,6 @@ function Reverbetron(audioContext) {
 	};
 
 	this.loadImpulse = function(path) {
-		console.log('Reverbetron load impulse', path);
 
 		var request = new XMLHttpRequest();
 		request.open('GET', path, true);
@@ -78,12 +82,14 @@ function Reverbetron(audioContext) {
 		request.onload = function() {
 
 			audioContext.decodeAudioData(request.response, function(buffer) {
+					impulsePath = path;
 					that.setImpulse(buffer);
 				},
 				function() {
 					// onError
 				}
 			);
+
 		};
 		
 		request.send();
@@ -92,3 +98,5 @@ function Reverbetron(audioContext) {
 }
 
 module.exports = Reverbetron;
+
+

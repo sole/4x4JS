@@ -1,7 +1,6 @@
 var template = '<header>Reverbetron</header><div class="wetContainer"></div>' + 
 	'<div><label>Impulse response<select></select><br /><canvas width="200" height="100"></canvas></label></div>';
 
-// TODO: mindblowing === DRAW the impulse response
 function register() {
 
 	xtag.register('gear-reverbetron', {
@@ -34,6 +33,9 @@ function register() {
 				this.wetAmount.attachToObject(reverbetron, 'wetAmount');
 				
 				// impulse (it's a path)
+				this.impulsePath.value = reverbetron.impulsePath;
+				console.log('lo de rever', reverbetron.impulsePath);
+
 				this.impulsePath.addEventListener('change', function() {
 					console.log('ask reverbetron to load', that.impulsePath.value);
 					that.reverbetron.loadImpulse(that.impulsePath.value);
@@ -41,6 +43,8 @@ function register() {
 
 				that.reverbetron.addEventListener('impulse_changed', function(ev) {
 					that.plotImpulse(ev.buffer);
+					that.impulsePath.value = reverbetron.impulsePath;
+					console.log('y ahora', reverbetron.impulsePath);
 				}, false);
 
 				that.plotImpulse(that.reverbetron.impulseResponse);
@@ -130,3 +134,5 @@ function register() {
 module.exports = {
 	register: register
 };
+
+
