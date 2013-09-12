@@ -23,7 +23,7 @@ html, body, #wrapper {
 }
 
 x-deck {
-	border: 1px solid red;
+	/*border: 1px solid red;*/
 }
 
 canvas {
@@ -36,6 +36,20 @@ canvas {
 	text-align: right;
 	z-index: 10;
 }
+	#transport button {
+		padding: 0.5rem 0.5rem;
+		border: 1px solid #999;
+		color: #888;
+		background: #fff;
+		font-size: 1rem;
+		line-height: 1rem;
+		transition: color 0.3s ease-in;
+	}
+		#transport button:hover {
+			color: #0f0;
+			background: #333;
+			text-shadow: 0px 0px 6px #0f0;
+		}
 
 #oscilloscope {
 	position: absolute;
