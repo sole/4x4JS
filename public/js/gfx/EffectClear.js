@@ -6,7 +6,6 @@ var EffectClear = function ( renderer ) {
 
 	// All this effect does is clearing the renderer. Dull, huh!?
 	this.update = function ( time ) {
-		console.log('?', time);
 		renderer.clear();
 	};
 

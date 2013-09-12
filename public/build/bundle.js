@@ -1645,9 +1645,11 @@ function initialiseGraphics() {
 	sequencer = new (require('./gfx/Sequencer').Sequencer)();
 
 	var EffectClear = require('./gfx/EffectClear');
+	var EffectBallsScene = require('./gfx/EffectBallsScene');
 
 	var sequence = [
-		[ EffectClear, { start: 0 } ] // no end == until the end
+		[ EffectClear, { start: 0 } ], // no end == until the end
+		[ EffectBallsScene, { start: 0 } ]
 	];
 
 	var layerNumber = 0;
@@ -1965,7 +1967,7 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":8,"./gear/Bajotron":18,"./gear/Colchonator":20,"./gear/Mixer":21,"./gear/Porrompom":24,"./gear/gui/GUI":31,"./gfx/EffectClear":38,"./gfx/Sequencer":39,"./quneo.js":41,"stringformat.js":5}],16:[function(require,module,exports){
+},{"./Orxatron/":8,"./gear/Bajotron":18,"./gear/Colchonator":20,"./gear/Mixer":21,"./gear/Porrompom":24,"./gear/gui/GUI":31,"./gfx/EffectBallsScene":38,"./gfx/EffectClear":39,"./gfx/Sequencer":40,"./quneo.js":42,"stringformat.js":5}],16:[function(require,module,exports){
 var EventDispatcher = require('EventDispatcher');
 
 function ADSR(audioContext, param, attack, decay, sustain, release) {
@@ -4328,7 +4330,84 @@ Effect.prototype.setSize = function( width, height ) {
 
 module.exports = Effect;
 
-},{"./Sequencer":39}],38:[function(require,module,exports){
+},{"./Sequencer":40}],38:[function(require,module,exports){
+var Effect = require('./Effect');
+
+// TODO extract away
+function r(radius) {
+	return (Math.random() - 0.5) * radius;
+}
+
+var EffectBallsScene = function ( renderer ) {
+
+	Effect.call( this );
+
+	var scene,
+		camera,
+		cameraTarget;
+
+	this.init = function() {
+
+		scene = new THREE.Scene();
+		camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 1, 100000);
+		cameraTarget = new THREE.Vector3();
+
+		this.setSize(window.innerWidth, window.innerHeight);
+
+		var sphereMaterial = new THREE.MeshBasicMaterial({ wireframe: true, wireframeLinewidth: 1, color: 0x000000, opacity: 0.9 });
+		//sphereMaterial.transparent = true;
+		//sphereMaterial.depthWrite = false;
+		//sphereMaterial.blending = THREE.SubstractiveBlending;
+
+		var sphereGeometry = new THREE.SphereGeometry(r(10) + 2, 8);
+		var s = 40;
+
+		for(var i = 0; i < 10; i++) {
+			var mesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
+			mesh.position.set(r(s), r(s), r(s));
+			mesh.initialPosition = mesh.position.clone();
+			mesh.phase = r(2 * Math.PI);
+			mesh.elongRadius = 10 * Math.random() + 3;
+			scene.add(mesh);
+		}
+
+		camera.position.set(10, 0, 10);
+		camera.lookAt(cameraTarget);
+
+	};
+
+	this.setSize = function(w, h) {
+
+		if(camera) {
+			camera.aspect = w / h;
+			camera.updateProjectionMatrix();
+		}
+
+	};
+	
+	this.update = function ( time ) {
+		var dist = 15;
+		var t = time * 300;
+
+		for(var i = 0; i < scene.children.length; i++) {
+			var child = scene.children[i];
+			child.position.y = child.initialPosition.y + child.elongRadius * Math.sin(t + child.phase);
+		}
+
+		camera.position.set( dist * Math.sin(t), 0, dist * Math.cos(t));
+		camera.lookAt(cameraTarget);
+		renderer.render(scene, camera);
+	};
+
+};
+
+EffectBallsScene.prototype = new Effect();
+EffectBallsScene.prototype.constructor = EffectBallsScene;
+
+module.exports = EffectBallsScene;
+
+
+},{"./Effect":37}],39:[function(require,module,exports){
 var Effect = require('./Effect');
 
 var EffectClear = function ( renderer ) {
@@ -4337,7 +4416,6 @@ var EffectClear = function ( renderer ) {
 
 	// All this effect does is clearing the renderer. Dull, huh!?
 	this.update = function ( time ) {
-		console.log('?', time);
 		renderer.clear();
 	};
 
@@ -4348,7 +4426,7 @@ EffectClear.prototype.constructor = EffectClear;
 
 module.exports = EffectClear;
 
-},{"./Effect":37}],39:[function(require,module,exports){
+},{"./Effect":37}],40:[function(require,module,exports){
 // sequencer by @mrdoob
 // this is old code. Del año de la carraca, y tal.
 /**
@@ -4504,7 +4582,7 @@ module.exports = {
 	SequencerItem: SequencerItem
 };
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -4512,7 +4590,7 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":15}],41:[function(require,module,exports){
+},{"./app":15}],42:[function(require,module,exports){
 var i, j;
 var leds = {};
 var columnLeds = {};
@@ -4594,5 +4672,5 @@ module.exports = {
 	getStopLedPath: getStopLedPath
 };
 
-},{}]},{},[40])
+},{}]},{},[41])
 ;

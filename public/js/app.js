@@ -198,9 +198,11 @@ function initialiseGraphics() {
 	sequencer = new (require('./gfx/Sequencer').Sequencer)();
 
 	var EffectClear = require('./gfx/EffectClear');
+	var EffectBallsScene = require('./gfx/EffectBallsScene');
 
 	var sequence = [
-		[ EffectClear, { start: 0 } ] // no end == until the end
+		[ EffectClear, { start: 0 } ], // no end == until the end
+		[ EffectBallsScene, { start: 0 } ]
 	];
 
 	var layerNumber = 0;

@@ -1,4 +1,3 @@
-"use strict";
 
 var EffectFlash = function ( renderer ) {
 
@@ -46,7 +45,7 @@ var EffectFlash = function ( renderer ) {
 	FlashUpdater.prototype = Object.create( SequencerItem.prototype );
 	FlashUpdater.prototype.update = function( progress, delta, time ) {
 		material.opacity = 0.15 * (1 - easing( progress ));
-	}
+	};
 
 	this.processEvents = function( startTime, endTime, eventsList ) {
 		
@@ -71,9 +70,11 @@ var EffectFlash = function ( renderer ) {
 
 		}
 
-	}
+	};
 
 };
 
 EffectFlash.prototype = new Effect();
 EffectFlash.prototype.constructor = EffectFlash;
+
+module.exports = EffectFlash;
