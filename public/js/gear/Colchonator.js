@@ -113,6 +113,8 @@ function Colchonator(audioContext, options) {
 				});
 
 				voice.numVoices = dummyBajotron.numVoices;
+				// TODO clone voice types
+				// And octaves
 				voice.noiseAmount = dummyBajotron.noiseAmount;
 				voice.noiseGenerator.type = dummyBajotron.noiseGenerator.type;
 				voice.noiseGenerator.length = dummyBajotron.noiseGenerator.length;
@@ -250,17 +252,31 @@ function Colchonator(audioContext, options) {
 	};
 
 
+	this.setVolume = function(noteNumber, volume, when) {
+		
+		when = when !== undefined ? when : 0;
+		var voice = getVoiceByNote(noteNumber);
+
+		if(voice) {
+			voice.setVolume(volume, when);
+		}
+
+	};
+
+
 	this.noteOff = function(noteNumber, when) {
 		
 		var voice = getVoiceByNote(noteNumber);
 
-		console.log('voice note off => ', voice);
-
 		if(voice) {
+
+			var index = getVoiceIndexByNote(noteNumber);
+			voices[index].note = null; // TODO ??? not sure if required...
 			voice.noteOff(when);
+
 		}
 
-		// TODO if number of active voices = 1 -> noise note off
+		// TODO if number of active voices = 1 -> noise note off?
 
 	};
 

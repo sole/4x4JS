@@ -66,6 +66,11 @@ function Porrompom(audioContext, options) {
 		}
 	}
 
+	// !!!!!!!!!!!!!!!! TODO ALARM !!!!!!!!!!!!!!!!!
+	// !!LOTS OF COPY PASTING IN THIS FILE!!!!!!!!!!
+	// AWFULAWFULAWFULAWFULAWFULAWFULAWFULAWFULAWFUL
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	
 	// ~~~
 	
 	this.output = outputNode;
@@ -74,8 +79,7 @@ function Porrompom(audioContext, options) {
 
 		var noteKey = MIDIUtils.noteNumberToName(note);
 		var mapping = mappings[noteKey];
-
-		
+	
 		
 		if(mapping) {
 			// play sample
@@ -95,6 +99,26 @@ function Porrompom(audioContext, options) {
 		}
 
 	};
+	
+
+	this.setVolume = function(noteNumber, volume, when) {
+
+		var noteKey = MIDIUtils.noteNumberToName(noteNumber);
+		var mapping = mappings[noteKey];
+
+		when = when !== undefined ? when : 0;
+
+		var audioWhen = when + audioContext.currentTime;
+		
+		if(mapping) {
+			var sample = samples[mapping];
+			if(sample) {
+				sample.setVolume(volume, audioWhen);
+			}
+		}
+
+	};
+
 
 	this.noteOff = function(note, when) {
 

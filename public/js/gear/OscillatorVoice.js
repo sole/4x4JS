@@ -100,6 +100,7 @@ function OscillatorVoice(context, options) {
 
 	};
 
+
 	this.noteOff = function(when) {
 
 		if(internalOscillator === null) {
@@ -113,6 +114,11 @@ function OscillatorVoice(context, options) {
 		internalOscillator.stop(when);
 		internalOscillator = null;
 
+	};
+
+
+	this.setVolume = function(value, when) {
+		gain.gain.setValueAtTime(value, when);
 	};
 }
 

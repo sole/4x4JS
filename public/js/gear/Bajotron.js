@@ -209,6 +209,18 @@ function Bajotron(audioContext, options) {
 
 	};
 
+	
+	this.setVolume = function(noteNumber, volume, when) {
+
+		when = when !== undefined ? when : 0;
+
+		var audioWhen = when + audioContext.currentTime;
+
+		voices.forEach(function(voice) {
+			voice.setVolume(volume, audioWhen);
+		});
+	};
+
 
 	this.noteOff = function(noteNumber, when) {
 
@@ -227,6 +239,9 @@ function Bajotron(audioContext, options) {
 		noiseGenerator.noteOff(releaseEndTime);
 
 	};
+
+
+
 }
 
 module.exports = Bajotron;

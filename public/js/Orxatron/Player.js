@@ -187,6 +187,17 @@ function Player() {
 						var lastNote = getLastPlayedNote(currentEvent.track, currentEvent.column);
 						lastVoice.noteOff(lastNote, timeUntilEvent);
 					}
+				} else if( currentEvent.type === EVENT_VOLUME_CHANGE ) {
+
+					var instrumentIndex = currentEvent.instrument;
+					var volume = currentEvent.volume;
+					var noteNumber = currentEvent.noteNumber;
+					console.log('new volume', 'inst', instrumentIndex, 'v', volume, 'num', noteNumber, currentEvent.row);
+					if(instrumentIndex) {
+						var instrument = that.gear[instrumentIndex];
+						instrument.setVolume(noteNumber, volume, timeUntilEvent);
+					}
+
 				}
 			}
 
@@ -297,6 +308,7 @@ function Player() {
 
 					var line = pattern.get(i, j);
 					var cells = line.cells;
+					var hasEffects = line.effects.length > 0;
 
 					if(line.effects.length > 0) {
 						// console.log(i, j, 'effects', line.effects);
@@ -304,7 +316,7 @@ function Player() {
 
 					cells.forEach(function(cell, columnIndex) {
 
-						if(cell.noteNumber) {
+						/*if(cell.noteNumber) {
 
 							addEvent( EVENT_NOTE_ON, { timestamp: timestamp, note: cell.note, noteNumber: cell.noteNumber, instrument: cell.instrument, volume: cell.volume, order: orderIndex, pattern: patternIndex, row: i, track: j, column: columnIndex } );
 
@@ -312,6 +324,29 @@ function Player() {
 							
 							addEvent( EVENT_NOTE_OFF, { timestamp: timestamp, instrument: cell.instrument, order: orderIndex, pattern: patternIndex, row: i, track: j, column: columnIndex } );
 
+						}*/
+
+						var lastNote = getLastPlayedNote(j, columnIndex);
+						var lastInstrument = getLastPlayedInstrument(j, columnIndex);
+
+						if(cell.noteOff) {
+							addEvent( EVENT_NOTE_OFF, { timestamp: timestamp, instrument: cell.instrument, order: orderIndex, pattern: patternIndex, row: i, track: j, column: columnIndex } );
+							setLastPlayedNote(null, j, columnIndex);
+							setLastPlayedInstrument(null, j, columnIndex);
+
+						} else {
+							//if(!hasEffects) {
+							if(cell.noteNumber) {
+								addEvent( EVENT_NOTE_ON, { timestamp: timestamp, note: cell.note, noteNumber: cell.noteNumber, instrument: cell.instrument, volume: cell.volume, order: orderIndex, pattern: patternIndex, row: i, track: j, column: columnIndex } );
+								setLastPlayedNote(cell.noteNumber, j, columnIndex);
+								setLastPlayedInstrument(cell.instrument, j, columnIndex);
+
+							} else if(cell.volume !== null && lastNote !== null) {
+								addEvent( EVENT_VOLUME_CHANGE, { timestamp: timestamp, noteNumber: lastNote, instrument: lastInstrument, volume: cell.volume, order: orderIndex, pattern: patternIndex, row: i, track: j, column: columnIndex });
+
+							}
+							//} else {
+							//}
 						}
 
 					});
@@ -391,6 +426,7 @@ EVENT_PATTERN_CHANGE = 'pattern_change';
 EVENT_ROW_CHANGE = 'row_change';
 EVENT_NOTE_ON = 'note_on';
 EVENT_NOTE_OFF = 'note_off';
+EVENT_VOLUME_CHANGE = 'volume_change';
 
 
 module.exports = Player;

@@ -44,7 +44,8 @@ function SampleVoice(audioContext, options) {
 		if(bufferSource === null) {
 			prepareBufferSource();
 		}
-		
+	
+		this.setVolume(volume, when);
 		bufferSource.start(when);
 
 		// Auto note off if not looping, though it can be a little bit inaccurate
@@ -71,6 +72,11 @@ function SampleVoice(audioContext, options) {
 		bufferSource.stop(when);
 		bufferSource = null;
 
+	};
+
+	
+	this.setVolume = function(value, when) {
+		output.gain.setValueAtTime(value, when);
 	};
 
 	
