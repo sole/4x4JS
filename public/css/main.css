@@ -74,8 +74,8 @@ canvas {
 	}
 
 	#gui > * {
-		xborder: 1px solid #aaa;
 		background: linear-gradient(0deg, #888, #ccc);
+		border: 10px solid rgba(0, 0, 0, 0);
 		padding: 1rem;
 		display: block;
 		margin: 1rem 2rem;
@@ -83,7 +83,13 @@ canvas {
 		font-family: 'Courier New', monospace;
 		font-size: 0.8rem;
 		font-weight: bold;
-		text-shadow: 1px 1px 1px #fff; 
+		text-shadow: 1px 1px 1px #fff;
+		transition: all 0.3s ease-in;
+	}
+
+	#gui > .selected {
+		border-color: rgba(255, 255, 0, 0.3);
+		background: linear-gradient(0deg, #aa8, #eec);
 	}
 		
 

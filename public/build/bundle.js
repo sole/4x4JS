@@ -463,11 +463,16 @@ function renoiseToOrxatron(json) {
 						
 						columnData.note = column.Note || null;
 
+						if(columnData.note === '---') {
+							// Probably "same note, no change"?
+							columnData.note = null;
+						}
+
 						// TODO when instrument is '..'
 						columnData.instrument = column.Instrument | 0;
 
 						if(column.Volume !== undefined && column.Volume !== '..') {
-							columnData.volume = column.Volume | 0;
+							columnData.volume = parseInt(column.Volume, 16) * 1.0 / 0x80;
 						}
 
 						lineData.columns.push(columnData);
@@ -475,7 +480,6 @@ function renoiseToOrxatron(json) {
 				}
 
 				if(line.EffectColumns) {
-					//console.log('with effect', line);
 
 					var effectColumns = line.EffectColumns.EffectColumn;
 
@@ -489,7 +493,6 @@ function renoiseToOrxatron(json) {
 						lineData.effects.push({ name: name, value: value });
 					});
 					
-					// console.log(line.$.index, 'effect number', line.EffectColumns.EffectColumn.Number , line.EffectColumns.EffectColumn.Value);
 				}
 				
 				trackData.push(lineData);
@@ -712,7 +715,7 @@ function PatternCell(data) {
 		}
 
 		scope.instrument = d.instrument !== undefined ? d.instrument : null;
-		scope.volume = d.volume !== undefined ? d.volume * 1.0 / 0x80 : null;
+		scope.volume = d.volume !== undefined ? d.volume : null;
 
 	}
 
@@ -745,6 +748,7 @@ module.exports = PatternCell;
 // TODO many things don't need to be 'public' as for example eventsList
 var EventDispatcher = require('./libs/EventDispatcher');
 var Pattern = require('./Pattern');
+var MIDIUtils = require('MIDIUtils');
 
 function Player() {
 
@@ -931,6 +935,18 @@ function Player() {
 						var lastNote = getLastPlayedNote(currentEvent.track, currentEvent.column);
 						lastVoice.noteOff(lastNote, timeUntilEvent);
 					}
+
+				} else if( currentEvent.type === EVENT_VOLUME_CHANGE ) {
+
+					var instrumentIndex = currentEvent.instrument;
+					var volume = currentEvent.volume;
+					var noteNumber = currentEvent.noteNumber;
+					
+					if(instrumentIndex) {
+						var instrument = that.gear[instrumentIndex];
+						instrument.setVolume(noteNumber, volume, timeUntilEvent);
+					}
+
 				}
 			}
 
@@ -1015,6 +1031,66 @@ function Player() {
 
 	};
 
+	function isArpeggio(ef) {
+		return ef.name === '0A';
+	}
+
+	function buildArpeggio(cell, arpeggio, secondsPerRow, timestamp, orderIndex, patternIndex, rowIndex, trackIndex, columnIndex) {
+
+		var arpBaseNote;
+		var arpInstrument;
+		var volume = cell.volume !== null ? cell.volume : 1.0;
+
+		if(cell.noteNumber) {
+			arpBaseNote = cell.noteNumber;
+		} else {
+			arpBaseNote = getLastPlayedNote(trackIndex, columnIndex);
+		}
+
+		if(cell.instrument) {
+			arpInstrument = cell.instrument;
+		} else {
+			arpInstrument = getLastPlayedInstrument(trackIndex, columnIndex);
+		}
+
+		var arpValue = arpeggio.value;
+		var arpInterval = secondsPerRow / 3.0;
+
+		var semitones = [0];
+
+		for(var i = 0; i < arpValue.length; i++) {
+			var semitone = arpValue[i];
+			semitone = parseInt(semitone, 16);
+			semitones.push(semitone);
+		}
+
+		var arpTimestamp = timestamp;
+
+		semitones.forEach(function(semitone) {
+			
+			var noteNumber = arpBaseNote + semitone;
+			var noteName = MIDIUtils.noteNumberToName(noteNumber);
+
+			addEvent( EVENT_NOTE_ON, {
+				timestamp: arpTimestamp,
+				note: noteName,
+				noteNumber: noteNumber,
+				instrument: arpInstrument,
+				volume: volume,
+				order: orderIndex,
+				pattern: patternIndex,
+				row: rowIndex,
+				track: trackIndex,
+				column: columnIndex,
+				arpeggio: true
+			} );
+
+			arpTimestamp += arpInterval;
+
+		});
+
+	}
+
 	this.buildEvents = function() {
 		that.eventsList = [];
 		that.nextEventPosition = 0;
@@ -1041,21 +1117,53 @@ function Player() {
 
 					var line = pattern.get(i, j);
 					var cells = line.cells;
+					var hasEffects = line.effects.length > 0;
+					
+					var arpeggio = line.effects.filter(isArpeggio);
+					var hasArpeggio = arpeggio.length > 0;
 
-					if(line.effects.length > 0) {
-						// console.log(i, j, 'effects', line.effects);
+					if(arpeggio.length) {
+						arpeggio = arpeggio.pop();
 					}
+
+					/*if(line.effects.length > 0) {
+						console.log(i, j, 'effects', line.effects);
+					}*/
 
 					cells.forEach(function(cell, columnIndex) {
 
-						if(cell.noteNumber) {
+						var lastNote = getLastPlayedNote(j, columnIndex);
+						var lastInstrument = getLastPlayedInstrument(j, columnIndex);
 
-							addEvent( EVENT_NOTE_ON, { timestamp: timestamp, note: cell.note, noteNumber: cell.noteNumber, instrument: cell.instrument, volume: cell.volume, order: orderIndex, pattern: patternIndex, row: i, track: j, column: columnIndex } );
-
-						} else if(cell.noteOff) {
-							
+						if(cell.noteOff) {
 							addEvent( EVENT_NOTE_OFF, { timestamp: timestamp, instrument: cell.instrument, order: orderIndex, pattern: patternIndex, row: i, track: j, column: columnIndex } );
+							setLastPlayedNote(null, j, columnIndex);
+							setLastPlayedInstrument(null, j, columnIndex);
 
+						} else {
+							if(hasArpeggio) {
+
+								buildArpeggio(cell, arpeggio, secondsPerRow, timestamp, orderIndex, patternIndex, i, j, columnIndex);
+								
+								if(cell.noteNumber) {
+									setLastPlayedNote(cell.noteNumber, j, columnIndex);
+								}
+
+								if(cell.instrument) {
+									setLastPlayedInstrument(cell.instrument, j, columnIndex);
+								}
+
+							} else {
+								if(cell.noteNumber) {
+									addEvent( EVENT_NOTE_ON, { timestamp: timestamp, note: cell.note, noteNumber: cell.noteNumber, instrument: cell.instrument, volume: cell.volume, order: orderIndex, pattern: patternIndex, row: i, track: j, column: columnIndex } );
+									setLastPlayedNote(cell.noteNumber, j, columnIndex);
+									setLastPlayedInstrument(cell.instrument, j, columnIndex);
+
+								} else if(cell.volume !== null && lastNote !== null) {
+									addEvent( EVENT_VOLUME_CHANGE, { timestamp: timestamp, noteNumber: lastNote, instrument: lastInstrument, volume: cell.volume, order: orderIndex, pattern: patternIndex, row: i, track: j, column: columnIndex });
+
+								}
+							}
 						}
 
 					});
@@ -1135,34 +1243,52 @@ EVENT_PATTERN_CHANGE = 'pattern_change';
 EVENT_ROW_CHANGE = 'row_change';
 EVENT_NOTE_ON = 'note_on';
 EVENT_NOTE_OFF = 'note_off';
+EVENT_VOLUME_CHANGE = 'volume_change';
 
 
 module.exports = Player;
 
-},{"./Pattern":9,"./libs/EventDispatcher":14}],12:[function(require,module,exports){
+},{"./Pattern":9,"./libs/EventDispatcher":14,"MIDIUtils":2}],12:[function(require,module,exports){
 // very simple 'rack' to represent a uhm... rack of 'machines'
 function Rack() {
 	var machines = [];
+	var guis = [];
 	var currentlySelectedIndex = -1;
 	var currentMachine = null;
+	var selectedClass = 'selected';
 
 	Object.defineProperties(this, {
 		selected: {
 			get: function() {
 				return currentMachine;
 			}
+		},
+		selectedGUI: {
+			get: function() {
+				return guis[currentlySelectedIndex];
+			}
 		}
 	});
 
 	function updateCurrent() {
 		currentMachine = machines[currentlySelectedIndex];
+
+		guis.forEach(function(g) {
+			g.classList.remove(selectedClass);
+		});
+
+		guis[currentlySelectedIndex].classList.add(selectedClass);
 	}
 
 
-	this.add = function(machine) {
+	this.add = function(machine, gui) {
 
 		if(machines.indexOf(machine) === -1) {
 			machines.push(machine);
+			if(gui === undefined) {
+				gui = document.createElement('div');
+			}
+			guis.push(gui);
 		}
 
 		if(currentlySelectedIndex === -1) {
@@ -1342,7 +1468,6 @@ function start() {
 
 	deck = document.querySelector('x-deck');
 	guiContainer = document.getElementById('gui');
-	console.log('gui container', guiContainer);
 
 	// load song ajax
 	$.ajax({
@@ -1502,11 +1627,11 @@ function initialiseGear(audioContext) {
 	arpGUI.attachTo(arp);
 	guiContainer.appendChild(arpGUI);
 
-	rack.add(bass);
-	rack.add(pad);
+	rack.add(bass, bassGUI);
+	rack.add(pad, padGUI);
 	rack.add(dm808);
 	rack.add(dmCongas);
-	rack.add(arp);
+	rack.add(arp, arpGUI);
 
 	return g;
 }
@@ -1542,21 +1667,22 @@ function setupOSC(gear, player, osc) {
 
 			if(activeAlready) {
 
+				// TODO timeout for actually being very subtle and light touches
 				// arbitrary 'low' threshold
 				if(pressure <= 3) {
 					// release
-					console.log('release' , note);
 					selected.noteOff(note);
 					activePads[padIndex] = false;
 				} else {
-					// Do nothing! Else we'll retrig the same note
-					// TODO we could modulate the volume of current note
+					// Modulate current note with volume
+					var volume = pressure / 64.0;
+					var scaledVolume = Math.sqrt(volume);
+					selected.setVolume(note, scaledVolume);
 				}
 
 			} else {
 				// Another arbitrary threshold to prevent happy retrigging
 				if(pressure > 16) {
-					console.log('note on', note);
 					selected.noteOn(note);
 					activePads[padIndex] = true;
 				}
@@ -1681,8 +1807,20 @@ function setupKeyboardAndTransport() {
 	$('#fwd').on('click', function() {
 		playerJumpTo(1);
 	});
+
 	transportTime = document.getElementById('time');
 	transportOrder = document.getElementById('order');
+
+	window.addEventListener('keyup', function(ev) {
+		
+		var code = ev.keyCode;
+
+		switch(code) {
+			case 70: toggleFullScreen(); break;
+			case 71: toggleGUI(); break;
+		}
+
+	}, false);
 }
 
 function play() {
@@ -1727,8 +1865,22 @@ function playerJumpTo(offset) {
 }
 
 
+function toggleFullScreen() {
+	console.log('toggle fs');
+}
+
+function toggleGUI() {
+	guiContainer.classList.toggle('hidden');
+}
+
 function focusPrevInstrument() {
+	//var current = rack.selectedGUI;
+	//current.classList.remove('selected');
+
 	rack.selectPrevious();
+
+	//rack.selectedGUI.classList.add('selected');
+
 }
 
 
@@ -1813,7 +1965,8 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 		param.cancelScheduledValues(now);
 		param.linearRampToValueAtTime(0, now + this.release);
-		param.setValueAtTime(0, now + this.release + 0.001);
+		// TODO is this thing below really needed?
+		//param.setValueAtTime(0, now + this.release + 0.001);
 	};
 
 }
@@ -1832,7 +1985,7 @@ function ArithmeticMixer(audioContext) {
 	// output -> script processor
 	// mix function
 	var processor = audioContext.createScriptProcessor(2048, 2, 1);
-	var mixFunction = multiply;
+	var mixFunction = sum;
 
 	EventDispatcher.call(this);
 
@@ -2115,6 +2268,18 @@ function Bajotron(audioContext, options) {
 
 	};
 
+	
+	this.setVolume = function(noteNumber, volume, when) {
+
+		when = when !== undefined ? when : 0;
+
+		var audioWhen = when + audioContext.currentTime;
+
+		voices.forEach(function(voice) {
+			voice.setVolume(volume, audioWhen);
+		});
+	};
+
 
 	this.noteOff = function(noteNumber, when) {
 
@@ -2133,6 +2298,9 @@ function Bajotron(audioContext, options) {
 		noiseGenerator.noteOff(releaseEndTime);
 
 	};
+
+
+
 }
 
 module.exports = Bajotron;
@@ -2425,17 +2593,31 @@ function Colchonator(audioContext, options) {
 	};
 
 
+	this.setVolume = function(noteNumber, volume, when) {
+		
+		when = when !== undefined ? when : 0;
+		var voice = getVoiceByNote(noteNumber);
+
+		if(voice) {
+			voice.setVolume(volume, when);
+		}
+
+	};
+
+
 	this.noteOff = function(noteNumber, when) {
 		
 		var voice = getVoiceByNote(noteNumber);
 
-		console.log('voice note off => ', voice);
-
 		if(voice) {
+
+			var index = getVoiceIndexByNote(noteNumber);
+			voices[index].note = null; // TODO ??? not sure if required...
 			voice.noteOff(when);
+
 		}
 
-		// TODO if number of active voices = 1 -> noise note off
+		// TODO if number of active voices = 1 -> noise note off?
 
 	};
 
@@ -2828,6 +3010,7 @@ function OscillatorVoice(context, options) {
 
 	};
 
+
 	this.noteOff = function(when) {
 
 		if(internalOscillator === null) {
@@ -2841,6 +3024,11 @@ function OscillatorVoice(context, options) {
 		internalOscillator.stop(when);
 		internalOscillator = null;
 
+	};
+
+
+	this.setVolume = function(value, when) {
+		gain.gain.setValueAtTime(value, when);
 	};
 }
 
@@ -3001,6 +3189,11 @@ function Porrompom(audioContext, options) {
 		}
 	}
 
+	// !!!!!!!!!!!!!!!! TODO ALARM !!!!!!!!!!!!!!!!!
+	// !!LOTS OF COPY PASTING IN THIS FILE!!!!!!!!!!
+	// AWFULAWFULAWFULAWFULAWFULAWFULAWFULAWFULAWFUL
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	
 	// ~~~
 	
 	this.output = outputNode;
@@ -3009,8 +3202,7 @@ function Porrompom(audioContext, options) {
 
 		var noteKey = MIDIUtils.noteNumberToName(note);
 		var mapping = mappings[noteKey];
-
-		
+	
 		
 		if(mapping) {
 			// play sample
@@ -3030,6 +3222,26 @@ function Porrompom(audioContext, options) {
 		}
 
 	};
+	
+
+	this.setVolume = function(noteNumber, volume, when) {
+
+		var noteKey = MIDIUtils.noteNumberToName(noteNumber);
+		var mapping = mappings[noteKey];
+
+		when = when !== undefined ? when : 0;
+
+		var audioWhen = when + audioContext.currentTime;
+		
+		if(mapping) {
+			var sample = samples[mapping];
+			if(sample) {
+				sample.setVolume(volume, audioWhen);
+			}
+		}
+
+	};
+
 
 	this.noteOff = function(note, when) {
 
@@ -3067,6 +3279,8 @@ function Reverbetron(audioContext) {
 
 	EventDispatcher.call(this);
 
+	var impulsePath = '';
+
 	var inputNode = audioContext.createChannelSplitter();
 	var outputNode = audioContext.createGain();
 	
@@ -3098,6 +3312,9 @@ function Reverbetron(audioContext) {
 			get: function() {
 				return convolver.buffer;
 			}
+		},
+		impulsePath: {
+			get: function() { return impulsePath; }
 		}
 	});
 
@@ -3130,7 +3347,6 @@ function Reverbetron(audioContext) {
 	};
 
 	this.loadImpulse = function(path) {
-		console.log('Reverbetron load impulse', path);
 
 		var request = new XMLHttpRequest();
 		request.open('GET', path, true);
@@ -3139,12 +3355,14 @@ function Reverbetron(audioContext) {
 		request.onload = function() {
 
 			audioContext.decodeAudioData(request.response, function(buffer) {
+					impulsePath = path;
 					that.setImpulse(buffer);
 				},
 				function() {
 					// onError
 				}
 			);
+
 		};
 		
 		request.send();
@@ -3153,6 +3371,8 @@ function Reverbetron(audioContext) {
 }
 
 module.exports = Reverbetron;
+
+
 
 },{"EventDispatcher":1}],27:[function(require,module,exports){
 // This voice plays a buffer / sample, and it's capable of regenerating the buffer source once noteOff has been called
@@ -3201,7 +3421,8 @@ function SampleVoice(audioContext, options) {
 		if(bufferSource === null) {
 			prepareBufferSource();
 		}
-		
+	
+		this.setVolume(volume, when);
 		bufferSource.start(when);
 
 		// Auto note off if not looping, though it can be a little bit inaccurate
@@ -3231,6 +3452,11 @@ function SampleVoice(audioContext, options) {
 	};
 
 	
+	this.setVolume = function(value, when) {
+		output.gain.setValueAtTime(value, when);
+	};
+
+	
 }
 
 module.exports = SampleVoice;
@@ -3253,7 +3479,7 @@ function register() {
 				adsrProps.forEach(function(p) {
 					var slider = document.createElement('gear-slider');
 					slider.min = 0;
-					slider.max = p === 'sustain' ? 1.0 : 10.0;
+					slider.max = p === 'sustain' ? 1.0 : 16.0;
 					slider.step = 0.0001;
 					slider.label = p;
 					that[p] = slider;
@@ -3834,7 +4060,6 @@ module.exports = {
 var template = '<header>Reverbetron</header><div class="wetContainer"></div>' + 
 	'<div><label>Impulse response<select></select><br /><canvas width="200" height="100"></canvas></label></div>';
 
-// TODO: mindblowing === DRAW the impulse response
 function register() {
 
 	xtag.register('gear-reverbetron', {
@@ -3867,6 +4092,9 @@ function register() {
 				this.wetAmount.attachToObject(reverbetron, 'wetAmount');
 				
 				// impulse (it's a path)
+				this.impulsePath.value = reverbetron.impulsePath;
+				console.log('lo de rever', reverbetron.impulsePath);
+
 				this.impulsePath.addEventListener('change', function() {
 					console.log('ask reverbetron to load', that.impulsePath.value);
 					that.reverbetron.loadImpulse(that.impulsePath.value);
@@ -3874,6 +4102,8 @@ function register() {
 
 				that.reverbetron.addEventListener('impulse_changed', function(ev) {
 					that.plotImpulse(ev.buffer);
+					that.impulsePath.value = reverbetron.impulsePath;
+					console.log('y ahora', reverbetron.impulsePath);
 				}, false);
 
 				that.plotImpulse(that.reverbetron.impulseResponse);
@@ -3963,6 +4193,8 @@ function register() {
 module.exports = {
 	register: register
 };
+
+
 
 },{}],37:[function(require,module,exports){
 var template = '<label><span class="label"></span> <input type="range" min="0" max="100" step="0.0001" /> <span class="valueDisplay">0</span></label>';

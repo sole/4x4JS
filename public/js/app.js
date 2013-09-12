@@ -180,11 +180,11 @@ function initialiseGear(audioContext) {
 	arpGUI.attachTo(arp);
 	guiContainer.appendChild(arpGUI);
 
-	rack.add(bass);
-	rack.add(pad);
+	rack.add(bass, bassGUI);
+	rack.add(pad, padGUI);
 	rack.add(dm808);
 	rack.add(dmCongas);
-	rack.add(arp);
+	rack.add(arp, arpGUI);
 
 	return g;
 }
@@ -427,7 +427,13 @@ function toggleGUI() {
 }
 
 function focusPrevInstrument() {
+	//var current = rack.selectedGUI;
+	//current.classList.remove('selected');
+
 	rack.selectPrevious();
+
+	//rack.selectedGUI.classList.add('selected');
+
 }
 
 
