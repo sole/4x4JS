@@ -72,6 +72,18 @@ x-deck > x-card[card-anim-type=fade][reverse][leaving]:not([before-animation]) {
 	opacity: 1;
 }
 
+
+x-deck > x-card {
+	display: -webkit-box;
+    display: -moz-box;
+	display: box;
+	-webkit-box-align: center;
+	-moz-box-align: center;
+	box-align: center;
+}
+
+/* --- */
+
 canvas {
 	display: block;
 }
