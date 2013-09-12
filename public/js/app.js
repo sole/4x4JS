@@ -221,21 +221,22 @@ function setupOSC(gear, player, osc) {
 
 			if(activeAlready) {
 
+				// TODO timeout for actually being very subtle and light touches
 				// arbitrary 'low' threshold
 				if(pressure <= 3) {
 					// release
-					console.log('release' , note);
 					selected.noteOff(note);
 					activePads[padIndex] = false;
 				} else {
-					// Do nothing! Else we'll retrig the same note
-					// TODO we could modulate the volume of current note
+					// Modulate current note with volume
+					var volume = pressure / 64.0;
+					var scaledVolume = Math.sqrt(volume);
+					selected.setVolume(note, scaledVolume);
 				}
 
 			} else {
 				// Another arbitrary threshold to prevent happy retrigging
 				if(pressure > 16) {
-					console.log('note on', note);
 					selected.noteOn(note);
 					activePads[padIndex] = true;
 				}
