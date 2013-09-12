@@ -1449,8 +1449,12 @@ var StringFormat = require('stringformat.js');
 
 var audioContext,
 	renderer,
+	rendererAnimationId,
+	updatePlayAnimationId,
+	sequencer,
 	deck,
 	guiContainer,
+	transportContainer,
 	transportTime,
 	transportOrder;
 
@@ -1468,6 +1472,7 @@ function start() {
 
 	deck = document.querySelector('x-deck');
 	guiContainer = document.getElementById('gui');
+	transportContainer = document.getElementById('transport');
 
 	// load song ajax
 	$.ajax({
@@ -1495,6 +1500,8 @@ function onSongDataLoaded(data) {
 	gear = initialiseGear(audioContext);
 	player.gear = gear; // TODO setter?
 
+	initialiseGraphics();
+
 	setupGearPlayerListeners(gear, player);
 	setupDeck(player, deck);
 	setupOSC(gear, player, osc);
@@ -1513,8 +1520,6 @@ function initialiseGear(audioContext) {
 	
 	rack = new Orxatron.Rack();
 
-	// Audio gear
-	// ----------
 	var Mixer = require('./gear/Mixer');
 	var mixer = new Mixer(audioContext);
 	mixer.output.connect(audioContext.destination);
@@ -1589,18 +1594,12 @@ function initialiseGear(audioContext) {
 		mixer.plug(index, instrument.output);
 	});
 	
-	//mixer.setFaderGain(0, 0.1);
-	//mixer.setFaderGain(1, 0.0);
-	
-	var Oscilloscope = require('./gear/Oscilloscope');
+	/*var Oscilloscope = require('./gear/Oscilloscope');
 	var oscilloscope = new Oscilloscope(audioContext);
 	mixer.output.connect(oscilloscope.input);
 	oscilloscope.domElement.id = 'oscilloscope';
-	document.body.appendChild(oscilloscope.domElement);
+	document.body.appendChild(oscilloscope.domElement);*/
 
-	// GFX gear
-	// --------
-	// TODO gfx gear!
 
 	// Gear GUI
 	// --------
@@ -1636,6 +1635,65 @@ function initialiseGear(audioContext) {
 	return g;
 }
 
+function initialiseGraphics() {
+	renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
+	renderer.autoClear = false;
+	renderer.setClearColorHex(0xFF0000);
+	rendererContainer.appendChild(renderer.domElement);
+	onWindowResize();
+
+	sequencer = new (require('./gfx/Sequencer').Sequencer)();
+
+	var EffectClear = require('./gfx/EffectClear');
+
+	var sequence = [
+		[ EffectClear, { start: 0 } ] // no end == until the end
+	];
+
+	var layerNumber = 0;
+	var lastEventTimestamp = player.eventsList[player.eventsList.length - 1].timestamp;
+
+	sequence.forEach(function(effect) {
+
+		var klass = effect[0],
+			timing = effect[1];
+
+		var instance = new klass(renderer);
+		var start = getPlayerTimeFor({ order: timing.start });
+		var end = timing.end !== undefined ? getPlayerTimeFor({ order: timing.end }) : lastEventTimestamp;
+
+		sequencer.add(instance, start, end, layerNumber);
+
+		layerNumber += 10;
+
+	});
+
+	window.addEventListener('resize', onWindowResize, false);
+}
+
+function getPlayerTimeFor(marker) {
+	var events = player.eventsList;
+	var eventsLength = events.length;
+
+	for(var i = 0; i < eventsLength; i++) {
+		var ev = events[i];
+		if(ev.order === marker.order) {
+			return ev.timestamp;
+		}
+	}
+}
+
+function onWindowResize() {
+	var width = window.innerWidth,
+		height = window.innerHeight;
+
+	renderer.setSize(width, height);
+}
+
+function render() {
+	rendererAnimationId = requestAnimationFrame(render);
+	sequencer.update(player.timePosition);
+}
 
 function setupGearPlayerListeners(gear, player) {
 	// listeners player <-> gear
@@ -1789,10 +1847,15 @@ function setupDeck(player, deck) {
 		var activeCard = deck.getSelectedCard();
 		var activeCardIndex = deck.getCardIndex(activeCard);
 
-		/*if(activeCardIndex !== slideIndex) {
+		slideIndex = ev.order; // TMP
+		if(activeCardIndex !== slideIndex) {
 			console.log('deck ⇒ shuffle to', slideIndex);
-			deck.shuffleTo(slideIndex);
-		}*/
+			try {
+				deck.shuffleTo(slideIndex);
+			} catch(e) {
+				// just in case we're missing slides
+			}
+		}
 	}, false);
 }
 
@@ -1812,12 +1875,13 @@ function setupKeyboardAndTransport() {
 	transportOrder = document.getElementById('order');
 
 	window.addEventListener('keyup', function(ev) {
-		
+	
 		var code = ev.keyCode;
-
+		//console.log(code);
 		switch(code) {
 			case 70: toggleFullScreen(); break;
 			case 71: toggleGUI(); break;
+			case 84: toggleTransport(); break;
 		}
 
 	}, false);
@@ -1829,6 +1893,9 @@ function play() {
 
 		updatePlayStatus();
 		osc.send(Quneo.getStopLedPath(), 0.5);
+
+		render();
+
 	}
 }
 
@@ -1838,13 +1905,14 @@ function updatePlayStatus() {
 	var v = (2 + Math.sin(t)) * 0.25;
 	osc.send(Quneo.getPlayLedPath(), v);
 	transportTime.innerHTML = StringFormat.secondsToHHMMSS(audioContext.currentTime);
-	requestAnimationFrame(updatePlayStatus);
+	updatePlayAnimationId = requestAnimationFrame(updatePlayStatus);
 }
 
 
 function pause() {
 	player.pause();
-	cancelAnimationFrame(updatePlayStatus);
+	cancelAnimationFrame(updatePlayAnimationId);
+	cancelAnimationFrame(rendererAnimationId);
 	osc.send(Quneo.getPlayLedPath(), 0);
 }
 
@@ -1873,6 +1941,10 @@ function toggleGUI() {
 	guiContainer.classList.toggle('hidden');
 }
 
+function toggleTransport() {
+	transportContainer.classList.toggle('hidden');
+}
+
 function focusPrevInstrument() {
 	//var current = rack.selectedGUI;
 	//current.classList.remove('selected');
@@ -1893,7 +1965,7 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":8,"./gear/Bajotron":18,"./gear/Colchonator":20,"./gear/Mixer":21,"./gear/Oscilloscope":24,"./gear/Porrompom":25,"./gear/gui/GUI":32,"./quneo.js":39,"stringformat.js":5}],16:[function(require,module,exports){
+},{"./Orxatron/":8,"./gear/Bajotron":18,"./gear/Colchonator":20,"./gear/Mixer":21,"./gear/Porrompom":24,"./gear/gui/GUI":31,"./gfx/EffectClear":38,"./gfx/Sequencer":39,"./quneo.js":41,"stringformat.js":5}],16:[function(require,module,exports){
 var EventDispatcher = require('EventDispatcher');
 
 function ADSR(audioContext, param, attack, decay, sustain, release) {
@@ -2626,7 +2698,7 @@ function Colchonator(audioContext, options) {
 
 module.exports = Colchonator;
 
-},{"./ADSR.js":16,"./Bajotron":18,"./NoiseGenerator":22,"./OscillatorVoice":23,"./Reverbetron":26,"EventDispatcher":1,"midiutils":4}],21:[function(require,module,exports){
+},{"./ADSR.js":16,"./Bajotron":18,"./NoiseGenerator":22,"./OscillatorVoice":23,"./Reverbetron":25,"EventDispatcher":1,"midiutils":4}],21:[function(require,module,exports){
 var EventDispatcher = require('eventdispatcher');
 
 // A simple mixer for avoiding early deafness
@@ -2907,7 +2979,7 @@ function NoiseGenerator(audioContext, options) {
 
 module.exports = NoiseGenerator;
 
-},{"./SampleVoice":27,"EventDispatcher":1}],23:[function(require,module,exports){
+},{"./SampleVoice":26,"EventDispatcher":1}],23:[function(require,module,exports){
 var MIDIUtils = require('midiutils');
 var EventDispatcher = require('EventDispatcher');
 
@@ -3040,87 +3112,6 @@ OscillatorVoice.WAVE_TYPE_TRIANGLE = 'triangle';
 module.exports = OscillatorVoice;
 
 },{"EventDispatcher":1,"midiutils":4}],24:[function(require,module,exports){
-function Oscilloscope(audioContext, options) {
-	
-	'use strict';
-
-	var canvasWidth = 200;
-	var canvasHeight = 100;
-	var canvasHalfWidth = canvasWidth * 0.5;
-	var canvasHalfHeight = canvasHeight * 0.5;
-	var numSlices = 32;
-	var inverseNumSlices = 1.0 / numSlices;
-
-	// Graphics
-	var container = document.createElement('div');
-	var canvas = document.createElement('canvas');
-	canvas.width = canvasWidth;
-	canvas.height = canvasHeight;
-	var ctx = canvas.getContext('2d');
-
-	container.appendChild(canvas);
-
-	// and audio
-	var analyser = audioContext.createAnalyser();
-	analyser.fftSize = 1024;
-	var bufferLength = analyser.frequencyBinCount;
-	var timeDomainArray = new Uint8Array(bufferLength);
-
-	console.log('buffer length oscilloscope', bufferLength);
-
-	update();
-
-	//
-
-	function update() {
-
-		requestAnimationFrame(update);
-
-		analyser.getByteTimeDomainData(timeDomainArray);
-
-		ctx.fillStyle = 'rgb(0, 0, 0)';
-		ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-		ctx.lineWidth = 1;
-		ctx.strokeStyle = 'rgb(0, 255, 0)';
-
-		ctx.beginPath();
-
-		var sliceWidth = canvasWidth * 1.0 / bufferLength;
-		var x = 0;
-
-
-		for(var i = 0; i < bufferLength; i++) {
-			
-			var v = timeDomainArray[i] / 128.0 /*- 0.5*/;
-			var y = (v /*+ 1*/) * canvasHalfHeight;
-
-			if(i === 0) {
-				ctx.moveTo(x, y);
-			} else {
-				ctx.lineTo(x, y);
-			}
-
-			x += sliceWidth;
-		}
-
-		ctx.lineTo(canvasWidth, canvasHalfHeight);
-
-		ctx.stroke();
-
-	}
-	
-	
-	// ~~~
-	
-	this.input = analyser;
-	this.domElement = container;
-
-}
-
-module.exports = Oscilloscope;
-
-},{}],25:[function(require,module,exports){
 var BufferLoader = require('./BufferLoader');
 var SampleVoice = require('./SampleVoice');
 var MIDIUtils = require('MIDIUtils');
@@ -3270,7 +3261,7 @@ function Porrompom(audioContext, options) {
 
 module.exports = Porrompom;
 
-},{"./BufferLoader":19,"./SampleVoice":27,"MIDIUtils":2}],26:[function(require,module,exports){
+},{"./BufferLoader":19,"./SampleVoice":26,"MIDIUtils":2}],25:[function(require,module,exports){
 var EventDispatcher = require('EventDispatcher');
 
 function Reverbetron(audioContext) {
@@ -3374,7 +3365,7 @@ module.exports = Reverbetron;
 
 
 
-},{"EventDispatcher":1}],27:[function(require,module,exports){
+},{"EventDispatcher":1}],26:[function(require,module,exports){
 // This voice plays a buffer / sample, and it's capable of regenerating the buffer source once noteOff has been called
 // TODO set a base note and use it + noteOn note to play relatively pitched notes
 
@@ -3461,7 +3452,7 @@ function SampleVoice(audioContext, options) {
 
 module.exports = SampleVoice;
 
-},{}],28:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 
 var adsrProps = ['attack', 'decay', 'sustain', 'release'];
 
@@ -3527,7 +3518,7 @@ module.exports = {
 	register: register
 };
 
-},{}],29:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 function register() {
 	
 	'use strict';
@@ -3578,7 +3569,7 @@ module.exports = {
 	register: register
 };
 
-},{}],30:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 function register() {
 	var bajotronTemplate = '<label>portamento <input type="checkbox" /></label><br/>' +
 		'<div class="numVoicesContainer"></div>' +
@@ -3711,7 +3702,7 @@ module.exports = {
 };
 
 
-},{}],31:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 var template = '<header>Colchonator</header><div class="numVoicesContainer"></div>' + 
 	'<div class="bajotronContainer"></div>' +
 	'<div class="reverbContainer"></div>' /*+
@@ -3803,7 +3794,7 @@ module.exports = {
 	register: register
 };
 
-},{}],32:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 var Slider = require('./Slider');
 var ADSRGUI = require('./ADSRGUI');
 var MixerGUI = require('./MixerGUI');
@@ -3837,7 +3828,7 @@ module.exports = {
 	init: init
 };
 
-},{"./ADSRGUI":28,"./ArithmeticMixerGUI":29,"./BajotronGUI":30,"./ColchonatorGUI":31,"./MixerGUI":33,"./NoiseGeneratorGUI":34,"./OscillatorVoiceGUI":35,"./ReverbetronGUI":36,"./Slider":37}],33:[function(require,module,exports){
+},{"./ADSRGUI":27,"./ArithmeticMixerGUI":28,"./BajotronGUI":29,"./ColchonatorGUI":30,"./MixerGUI":32,"./NoiseGeneratorGUI":33,"./OscillatorVoiceGUI":34,"./ReverbetronGUI":35,"./Slider":36}],32:[function(require,module,exports){
 var template = '<div class="master"></div>' +
 	'<div class="sliders"></div>';
 
@@ -3924,7 +3915,7 @@ module.exports = {
 	register: register
 };
 
-},{}],34:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 var template = '<label>colour <select><option value="white">white</option><option value="pink">pink</option><option value="brown">brown</option></select></label><br />';
 
 function register() {
@@ -3988,7 +3979,7 @@ module.exports = {
 	register: register
 };
 
-},{}],35:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 var template = '<label>octave <input type="number" min="0" max="10" step="1" value="5" /></label><br />' +
 	'<select><option value="sine">sine</option><option value="square">square</option><option value="sawtooth">sawtooth</option><option value="triangle">triangle</option></select>';
 
@@ -4056,7 +4047,7 @@ module.exports = {
 	register: register
 };
 
-},{}],36:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 var template = '<header>Reverbetron</header><div class="wetContainer"></div>' + 
 	'<div><label>Impulse response<select></select><br /><canvas width="200" height="100"></canvas></label></div>';
 
@@ -4196,7 +4187,7 @@ module.exports = {
 
 
 
-},{}],37:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 var template = '<label><span class="label"></span> <input type="range" min="0" max="100" step="0.0001" /> <span class="valueDisplay">0</span></label>';
 
 function register() {
@@ -4322,7 +4313,198 @@ module.exports = {
 	register: register
 };
 
-},{}],38:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
+var SequencerItem = require('./Sequencer').SequencerItem;
+
+var Effect = function( renderer ) { };
+Effect.prototype = Object.create( SequencerItem.prototype );
+
+Effect.prototype.processEvents = function( startTime, endTime, eventsList ) {
+	console.log('processing events', startTime, endTime);
+};
+
+Effect.prototype.setSize = function( width, height ) {
+};
+
+module.exports = Effect;
+
+},{"./Sequencer":39}],38:[function(require,module,exports){
+var Effect = require('./Effect');
+
+var EffectClear = function ( renderer ) {
+
+	Effect.call( this );
+
+	// All this effect does is clearing the renderer. Dull, huh!?
+	this.update = function ( time ) {
+		console.log('?', time);
+		renderer.clear();
+	};
+
+};
+
+EffectClear.prototype = new Effect();
+EffectClear.prototype.constructor = EffectClear;
+
+module.exports = EffectClear;
+
+},{"./Effect":37}],39:[function(require,module,exports){
+// sequencer by @mrdoob
+// this is old code. Del año de la carraca, y tal.
+/**
+ * @author mr.doob / http://mrdoob.com/
+ */
+
+var Sequencer = function () {
+
+	var _item,
+	_items = [],
+	_itemsActive = [],
+	_itemsToRemove = [],
+
+	_nextItem = 0,
+	_nextItemToRemove = 0,
+	_time = 0,
+
+	_layersNeedSorting = false;
+
+	this.add = function ( item, start, end, layer ) {
+
+		item.__active = false;
+		item.__start = start;
+		item.__duration = end - start;
+		item.__end = end;
+		item.__layer = layer;
+
+		item.init();
+
+		_items.push( item );
+		_items.sort( function ( a, b ) { return a.__start - b.__start; } );
+
+		_itemsToRemove.push( item );
+		_itemsToRemove.sort( function ( a, b ) { return a.__end - b.__end; } );
+
+	};
+
+	this.update = function ( time ) {
+
+		if ( time < _time ) {
+
+			this.clear();
+			_time = time;
+
+		}
+
+		while ( _items[ _nextItem ] ) {
+
+			_item = _items[ _nextItem ];
+
+			if ( _item.__start > time ) {
+
+				break;
+
+			}
+
+			if ( !_item.__active && _item.__end > time ) {
+
+				_item.show( ( time - _item.__start ) / _item.__duration );
+				_item.__active = true;
+
+				_itemsActive.push( _item );
+
+				_layersNeedSorting = true;
+
+			}
+
+			_nextItem ++;
+
+		}
+
+		while ( _itemsToRemove[ _nextItemToRemove ] ) {
+
+			_item = _itemsToRemove[ _nextItemToRemove ];
+
+			if ( _item.__end > time ) {
+
+				break;
+
+			}
+
+			if ( _item.__active ) {
+
+				_item.hide();
+				_item.__active = false;
+
+				var i = _itemsActive.indexOf( _item );
+
+				if ( i !== -1 ) {
+
+					_itemsActive.splice( i, 1 );
+
+				}
+
+			}
+
+			_nextItemToRemove ++;
+
+		}
+
+		if ( _layersNeedSorting ) {
+
+			_itemsActive.sort( function ( a, b ) { return a.__layer - b.__layer; } );
+			_layersNeedSorting = false;
+
+		}
+
+		for ( var i = 0, l = _itemsActive.length; i < l; i ++ ) {
+
+			_item = _itemsActive[ i ];
+			_item.update( ( time - _item.__start ) / _item.__duration, time - _time, time );
+
+		}
+
+		_time = time;
+
+	};
+
+	this.clear = function () {
+
+		_nextItem = 0;
+		_nextItemToRemove = 0;
+
+		while ( _itemsActive.length ) {
+
+			_item = _itemsActive[ 0 ];
+			_item.__active = false;
+			_item.hide();
+			_itemsActive.splice( 0, 1 );
+
+		}
+
+	};
+
+};
+
+var SequencerItem = function () {};
+
+SequencerItem.prototype = {
+
+	constructor: SequencerItem,
+
+	init: function () {},
+	load: function () {},
+	show: function ( progress ) {},
+	hide: function () {},
+	update: function ( progress, delta, time ) {}
+
+};
+
+module.exports = {
+	Sequencer: Sequencer,
+	SequencerItem: SequencerItem
+};
+
+},{}],40:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -4330,7 +4512,7 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":15}],39:[function(require,module,exports){
+},{"./app":15}],41:[function(require,module,exports){
 var i, j;
 var leds = {};
 var columnLeds = {};
@@ -4412,5 +4594,5 @@ module.exports = {
 	getStopLedPath: getStopLedPath
 };
 
-},{}]},{},[38])
+},{}]},{},[40])
 ;

@@ -73,8 +73,6 @@ function initialiseGear(audioContext) {
 	
 	rack = new Orxatron.Rack();
 
-	// Audio gear
-	// ----------
 	var Mixer = require('./gear/Mixer');
 	var mixer = new Mixer(audioContext);
 	mixer.output.connect(audioContext.destination);
@@ -197,11 +195,45 @@ function initialiseGraphics() {
 	rendererContainer.appendChild(renderer.domElement);
 	onWindowResize();
 
-	sequencer = new (require('./gfx/Sequencer'))();
+	sequencer = new (require('./gfx/Sequencer').Sequencer)();
 
+	var EffectClear = require('./gfx/EffectClear');
 
+	var sequence = [
+		[ EffectClear, { start: 0 } ] // no end == until the end
+	];
+
+	var layerNumber = 0;
+	var lastEventTimestamp = player.eventsList[player.eventsList.length - 1].timestamp;
+
+	sequence.forEach(function(effect) {
+
+		var klass = effect[0],
+			timing = effect[1];
+
+		var instance = new klass(renderer);
+		var start = getPlayerTimeFor({ order: timing.start });
+		var end = timing.end !== undefined ? getPlayerTimeFor({ order: timing.end }) : lastEventTimestamp;
+
+		sequencer.add(instance, start, end, layerNumber);
+
+		layerNumber += 10;
+
+	});
 
 	window.addEventListener('resize', onWindowResize, false);
+}
+
+function getPlayerTimeFor(marker) {
+	var events = player.eventsList;
+	var eventsLength = events.length;
+
+	for(var i = 0; i < eventsLength; i++) {
+		var ev = events[i];
+		if(ev.order === marker.order) {
+			return ev.timestamp;
+		}
+	}
 }
 
 function onWindowResize() {

@@ -1,111 +1,114 @@
 // sequencer by @mrdoob
 // this is old code. Del año de la carraca, y tal.
+/**
+ * @author mr.doob / http://mrdoob.com/
+ */
+
 var Sequencer = function () {
 
-	var _effect,
-	_effects = [],
-	_effectsActive = [],
-	_effectsToRemove = [],
+	var _item,
+	_items = [],
+	_itemsActive = [],
+	_itemsToRemove = [],
 
-	_nextEffect = 0,
-	_nextEffectToRemove = 0,
+	_nextItem = 0,
+	_nextItemToRemove = 0,
 	_time = 0,
 
 	_layersNeedSorting = false;
 
-	this.add = function ( effect, start_time, end_time, layer ) {
+	this.add = function ( item, start, end, layer ) {
 
-		effect.__active = false;
-		effect.__start_time = start_time;
-		effect.__duration = end_time - start_time;
-		effect.__end_time = end_time;
-		effect.__layer = layer;
+		item.__active = false;
+		item.__start = start;
+		item.__duration = end - start;
+		item.__end = end;
+		item.__layer = layer;
 
-		effect.init();
+		item.init();
 
-		_effects.push( effect );
-		_effects.sort( function ( a, b ) { return a.__start_time - b.__start_time; } );
+		_items.push( item );
+		_items.sort( function ( a, b ) { return a.__start - b.__start; } );
 
-		_effectsToRemove.push( effect );
-		_effectsToRemove.sort( function ( a, b ) { return a.__end_time - b.__end_time; } );
+		_itemsToRemove.push( item );
+		_itemsToRemove.sort( function ( a, b ) { return a.__end - b.__end; } );
 
 	};
 
 	this.update = function ( time ) {
 
-		var effect;
-
 		if ( time < _time ) {
 
 			this.clear();
+			_time = time;
 
 		}
 
-		while ( _effects[ _nextEffect ] ) {
+		while ( _items[ _nextItem ] ) {
 
-			effect = _effects[ _nextEffect ];
+			_item = _items[ _nextItem ];
 
-			if ( effect.__start_time > time ) {
+			if ( _item.__start > time ) {
 
 				break;
 
 			}
 
-			if ( !effect.__active && effect.__end_time > time ) {
+			if ( !_item.__active && _item.__end > time ) {
 
-				effect.show();
-				effect.__active = true;
+				_item.show( ( time - _item.__start ) / _item.__duration );
+				_item.__active = true;
 
-				_effectsActive.push( effect );
+				_itemsActive.push( _item );
 
 				_layersNeedSorting = true;
 
 			}
 
-			_nextEffect ++;
+			_nextItem ++;
 
 		}
 
-		while ( _effectsToRemove[ _nextEffectToRemove ] ) {
+		while ( _itemsToRemove[ _nextItemToRemove ] ) {
 
-			effect = _effectsToRemove[ _nextEffectToRemove ];
+			_item = _itemsToRemove[ _nextItemToRemove ];
 
-			if ( effect.__end_time > time ) {
+			if ( _item.__end > time ) {
 
 				break;
 
 			}
 
-			if ( effect.__active ) {
+			if ( _item.__active ) {
 
-				effect.hide();
-				effect.__active = false;
+				_item.hide();
+				_item.__active = false;
 
-				var i = _effectsActive.indexOf( effect );
+				var i = _itemsActive.indexOf( _item );
 
 				if ( i !== -1 ) {
 
-					_effectsActive.splice( i, 1 );
+					_itemsActive.splice( i, 1 );
 
 				}
 
 			}
 
-			_nextEffectToRemove ++;
+			_nextItemToRemove ++;
 
 		}
 
 		if ( _layersNeedSorting ) {
 
-			_effectsActive.sort( function ( a, b ) { return a.__layer - b.__layer; } );
+			_itemsActive.sort( function ( a, b ) { return a.__layer - b.__layer; } );
 			_layersNeedSorting = false;
 
 		}
 
-		for ( var i = 0, l = _effectsActive.length; i < l; i ++ ) {
+		for ( var i = 0, l = _itemsActive.length; i < l; i ++ ) {
 
-			_effect = _effectsActive[ i ];
-			_effect.update( ( time - _effect.__start_time ) / _effect.__duration );
+			_item = _itemsActive[ i ];
+			_item.update( ( time - _item.__start ) / _item.__duration, time - _time, time );
 
 		}
 
@@ -115,25 +118,37 @@ var Sequencer = function () {
 
 	this.clear = function () {
 
-		_nextEffect = 0;
-		_nextEffectToRemove = 0;
+		_nextItem = 0;
+		_nextItemToRemove = 0;
 
-		while ( _effectsActive.length ) {
+		while ( _itemsActive.length ) {
 
-			_effect = _effectsActive[ 0 ];
-			_effect.__active = false;
-			_effect.hide();
-			_effectsActive.splice( 0, 1 );
+			_item = _itemsActive[ 0 ];
+			_item.__active = false;
+			_item.hide();
+			_itemsActive.splice( 0, 1 );
 
 		}
 
 	};
 
-	this.getNumActiveEffects = function() {
-		return _effectsActive.length;
-	}
+};
+
+var SequencerItem = function () {};
+
+SequencerItem.prototype = {
+
+	constructor: SequencerItem,
+
+	init: function () {},
+	load: function () {},
+	show: function ( progress ) {},
+	hide: function () {},
+	update: function ( progress, delta, time ) {}
 
 };
 
-
-module.exports = Sequencer;
+module.exports = {
+	Sequencer: Sequencer,
+	SequencerItem: SequencerItem
+};
