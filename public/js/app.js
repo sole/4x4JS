@@ -2,6 +2,9 @@ var StringFormat = require('stringformat.js');
 
 var audioContext,
 	renderer,
+	rendererAnimationId,
+	updatePlayAnimationId,
+	sequencer,
 	deck,
 	guiContainer,
 	transportContainer,
@@ -194,6 +197,10 @@ function initialiseGraphics() {
 	rendererContainer.appendChild(renderer.domElement);
 	onWindowResize();
 
+	sequencer = new (require('./gfx/Sequencer'))();
+
+
+
 	window.addEventListener('resize', onWindowResize, false);
 }
 
@@ -205,9 +212,8 @@ function onWindowResize() {
 }
 
 function render() {
-	requestAnimationFrame(render);
-	console.log('go');
-	// sequencer.update(player.currentTime);
+	rendererAnimationId = requestAnimationFrame(render);
+	sequencer.update(player.timePosition);
 }
 
 function setupGearPlayerListeners(gear, player) {
@@ -409,8 +415,8 @@ function play() {
 		updatePlayStatus();
 		osc.send(Quneo.getStopLedPath(), 0.5);
 
-		cancelAnimationFrame(render);
-		requestAnimationFrame(render);
+		render();
+
 	}
 }
 
@@ -420,13 +426,14 @@ function updatePlayStatus() {
 	var v = (2 + Math.sin(t)) * 0.25;
 	osc.send(Quneo.getPlayLedPath(), v);
 	transportTime.innerHTML = StringFormat.secondsToHHMMSS(audioContext.currentTime);
-	requestAnimationFrame(updatePlayStatus);
+	updatePlayAnimationId = requestAnimationFrame(updatePlayStatus);
 }
 
 
 function pause() {
 	player.pause();
-	cancelAnimationFrame(updatePlayStatus);
+	cancelAnimationFrame(updatePlayAnimationId);
+	cancelAnimationFrame(rendererAnimationId);
 	osc.send(Quneo.getPlayLedPath(), 0);
 }
 
