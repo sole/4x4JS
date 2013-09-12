@@ -15,7 +15,9 @@ var configurations = module.exports;
 var settings = require('./settings')(app, configurations, express);
 var server = require('http').createServer(app);
 var osc = require('node-osc');
-var io = require('socket.io').listen(server);
+var io = require('socket.io').listen(server, {
+	logLevel: 0
+});
 
 
 /* Filters for routes */
