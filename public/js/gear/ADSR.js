@@ -69,7 +69,8 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 		param.cancelScheduledValues(now);
 		param.linearRampToValueAtTime(0, now + this.release);
-		param.setValueAtTime(0, now + this.release + 0.001);
+		// TODO is this thing below really needed?
+		//param.setValueAtTime(0, now + this.release + 0.001);
 	};
 
 }
