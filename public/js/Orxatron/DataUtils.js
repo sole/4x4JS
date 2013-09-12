@@ -112,11 +112,16 @@ function renoiseToOrxatron(json) {
 						
 						columnData.note = column.Note || null;
 
+						if(columnData.note === '---') {
+							// Probably "same note, no change"?
+							columnData.note = null;
+						}
+
 						// TODO when instrument is '..'
 						columnData.instrument = column.Instrument | 0;
 
 						if(column.Volume !== undefined && column.Volume !== '..') {
-							columnData.volume = column.Volume | 0;
+							columnData.volume = parseInt(column.Volume, 16) * 1.0 / 0x80;
 						}
 
 						lineData.columns.push(columnData);
@@ -124,7 +129,6 @@ function renoiseToOrxatron(json) {
 				}
 
 				if(line.EffectColumns) {
-					//console.log('with effect', line);
 
 					var effectColumns = line.EffectColumns.EffectColumn;
 
@@ -138,7 +142,6 @@ function renoiseToOrxatron(json) {
 						lineData.effects.push({ name: name, value: value });
 					});
 					
-					// console.log(line.$.index, 'effect number', line.EffectColumns.EffectColumn.Number , line.EffectColumns.EffectColumn.Value);
 				}
 				
 				trackData.push(lineData);
