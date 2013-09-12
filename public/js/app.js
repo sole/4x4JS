@@ -21,7 +21,6 @@ function start() {
 
 	deck = document.querySelector('x-deck');
 	guiContainer = document.getElementById('gui');
-	console.log('gui container', guiContainer);
 
 	// load song ajax
 	$.ajax({
@@ -361,8 +360,20 @@ function setupKeyboardAndTransport() {
 	$('#fwd').on('click', function() {
 		playerJumpTo(1);
 	});
+
 	transportTime = document.getElementById('time');
 	transportOrder = document.getElementById('order');
+
+	window.addEventListener('keyup', function(ev) {
+		
+		var code = ev.keyCode;
+
+		switch(code) {
+			case 70: toggleFullScreen(); break;
+			case 71: toggleGUI(); break;
+		}
+
+	}, false);
 }
 
 function play() {
@@ -406,6 +417,14 @@ function playerJumpTo(offset) {
 
 }
 
+
+function toggleFullScreen() {
+	console.log('toggle fs');
+}
+
+function toggleGUI() {
+	guiContainer.classList.toggle('hidden');
+}
 
 function focusPrevInstrument() {
 	rack.selectPrevious();
