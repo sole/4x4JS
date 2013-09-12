@@ -4,6 +4,7 @@ var audioContext,
 	renderer,
 	deck,
 	guiContainer,
+	transportContainer,
 	transportTime,
 	transportOrder;
 
@@ -21,6 +22,7 @@ function start() {
 
 	deck = document.querySelector('x-deck');
 	guiContainer = document.getElementById('gui');
+	transportContainer = document.getElementById('transport');
 
 	// load song ajax
 	$.ajax({
@@ -342,10 +344,15 @@ function setupDeck(player, deck) {
 		var activeCard = deck.getSelectedCard();
 		var activeCardIndex = deck.getCardIndex(activeCard);
 
-		/*if(activeCardIndex !== slideIndex) {
+		slideIndex = ev.order; // TMP
+		if(activeCardIndex !== slideIndex) {
 			console.log('deck ⇒ shuffle to', slideIndex);
-			deck.shuffleTo(slideIndex);
-		}*/
+			try {
+				deck.shuffleTo(slideIndex);
+			} catch(e) {
+				// just in case we're missing slides
+			}
+		}
 	}, false);
 }
 
@@ -365,12 +372,13 @@ function setupKeyboardAndTransport() {
 	transportOrder = document.getElementById('order');
 
 	window.addEventListener('keyup', function(ev) {
-		
+	
 		var code = ev.keyCode;
-
+		//console.log(code);
 		switch(code) {
 			case 70: toggleFullScreen(); break;
 			case 71: toggleGUI(); break;
+			case 84: toggleTransport(); break;
 		}
 
 	}, false);
@@ -424,6 +432,10 @@ function toggleFullScreen() {
 
 function toggleGUI() {
 	guiContainer.classList.toggle('hidden');
+}
+
+function toggleTransport() {
+	transportContainer.classList.toggle('hidden');
 }
 
 function focusPrevInstrument() {
