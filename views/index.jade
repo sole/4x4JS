@@ -4,27 +4,38 @@ block content
 
 	#rendererContainer
 
-	x-deck
+	x-deck(transition-type="fade")
+		
+		x-card.opaque
+			header
+				h1 Hello JSConfEU!
+		
 		x-card
 			header
-				h1 Look at this!
-			p isn't it amazing?!?!
+				h1 I /love/ music
+
+		x-card
+			header
+				h1 Another one
+
+		x-card
+			header
+				h1 guess what...
 
 		x-card
 			header
 				h1 I dunno
 			p I'm an skeptic
 
-	#transport
-		span#time 
-		span#order
+	#transport.hidden
 		button#rew ❚◀◀
 		button#play ▶
 		button#pause ❚❚
 		button#fwd ▶▶❚
-		
+		#time 
+		#order
 	
-	#gui
+	#gui.hidden
 
 	script(src='/socket.io/socket.io.js', type='text/javascript')
 	script(src='/js/libs/x-tag/core.js', type='text/javascript')

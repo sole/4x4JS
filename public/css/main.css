@@ -8,6 +8,7 @@ html, body, #wrapper {
 	position: relative;
 	height: 100%;
 	width: 100%;
+	font-family: Helvetica, Arial, sans-serif;
 }
 
 #wrapper > * {
@@ -22,9 +23,53 @@ html, body, #wrapper {
 	width: 100%;
 }
 
+h1, h2, h3, h4, h5, h6 {
+	font-weight: 400;
+}
+
 x-deck {
 	/*border: 1px solid red;*/
-	font-family: Helvetica, Arial, sans-serif;
+}
+
+x-card {
+	padding: 1.5rem;
+	font-size: 3rem;
+	color: #fff;
+}
+
+x-card.opaque:nth-child(1n) {
+	background: #5fc7ab;
+}
+
+x-card:nth-child(2n) {
+	background: #e49280;
+}
+
+x-card:nth-child(3n) {
+	background: #e4ed80;
+}
+
+x-card:nth-child(4n) {
+	background: #e0a727;
+}
+
+x-deck > x-card {
+	transition-property: all;
+	transition-duration: 1s;
+}
+
+x-deck > x-card[card-anim-type=fade]:not([reverse])[selected][before-animation] {
+	opacity: 0;
+}
+
+x-deck > x-card[card-anim-type=fade]:not([reverse])[leaving]:not([before-animation]) {
+	opacity: 1;
+}
+x-deck > x-card[card-anim-type=fade][reverse][selected][before-animation] {
+	opacity: 0;
+}
+x-deck > x-card[card-anim-type=fade][reverse][leaving]:not([before-animation]) {
+	opacity: 1;
 }
 
 canvas {
@@ -36,7 +81,12 @@ canvas {
 	width: 100%;
 	text-align: right;
 	z-index: 10;
+	transition: opacity 0.3s ease-in;
 }
+	#transport.hidden {
+		opacity: 0;
+	}
+
 	#transport button {
 		padding: 0.5rem 0.5rem;
 		border: 1px solid #999;
@@ -51,6 +101,11 @@ canvas {
 			background: #333;
 			text-shadow: 0px 0px 6px #0f0;
 		}
+	
+	#time, #order {
+		font-size: 0.7rem;
+		text-transform: uppercase;
+	}
 
 #oscilloscope {
 	position: absolute;
