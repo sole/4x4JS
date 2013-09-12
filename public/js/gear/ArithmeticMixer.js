@@ -9,7 +9,7 @@ function ArithmeticMixer(audioContext) {
 	// output -> script processor
 	// mix function
 	var processor = audioContext.createScriptProcessor(2048, 2, 1);
-	var mixFunction = multiply;
+	var mixFunction = sum;
 
 	EventDispatcher.call(this);
 
