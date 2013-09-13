@@ -1,8 +1,6 @@
 var template = '<header>Colchonator</header><div class="numVoicesContainer"></div>' + 
 	'<div class="bajotronContainer"></div>' +
-	'<div class="reverbContainer"></div>' /*+
-	'<div class="adsrContainer"></div>' +
-	'<div class="noiseContainer"></div>'*/;
+	'<div class="reverbContainer"></div>';
 
 
 function register() {
@@ -30,24 +28,6 @@ function register() {
 				this.reverb = document.createElement('gear-reverbetron');
 				this.reverbContainer.appendChild(this.reverb);
 
-
-
-				/*this.adsrContainer = this.querySelector('.adsrContainer');
-				this.adsr = document.createElement('gear-adsr');
-				this.adsrContainer.appendChild(this.adsr);
-
-				this.noiseContainer = this.querySelector('.noiseContainer');
-				this.noise = document.createElement('gear-noise-generator');
-				this.noiseContainer.appendChild(this.noise);
-
-				this.noiseAmount = document.createElement('gear-slider');
-				this.noiseAmount.label = 'noise amount';
-				this.noiseAmount.min = 0;
-				this.noiseAmount.max = 1;
-				this.noiseAmount.step = 0.001;
-				this.noiseAmount.value = 0;*/
-
-
 			}
 		},
 		methods: {
@@ -68,11 +48,6 @@ function register() {
 
 				// fake bajotron
 				this.bajotron.attachTo(colchonator.bajotron);
-
-				// voice ADSR
-
-				// noise
-				// this.noise.attachTo(colchonator.noiseGenerator);
 
 			},
 
