@@ -64,6 +64,11 @@ function onSongDataLoaded(data) {
 
 	resetQuneo();
 
+	var lastIndex = readURL();
+	if(lastIndex) {
+		player.jumpToOrder(lastIndex, 0);
+	}
+
 }
 
 
@@ -410,7 +415,9 @@ function setupDeck(player, deck) {
 			} catch(e) {
 				// just in case we're missing slides
 			}
+			saveURL(slideIndex);
 		}
+
 	}, false);
 }
 
@@ -501,18 +508,31 @@ function toggleTransport() {
 }
 
 function focusPrevInstrument() {
-	//var current = rack.selectedGUI;
-	//current.classList.remove('selected');
-
 	rack.selectPrevious();
-
-	//rack.selectedGUI.classList.add('selected');
-
 }
 
 
 function focusNextInstrument() {
 	rack.selectNext();
+}
+
+
+function saveURL(index) {
+	window.location.hash = index;
+}
+
+
+function readURL() {
+
+	var index = null;
+	
+	if(window.location.hash) {
+		var hash = window.location.hash;
+		hash = hash.replace('#', '');
+		index = parseInt(hash, 10);
+	}
+
+	return index;
 }
 
 
