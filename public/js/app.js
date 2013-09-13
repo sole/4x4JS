@@ -441,6 +441,10 @@ function setupKeyboardAndTransport() {
 		var code = ev.keyCode;
 		//console.log(code);
 		switch(code) {
+			// prev/next with arrows too
+			case 37: playerJumpTo(-1); break;
+			case 39: playerJumpTo( 1); break;
+			// misc controls
 			case 70: toggleFullScreen(); break;
 			case 71: toggleGUI(); break;
 			case 84: toggleTransport(); break;

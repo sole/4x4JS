@@ -1511,6 +1511,11 @@ function onSongDataLoaded(data) {
 
 	resetQuneo();
 
+	var lastIndex = readURL();
+	if(lastIndex) {
+		player.jumpToOrder(lastIndex, 0);
+	}
+
 }
 
 
@@ -1857,7 +1862,9 @@ function setupDeck(player, deck) {
 			} catch(e) {
 				// just in case we're missing slides
 			}
+			saveURL(slideIndex);
 		}
+
 	}, false);
 }
 
@@ -1881,6 +1888,10 @@ function setupKeyboardAndTransport() {
 		var code = ev.keyCode;
 		//console.log(code);
 		switch(code) {
+			// prev/next with arrows too
+			case 37: playerJumpTo(-1); break;
+			case 39: playerJumpTo( 1); break;
+			// misc controls
 			case 70: toggleFullScreen(); break;
 			case 71: toggleGUI(); break;
 			case 84: toggleTransport(); break;
@@ -1936,7 +1947,26 @@ function playerJumpTo(offset) {
 
 
 function toggleFullScreen() {
-	console.log('toggle fs');
+
+	var requestFS = document.body.requestFullScreen || 
+		document.body.mozRequestFullScreen ||
+		document.body.webkitRequestFullScreen;
+
+	var cancelFS = document.body.cancelFullScreen ||
+		document.mozCancelFullScreen ||
+		document.webkitCancelFullScreen;
+
+	var fs = window.fullScreen ||
+		document.fullscreenElement ||
+		document.mozFullScreenElement || 
+		document.webkitFullscreenElement;
+
+	if(fs) {
+		cancelFS.call(document);
+	} else {
+		requestFS.call(document.body, Element.ALLOW_KEYBOARD_INPUT);
+	}
+
 }
 
 function toggleGUI() {
@@ -1948,18 +1978,31 @@ function toggleTransport() {
 }
 
 function focusPrevInstrument() {
-	//var current = rack.selectedGUI;
-	//current.classList.remove('selected');
-
 	rack.selectPrevious();
-
-	//rack.selectedGUI.classList.add('selected');
-
 }
 
 
 function focusNextInstrument() {
 	rack.selectNext();
+}
+
+
+function saveURL(index) {
+	window.location.hash = index;
+}
+
+
+function readURL() {
+
+	var index = null;
+	
+	if(window.location.hash) {
+		var hash = window.location.hash;
+		hash = hash.replace('#', '');
+		index = parseInt(hash, 10);
+	}
+
+	return index;
 }
 
 
