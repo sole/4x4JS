@@ -24,20 +24,29 @@ html, body, #wrapper {
 }
 
 h1, h2, h3, h4, h5, h6 {
-	font-weight: 400;
+	font-weight: 500;
 }
 
 x-deck {
-	/*border: 1px solid red;*/
 }
 
 x-card {
 	padding: 1.5rem;
-	font-size: 3rem;
+	font-size: 4rem;
 	color: #fff;
 }
 
-x-card.opaque:nth-child(1n) {
+x-card h1 {
+	font-size: 10rem;
+	letter-spacing: -0.6rem;
+}
+
+x-card div h1 {
+	font-size: 6rem;
+	letter-spacing: -0.2rem;
+}
+
+/*x-card.opaque:nth-child(1n) {
 	background: #5fc7ab;
 }
 
@@ -51,7 +60,7 @@ x-card:nth-child(3n) {
 
 x-card:nth-child(4n) {
 	background: #e0a727;
-}
+}*/
 
 x-deck > x-card {
 	transition-property: all;
