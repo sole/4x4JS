@@ -22,7 +22,7 @@ function register() {
 				this.bajotron = document.createElement('gear-bajotron');
 				this.bajotronContainer.appendChild(this.bajotron);
 
-				// TODO - hide some things like the number of voices?
+				// TODO - hide some things like the number of voices in each bajotron (?)
 
 				this.reverbContainer = this.querySelector('.reverbContainer');
 				this.reverb = document.createElement('gear-reverbetron');
@@ -37,11 +37,7 @@ function register() {
 
 				this.colchonator = colchonator;
 
-				this.numVoices.attachToObject(colchonator, 'numVoices', function() {
-					console.log('num voices changed', that.numVoices.value);
-				}, 'num_voices_change', function() {
-					console.log('colchonator num voices changed', colchonator.numVoices);
-				});
+				this.numVoices.attachToObject(colchonator, 'numVoices', null, 'num_voices_change');
 
 				// reverb settings/gui
 				this.reverb.attachTo(colchonator.reverb);
