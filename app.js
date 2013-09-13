@@ -80,6 +80,25 @@ oscServer.on('message', function(msg, rinfo) {
 	}
 });
 
+/*
+var twitter = require('twitter-oauth');
+
+var twitterAuth = twitter({
+	consumerKey: nconf.get('twitterConsumerKey'),
+	domain: nconf.get('twitterDomain'),
+	consumerSecret: nconf.get('twitterConsumerSecret'),
+	//loginCallback: '/twitter/sessions/callback',
+	completeCallback: '/'
+});
+
+twitterAuth.search('@supersole', nconf.get('twitterToken'), nconf.get('twitterTokenSecret'), function (err, results) {
+	if(err) {
+		console.log(err);
+	} else {
+		console.log(results);
+	}
+});
+*/
 
 // c'est fini
 server.listen(port);
