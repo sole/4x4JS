@@ -9,7 +9,6 @@ SUPER BROKEN
 - bajotron release doesn't work properly
 	- weirdness if it doesnt reach sustain (?) then on release goes directly to 0
 
-- fullscreen
 - twitter thingie
 - slides
 - multiple scenes etc

@@ -496,7 +496,26 @@ function playerJumpTo(offset) {
 
 
 function toggleFullScreen() {
-	console.log('toggle fs');
+
+	var requestFS = document.body.requestFullScreen || 
+		document.body.mozRequestFullScreen ||
+		document.body.webkitRequestFullScreen;
+
+	var cancelFS = document.body.cancelFullScreen ||
+		document.mozCancelFullScreen ||
+		document.webkitCancelFullScreen;
+
+	var fs = window.fullScreen ||
+		document.fullscreenElement ||
+		document.mozFullScreenElement || 
+		document.webkitFullscreenElement;
+
+	if(fs) {
+		cancelFS.call(document);
+	} else {
+		requestFS.call(document.body, Element.ALLOW_KEYBOARD_INPUT);
+	}
+
 }
 
 function toggleGUI() {
