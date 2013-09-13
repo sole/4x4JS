@@ -38,9 +38,10 @@ function Colchonator(audioContext, options) {
 		setVoicesNoiseAmount(ev.amount);
 	});
 
-	// voiceSettings - octaves and shapes
-	// TODO not sure how to do that :-(
-	
+	dummyBajotron.addEventListener('voice_change', function(ev) {
+		updateVoicesSettings();
+	});
+
 	['attack', 'decay', 'sustain', 'release'].forEach(function(prop) {
 		dummyBajotron.adsr.addEventListener(prop + '_changed', makeADSRListener(prop));
 	});
@@ -48,6 +49,7 @@ function Colchonator(audioContext, options) {
 	dummyBajotron.noiseGenerator.addEventListener('type_changed', setVoicesNoiseType);
 	dummyBajotron.noiseGenerator.addEventListener('length_changed', setVoicesNoiseLength);
 	dummyBajotron.arithmeticMixer.addEventListener('mix_function_changed', setVoicesNoiseMixFunction);
+	
 	
 	compressorNode.connect(outputNode);
 	
@@ -224,6 +226,24 @@ function Colchonator(audioContext, options) {
 
 	function setVoicesNoiseAmount(value) {
 		setVoicesProperty('noiseAmount', value);
+	}
+
+	function updateVoicesSettings() {
+		// Copy wave type and octave to each of the bajotron voices we host
+		
+		var masterVoices = dummyBajotron.voices;
+
+		voices.forEach(function(v) {
+
+			var voice = v.voice;
+			
+			voice.voices.forEach(function(childVoice, index) {
+				var masterVoice = masterVoices[index];
+				childVoice.waveType = masterVoice.waveType;
+				childVoice.octave = masterVoice.octave;
+			});
+
+		});
 	}
 
 	function setVoicesNoiseMixFunction(value) {

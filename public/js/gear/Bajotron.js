@@ -111,6 +111,8 @@ function Bajotron(audioContext, options) {
 	}
 
 
+	// Whenever we alter the voices, we should set listeners to observe their changes,
+	// and in turn dispatch another event to the outside world
 	function setNumVoices(v) {
 
 		var voice;
@@ -124,6 +126,7 @@ function Bajotron(audioContext, options) {
 					octave: defaultOctave
 				});
 				voice.output.connect(voicesOutputNode);
+				setVoiceListeners(voice, voices.length);
 				voices.push(voice);
 			}
 		} else {
@@ -131,6 +134,7 @@ function Bajotron(audioContext, options) {
 			while(v < voices.length) {
 				voice = voices.pop();
 				voice.output.disconnect();
+				removeVoiceListeners(voice);
 			}
 		}
 
@@ -138,6 +142,47 @@ function Bajotron(audioContext, options) {
 		
 		that.dispatchEvent({ type: 'num_voices_changed', num_voices: v });
 
+	}
+
+	// Index is the position of the voice in the voices array
+	function setVoiceListeners(voice, index) {
+		// just in case
+		removeVoiceListeners(voice);
+		
+		// wave_type_change, wave_type
+		var waveTypeListener = function(ev) {
+			dispatchVoiceChangeEvent('wave_type_change', index);
+		};
+
+		// octave_change, octave
+		var octaveListener = function(ev) {
+			dispatchVoiceChangeEvent('octave_change', index);
+		};
+
+		voice.addEventListener('wave_type_change', waveTypeListener);
+		voice.addEventListener('octave_change', octaveListener);
+		voice.__bajotronListeners = [
+			{ name: 'wave_type_change', callback: waveTypeListener },
+			{ name: 'octave_change', callback: octaveListener }
+		];
+	}
+
+
+	function removeVoiceListeners(voice) {
+		console.log('remove listeners for', voice);
+		if(voice.__bajotronListeners) {
+			console.log('has listeners', voice.__bajotronListeners.length);
+			voice.__bajotronListeners.forEach(function(listener) {
+				voice.removeEventListener(listener.name, listener.callback);
+			});
+		} else {
+			console.log('no listeners');
+		}
+	}
+
+
+	function dispatchVoiceChangeEvent(eventName, voiceIndex) {
+		that.dispatchEvent({ type: 'voice_change', eventName: eventName, index: voiceIndex });
 	}
 
 

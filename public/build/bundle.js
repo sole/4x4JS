@@ -2244,6 +2244,8 @@ function Bajotron(audioContext, options) {
 	}
 
 
+	// Whenever we alter the voices, we should set listeners to observe their changes,
+	// and in turn dispatch another event to the outside world
 	function setNumVoices(v) {
 
 		var voice;
@@ -2257,6 +2259,7 @@ function Bajotron(audioContext, options) {
 					octave: defaultOctave
 				});
 				voice.output.connect(voicesOutputNode);
+				setVoiceListeners(voice, voices.length);
 				voices.push(voice);
 			}
 		} else {
@@ -2264,6 +2267,7 @@ function Bajotron(audioContext, options) {
 			while(v < voices.length) {
 				voice = voices.pop();
 				voice.output.disconnect();
+				removeVoiceListeners(voice);
 			}
 		}
 
@@ -2271,6 +2275,47 @@ function Bajotron(audioContext, options) {
 		
 		that.dispatchEvent({ type: 'num_voices_changed', num_voices: v });
 
+	}
+
+	// Index is the position of the voice in the voices array
+	function setVoiceListeners(voice, index) {
+		// just in case
+		removeVoiceListeners(voice);
+		
+		// wave_type_change, wave_type
+		var waveTypeListener = function(ev) {
+			dispatchVoiceChangeEvent('wave_type_change', index);
+		};
+
+		// octave_change, octave
+		var octaveListener = function(ev) {
+			dispatchVoiceChangeEvent('octave_change', index);
+		};
+
+		voice.addEventListener('wave_type_change', waveTypeListener);
+		voice.addEventListener('octave_change', octaveListener);
+		voice.__bajotronListeners = [
+			{ name: 'wave_type_change', callback: waveTypeListener },
+			{ name: 'octave_change', callback: octaveListener }
+		];
+	}
+
+
+	function removeVoiceListeners(voice) {
+		console.log('remove listeners for', voice);
+		if(voice.__bajotronListeners) {
+			console.log('has listeners', voice.__bajotronListeners.length);
+			voice.__bajotronListeners.forEach(function(listener) {
+				voice.removeEventListener(listener.name, listener.callback);
+			});
+		} else {
+			console.log('no listeners');
+		}
+	}
+
+
+	function dispatchVoiceChangeEvent(eventName, voiceIndex) {
+		that.dispatchEvent({ type: 'voice_change', eventName: eventName, index: voiceIndex });
 	}
 
 
@@ -2453,9 +2498,10 @@ function Colchonator(audioContext, options) {
 		setVoicesNoiseAmount(ev.amount);
 	});
 
-	// voiceSettings - octaves and shapes
-	// TODO not sure how to do that :-(
-	
+	dummyBajotron.addEventListener('voice_change', function(ev) {
+		updateVoicesSettings();
+	});
+
 	['attack', 'decay', 'sustain', 'release'].forEach(function(prop) {
 		dummyBajotron.adsr.addEventListener(prop + '_changed', makeADSRListener(prop));
 	});
@@ -2463,6 +2509,7 @@ function Colchonator(audioContext, options) {
 	dummyBajotron.noiseGenerator.addEventListener('type_changed', setVoicesNoiseType);
 	dummyBajotron.noiseGenerator.addEventListener('length_changed', setVoicesNoiseLength);
 	dummyBajotron.arithmeticMixer.addEventListener('mix_function_changed', setVoicesNoiseMixFunction);
+	
 	
 	compressorNode.connect(outputNode);
 	
@@ -2639,6 +2686,24 @@ function Colchonator(audioContext, options) {
 
 	function setVoicesNoiseAmount(value) {
 		setVoicesProperty('noiseAmount', value);
+	}
+
+	function updateVoicesSettings() {
+		// Copy wave type and octave to each of the bajotron voices we host
+		
+		var masterVoices = dummyBajotron.voices;
+
+		voices.forEach(function(v) {
+
+			var voice = v.voice;
+			
+			voice.voices.forEach(function(childVoice, index) {
+				var masterVoice = masterVoices[index];
+				childVoice.waveType = masterVoice.waveType;
+				childVoice.octave = masterVoice.octave;
+			});
+
+		});
 	}
 
 	function setVoicesNoiseMixFunction(value) {
@@ -3707,9 +3772,7 @@ module.exports = {
 },{}],30:[function(require,module,exports){
 var template = '<header>Colchonator</header><div class="numVoicesContainer"></div>' + 
 	'<div class="bajotronContainer"></div>' +
-	'<div class="reverbContainer"></div>' /*+
-	'<div class="adsrContainer"></div>' +
-	'<div class="noiseContainer"></div>'*/;
+	'<div class="reverbContainer"></div>';
 
 
 function register() {
@@ -3731,29 +3794,11 @@ function register() {
 				this.bajotron = document.createElement('gear-bajotron');
 				this.bajotronContainer.appendChild(this.bajotron);
 
-				// TODO - hide some things like the number of voices?
+				// TODO - hide some things like the number of voices in each bajotron (?)
 
 				this.reverbContainer = this.querySelector('.reverbContainer');
 				this.reverb = document.createElement('gear-reverbetron');
 				this.reverbContainer.appendChild(this.reverb);
-
-
-
-				/*this.adsrContainer = this.querySelector('.adsrContainer');
-				this.adsr = document.createElement('gear-adsr');
-				this.adsrContainer.appendChild(this.adsr);
-
-				this.noiseContainer = this.querySelector('.noiseContainer');
-				this.noise = document.createElement('gear-noise-generator');
-				this.noiseContainer.appendChild(this.noise);
-
-				this.noiseAmount = document.createElement('gear-slider');
-				this.noiseAmount.label = 'noise amount';
-				this.noiseAmount.min = 0;
-				this.noiseAmount.max = 1;
-				this.noiseAmount.step = 0.001;
-				this.noiseAmount.value = 0;*/
-
 
 			}
 		},
@@ -3764,22 +3809,13 @@ function register() {
 
 				this.colchonator = colchonator;
 
-				this.numVoices.attachToObject(colchonator, 'numVoices', function() {
-					console.log('num voices changed', that.numVoices.value);
-				}, 'num_voices_change', function() {
-					console.log('colchonator num voices changed', colchonator.numVoices);
-				});
+				this.numVoices.attachToObject(colchonator, 'numVoices', null, 'num_voices_change');
 
 				// reverb settings/gui
 				this.reverb.attachTo(colchonator.reverb);
 
 				// fake bajotron
 				this.bajotron.attachTo(colchonator.bajotron);
-
-				// voice ADSR
-
-				// noise
-				// this.noise.attachTo(colchonator.noiseGenerator);
 
 			},
 

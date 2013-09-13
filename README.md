@@ -6,15 +6,13 @@ Un-be-lie-va-ble
 
 SUPER BROKEN
 
-- configure colchonator >_<
-	dummy -> propagate
-		noise type seems broken
-		voice wave type propagate when gui changes
-			- generate event listener for each voice when changing num voices
-				maybe set as property in each voice to avoid leaks (sort of dirty)
 - bajotron release doesn't work properly
 	- weirdness if it doesnt reach sustain (?) then on release goes directly to 0
 
+- fullscreen
+- store slide number in #hash
+- twitter thingie
+- param horiz sliders -> asociar a algo en gear
 - en porrompom, adsr por sample para dejar que acaben (?)
 - Patrones/16 filas -> slide
 - audio tags keyboard - para poder probar cosas sin el quneo
@@ -89,6 +87,8 @@ SUPER BROKEN
 	go wild
 	go mad / LFO
 	- show gui / progressively
+	- mozilla
+	- encourage to build
 	- topics
 		1- I /love/ music
 			- one of my first christmas gifts was a 2xLP - one was BLUE!!!
