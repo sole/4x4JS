@@ -10,22 +10,24 @@ SUPER BROKEN
 	- weirdness if it doesnt reach sustain (?) then on release goes directly to 0
 
 - fullscreen
-- store slide number in #hash
 - twitter thingie
-- param horiz sliders -> asociar a algo en gear
-- en porrompom, adsr por sample para dejar que acaben (?)
+- slides
+- multiple scenes etc
 - Patrones/16 filas -> slide
-- audio tags keyboard - para poder probar cosas sin el quneo
-- finish gui
-	- show/hide gui toggle
+
+
+
+
+
+Nice to have but not feasible
+
 - tracker to song -> sets the rhythm/mood
 	- curves required to reuse instruments
 	- or some simple "sample" effects (because curves require some sort of vsti param which we dont have now)
-
-- add 3d to the mix
-	- multiple scenes etc
+- param horiz sliders -> asociar a algo en gear
+- en porrompom, adsr por sample para dejar que acaben (?)
 - slides to song
-
+- audio tags keyboard - para poder probar cosas sin el quneo
 
 - control filter in instruments with quneo - HUMAN CURVES
 - keeping it simple with few instruments-like 'unplugged'
@@ -88,6 +90,7 @@ SUPER BROKEN
 	go mad / LFO
 	- show gui / progressively
 	- mozilla
+	- html5 5
 	- encourage to build
 	- topics
 		1- I /love/ music
