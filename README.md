@@ -12,6 +12,12 @@ This is the software I used for my JSConf.eu talk. To run it you need to fire up
 * cp local.json-dir local.json
 * node app.js
 
+In another tab:
+* watchify public/js/main.js -o public/build/bundle.js
+
+Or
+* browserify public/js/main.js -o public/build/bundle.js
+
 And open http://localhost:7777 in your server
 
 ## Controls
