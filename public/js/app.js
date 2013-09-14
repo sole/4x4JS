@@ -96,7 +96,7 @@ function initialiseGear(audioContext) {
 	var Colchonator = require('./gear/Colchonator');
 	var pad = new Colchonator(audioContext);
 	pad.numVoices = 3;
-	pad.bajotron.noiseAmount = 0;
+	pad.bajotron.noiseAmount = 1;
 	pad.bajotron.adsr.attack = 0.3;
 	pad.bajotron.adsr.decay = 0.1;
 	pad.bajotron.adsr.sustain = 0.95;
@@ -421,6 +421,7 @@ function setupDeck(player, deck) {
 				deck.shuffleTo(slideIndex);
 			} catch(e) {
 				// just in case we're missing slides
+				console.log('excp shuffling to', slideIndex);
 			}
 			saveURL(slideIndex);
 		}

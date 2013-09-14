@@ -4,21 +4,17 @@ Un-be-lie-va-ble
 
 ## TO to to do
 
-SUPER BROKEN
+COLCHONATOR DOESNT WORK!!!!
+
+- slides -> music + jamming
+- twitter thingie
+- multiple scenes etc -> 3 mas -> % 4 o si no se puede repetir hacer 4 tramos
+- Patrones/16 filas -> slide
+
+Nice to have but not feasible
 
 - bajotron release doesn't work properly
 	- weirdness if it doesnt reach sustain (?) then on release goes directly to 0
-
-- twitter thingie
-- slides
-- multiple scenes etc
-- Patrones/16 filas -> slide
-
-
-
-
-
-Nice to have but not feasible
 
 - tracker to song -> sets the rhythm/mood
 	- curves required to reuse instruments
@@ -92,15 +88,27 @@ Nice to have but not feasible
 	- html5 5
 	- encourage to build
 	- topics
+		XX-hello jsconf
+			- how is it going
+			- how did yesterday's party go?
+			- i hope you're not hungover
+		XX-What we'll see
+			- a little bit of background
+			- what I've built
+			- and then...
+		XX-I'm going to blow up your minds
+			- or, in a bad case, your ears
+			- if you hear "brace, brace"...
+			- run for the life of your ears!!!
 		1- I /love/ music
 			- one of my first christmas gifts was a 2xLP - one was BLUE!!!
 			- wouldn't stop asking my parents to play it once and once again
 			- early challenge: reach the turntable, put the needle back
-		2- Music everywhere on my town
+no->	2- Music everywhere on my town
 			- annual festivities ~ 1 wk of street music
 			- sit on a narrow street, listen to band after band
 			- wondering how did those wind instruments work
-		3- Fascinated with machines of all sorts
+no->	3- Fascinated with machines of all sorts
 			- valve radios
 			- huge radios
 			- tapes
@@ -112,18 +120,18 @@ Nice to have but not feasible
 			- limited configurability
 			- recording to a tape
 			- it was OK
-		6- OMG MULTIMEDIA!!!
-			- Trackers!
+		6- The 90's
+			- OMG MULTIMEDIA!
+			- Trackers!!!
 			- Sample based
-			- Early visualisations
 		7- Demoscene
 			- VJing
 			- live gigs!
-			- fame (sort of)
+			- hard to coordinate w/people
 		8- Software synthesis
 			- C/C++
 			- VSTi
-			- Hard to distribute, proprietary
+			- Hard to build, distribute, proprietary
 		9- OMG JavaScript!
 			- Web Audio!
 			- Web GL!
@@ -148,10 +156,10 @@ Nice to have but not feasible
 				- message syntax e.g. /quneo/pads/2/drum/pressure
 				- regex /quneo/pads\/(\\d+)\/drum\/pressure
 			- also send some messages (led control)
-		14- Gear
-			- evidently, virtual
-			- proof of concept
-			- audio and video gear
+no->	14- Gear
+			- I'd need audio and video gear
+			- XXX evidently, virtual
+			- XXX Can it be done? (proof of concept)
 		15- Audio gear
 			- Modular, Web Audio philosophy
 				- inputs, outputs
@@ -160,45 +168,59 @@ Nice to have but not feasible
 				- oscillators & buffers autodiscarded
 				- param values -> envelopes
 			- Also custom nodes with ScriptProcessor - audio processing in JS
+		17XXX- GUI! (bring it up NOW) (touch bass)
+			- Web components (based in x-tag)
+			- attachTo a component
+			- event based
+		... instrumentos
 		16- Video gear
 			- webgl via three.js for maximum performance
 			- composite rendering - many scenes, 1 renderer
 			- I &lt;3  procedural
-		17- GUI! (bring it up NOW) (touch bass)
-			- Web components (based in x-tag)
-			- attachTo a component
-			- event based
-		18- Sync: Player
-			- base song sequenced in renoise
+		XX - The three.js composite trick
+			- renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
+			  renderer.autoClear = false;
+			- on the render() method:
+				- clear once
+				- renderer.render(scene, camera) as many times as required
+			- that's it
+		18- can't play everything so enlisted the help of the Player
+			- song skeleton sequenced in renoise
 			- it's a tracker
-			- future: web editing too
+			- future: maybe web editing?
 		19- renoise song xml based
 			- export to json
 				- wrote node module because there wasn't any
-			- patterns, columns and rows
+			- patterns, columns and rows - "like excel"
 			- list of patterns to be played in order (order list)
 		20- List of events
+			- { type: ..., order: ..., pattern: ..., }
 			- time sorted
-			- web audio events cannot be cancelled
+		XX - web audio events cannot be cancelled
 			- dispatch bursts of events - 'requestAuditionFrame'
+			- can be imprecise
+			- deal with it :-/
 		21- Agnostic player (doesn't have a clue of what sort of things it's triggering)
-			- noteOn, noteOff
-			- note names to standard MIDI note numbers
+			- noteOn,
+			- noteOff
+			- volume
+		XX- My note names to numbers 'trick'
+			- convert note names to standard MIDI note numbers
 				- good for building chords + transposing!
-				- standard frequencies fit with tuned samples
+				- standard frequencies fit with tuned samples / jam with friends
 			- video gear can use those values too (e.g. scaling)
 		22- Accuracy
 			- song data: more accurate than FFT (e.g. dancer.js)
-			- tempo, notes
 			- we can react to very specific events (drum, snare, instr note)
+			- alter tempo (not implemented)
 		23- Listening to events
 			- addEventListener
 			- EventDispatcher
 			- sadly no custom events because there's no DOM element to dispatch
-		[TODO]
-			- GOTCHAS
-				- compressors and reduce volumes to avoid distortion
-				- 
+		XX- GOTCHAS
+			- compressors and reduce volumes to avoid clipping+distortion
+			- audio glitches more awful than framerate dropping
+			- technology in development: leaks, minefield, changing API
 		24- What you're listening to
 			- My songs in exclusive arrangement for this event
 			- space for improvisation

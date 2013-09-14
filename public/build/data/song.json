@@ -137,6 +137,9 @@
 		26,
 		26,
 		27,
+		28,
+		28,
+		28,
 		28
 	],
 	"tracks": [
@@ -229,7 +232,7 @@
 				[],
 				[]
 			],
-			"rows": 64
+			"rows": 128
 		},
 		{
 			"tracks": [
@@ -9971,7 +9974,7 @@
 						"effects": [
 							{
 								"name": "0A",
-								"value": "37"
+								"value": "47"
 							}
 						]
 					},
@@ -9987,7 +9990,7 @@
 						"effects": [
 							{
 								"name": "0A",
-								"value": "37"
+								"value": "47"
 							}
 						]
 					},
@@ -10003,7 +10006,7 @@
 						"effects": [
 							{
 								"name": "0A",
-								"value": "37"
+								"value": "47"
 							}
 						]
 					},
@@ -10019,7 +10022,7 @@
 						"effects": [
 							{
 								"name": "0A",
-								"value": "37"
+								"value": "47"
 							}
 						]
 					},
@@ -10035,7 +10038,7 @@
 						"effects": [
 							{
 								"name": "0A",
-								"value": "37"
+								"value": "47"
 							}
 						]
 					},
@@ -10051,7 +10054,7 @@
 						"effects": [
 							{
 								"name": "0A",
-								"value": "37"
+								"value": "47"
 							}
 						]
 					},
@@ -10067,7 +10070,7 @@
 						"effects": [
 							{
 								"name": "0A",
-								"value": "37"
+								"value": "47"
 							}
 						]
 					},
@@ -10407,7 +10410,7 @@
 						"effects": [
 							{
 								"name": "0A",
-								"value": "37"
+								"value": "47"
 							}
 						]
 					},
@@ -10423,7 +10426,7 @@
 						"effects": [
 							{
 								"name": "0A",
-								"value": "37"
+								"value": "47"
 							}
 						]
 					},
@@ -10439,7 +10442,7 @@
 						"effects": [
 							{
 								"name": "0A",
-								"value": "37"
+								"value": "47"
 							}
 						]
 					},
@@ -10455,7 +10458,7 @@
 						"effects": [
 							{
 								"name": "0A",
-								"value": "37"
+								"value": "47"
 							}
 						]
 					},
@@ -10471,7 +10474,7 @@
 						"effects": [
 							{
 								"name": "0A",
-								"value": "37"
+								"value": "47"
 							}
 						]
 					},
@@ -10487,7 +10490,7 @@
 						"effects": [
 							{
 								"name": "0A",
-								"value": "37"
+								"value": "47"
 							}
 						]
 					},
@@ -10503,7 +10506,7 @@
 						"effects": [
 							{
 								"name": "0A",
-								"value": "37"
+								"value": "47"
 							}
 						]
 					},
@@ -13205,15 +13208,2601 @@
 						"columns": [
 							{
 								"note": "A-4",
-								"instrument": 1
+								"instrument": 1,
+								"volume": 1
 							},
 							{
 								"note": "C-5",
-								"instrument": 1
+								"instrument": 1,
+								"volume": 1
 							},
 							{
 								"note": "E-5",
-								"instrument": 1
+								"instrument": 1,
+								"volume": 1
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 1,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.984375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.984375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.984375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 2,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.9765625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.9765625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.9765625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 3,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.96875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.96875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.96875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 4,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.9609375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.9609375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.9609375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 5,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.953125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.953125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.953125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 6,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.9453125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.9453125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.9453125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 7,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.9375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.9375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.9375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 8,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.9296875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.9296875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.9296875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 9,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.921875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.921875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.921875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 10,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.9140625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.9140625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.9140625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 11,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.90625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.90625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.90625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 12,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8984375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8984375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8984375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 13,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.890625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.890625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.890625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 14,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8828125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8828125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8828125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 15,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 16,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8671875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8671875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8671875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 17,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.859375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.859375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.859375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 18,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8515625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8515625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8515625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 19,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.84375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.84375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.84375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 20,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8359375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8359375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8359375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 21,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.828125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.828125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.828125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 22,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8203125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8203125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8203125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 23,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 24,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8046875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8046875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.8046875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 25,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.796875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.796875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.796875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 26,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.7890625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.7890625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.7890625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 27,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.78125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.78125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.78125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 28,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.7734375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.7734375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.7734375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 29,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.765625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.765625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.765625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 30,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.7578125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.7578125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.7578125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 31,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.75
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.75
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.75
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 32,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.7421875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.7421875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.7421875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 33,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.734375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.734375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.734375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 34,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.7265625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.7265625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.7265625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 35,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.71875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.71875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.71875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 36,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.7109375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.7109375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.7109375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 37,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.703125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.703125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.703125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 38,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6953125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6953125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6953125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 39,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 40,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6796875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6796875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6796875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 41,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.671875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.671875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.671875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 42,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6640625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6640625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6640625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 43,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.65625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.65625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.65625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 44,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6484375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6484375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6484375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 45,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.640625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.640625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.640625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 46,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6328125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6328125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6328125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 47,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 48,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6171875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6171875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6171875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 49,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.609375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.609375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.609375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 50,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6015625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6015625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.6015625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 51,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.59375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.59375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.59375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 52,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5859375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5859375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5859375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 53,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.578125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.578125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.578125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 54,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5703125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5703125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5703125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 55,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 56,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5546875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5546875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5546875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 57,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.546875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.546875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.546875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 58,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5390625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5390625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5390625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 59,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.53125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.53125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.53125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 60,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5234375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5234375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5234375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 61,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.515625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.515625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.515625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 62,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5078125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5078125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5078125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 63,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.5
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 64,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.4921875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.4921875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.4921875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 65,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.484375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.484375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.484375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 66,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.4765625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.4765625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.4765625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 67,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.46875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.46875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.46875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 68,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.4609375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.4609375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.4609375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 69,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.453125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.453125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.453125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 70,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.4453125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.4453125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.4453125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 71,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.4375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.4375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.4375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 72,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.4296875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.4296875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.4296875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 73,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.421875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.421875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.421875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 74,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.4140625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.4140625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.4140625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 75,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.40625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.40625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.40625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 76,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3984375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3984375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3984375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 77,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.390625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.390625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.390625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 78,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3828125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3828125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3828125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 79,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 80,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3671875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3671875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3671875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 81,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.359375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.359375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.359375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 82,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3515625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3515625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3515625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 83,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.34375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.34375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.34375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 84,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3359375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3359375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3359375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 85,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.328125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.328125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.328125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 86,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3203125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3203125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3203125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 87,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 88,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3046875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3046875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.3046875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 89,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.296875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.296875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.296875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 90,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.2890625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.2890625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.2890625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 91,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.28125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.28125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.28125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 92,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.2734375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.2734375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.2734375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 93,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.265625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.265625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.265625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 94,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.2578125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.2578125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.2578125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 95,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.25
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.25
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.25
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 96,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.2421875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.2421875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.2421875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 97,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.234375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.234375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.234375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 98,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.2265625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.2265625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.2265625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 99,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.21875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.21875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.21875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 100,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.2109375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.2109375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.2109375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 101,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.203125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.203125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.203125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 102,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1953125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1953125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1953125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 103,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 104,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1796875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1796875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1796875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 105,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.171875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.171875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.171875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 106,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1640625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1640625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1640625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 107,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.15625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.15625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.15625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 108,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1484375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1484375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1484375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 109,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.140625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.140625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.140625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 110,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1328125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1328125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1328125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 111,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 112,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1171875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1171875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1171875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 113,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.109375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.109375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.109375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 114,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1015625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1015625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.1015625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 115,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.09375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.09375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.09375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 116,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.0859375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.0859375
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.0859375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 117,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.078125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.078125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.078125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 118,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.0703125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.0703125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.0703125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 119,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.0625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.0625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.0625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 120,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.0546875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.0546875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.0546875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 121,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.046875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.046875
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.046875
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 122,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.0390625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.0390625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.0390625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 123,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.03125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.03125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.03125
 							}
 						],
 						"effects": []
@@ -13223,15 +15812,81 @@
 						"columns": [
 							{
 								"note": "OFF",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 0.0234375
 							},
 							{
 								"note": "OFF",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 0.0234375
 							},
 							{
 								"note": "OFF",
-								"instrument": 0
+								"instrument": 0,
+								"volume": 0.0234375
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 125,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.015625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.015625
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.015625
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 126,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.0078125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.0078125
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0.0078125
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 127,
+						"columns": [
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0
+							},
+							{
+								"note": null,
+								"instrument": 0,
+								"volume": 0
 							}
 						],
 						"effects": []
@@ -21895,11 +24550,201 @@
 				],
 				[
 					{
-						"row": 0,
+						"row": 2,
+						"columns": [
+							{
+								"note": "E-4",
+								"instrument": 4
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 3,
 						"columns": [
 							{
 								"note": "OFF",
 								"instrument": 0
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 18,
+						"columns": [
+							{
+								"note": "E-4",
+								"instrument": 4
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 19,
+						"columns": [
+							{
+								"note": "OFF",
+								"instrument": 0
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 34,
+						"columns": [
+							{
+								"note": "E-4",
+								"instrument": 4
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 35,
+						"columns": [
+							{
+								"note": "OFF",
+								"instrument": 0
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 50,
+						"columns": [
+							{
+								"note": "E-4",
+								"instrument": 4
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 51,
+						"columns": [
+							{
+								"note": "OFF",
+								"instrument": 0
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 66,
+						"columns": [
+							{
+								"note": "E-4",
+								"instrument": 4
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 67,
+						"columns": [
+							{
+								"note": "OFF",
+								"instrument": 0
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 82,
+						"columns": [
+							{
+								"note": "E-4",
+								"instrument": 4
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 83,
+						"columns": [
+							{
+								"note": "OFF",
+								"instrument": 0
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 98,
+						"columns": [
+							{
+								"note": "E-4",
+								"instrument": 4
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 99,
+						"columns": [
+							{
+								"note": "OFF",
+								"instrument": 0
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 114,
+						"columns": [
+							{
+								"note": "G-4",
+								"instrument": 4
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 115,
+						"columns": [
+							{
+								"note": "OFF",
+								"instrument": 0
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 116,
+						"columns": [
+							{
+								"note": "F-4",
+								"instrument": 4
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 117,
+						"columns": [
+							{
+								"note": "OFF",
+								"instrument": 0
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 119,
+						"columns": [
+							{
+								"note": "D-4",
+								"instrument": 4
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 121,
+						"columns": [
+							{
+								"note": "G-4",
+								"instrument": 4
 							}
 						],
 						"effects": []
@@ -61331,7 +64176,7 @@
 						"row": 0,
 						"columns": [
 							{
-								"note": "A-6",
+								"note": "A-4",
 								"instrument": 0
 							}
 						],
@@ -61351,7 +64196,7 @@
 						"row": 13,
 						"columns": [
 							{
-								"note": "E-5",
+								"note": "E-3",
 								"instrument": 0
 							}
 						],
@@ -61361,7 +64206,7 @@
 						"row": 14,
 						"columns": [
 							{
-								"note": "A-6",
+								"note": "A-4",
 								"instrument": 0
 							}
 						],
@@ -61371,7 +64216,7 @@
 						"row": 16,
 						"columns": [
 							{
-								"note": "C-7",
+								"note": "C-5",
 								"instrument": 0
 							}
 						],
@@ -61381,7 +64226,7 @@
 						"row": 20,
 						"columns": [
 							{
-								"note": "B-6",
+								"note": "B-4",
 								"instrument": 0
 							}
 						],
@@ -61391,7 +64236,7 @@
 						"row": 23,
 						"columns": [
 							{
-								"note": "G-6",
+								"note": "G-4",
 								"instrument": 0
 							}
 						],
@@ -61411,7 +64256,7 @@
 						"row": 32,
 						"columns": [
 							{
-								"note": "A-6",
+								"note": "A-4",
 								"instrument": 0
 							}
 						],
@@ -61431,7 +64276,7 @@
 						"row": 44,
 						"columns": [
 							{
-								"note": "A-6",
+								"note": "A-4",
 								"instrument": 0
 							}
 						],
@@ -61451,7 +64296,7 @@
 						"row": 46,
 						"columns": [
 							{
-								"note": "A-6",
+								"note": "A-4",
 								"instrument": 0
 							}
 						],
@@ -61471,7 +64316,7 @@
 						"row": 48,
 						"columns": [
 							{
-								"note": "G-6",
+								"note": "G-4",
 								"instrument": 0
 							}
 						],
@@ -61481,7 +64326,7 @@
 						"row": 50,
 						"columns": [
 							{
-								"note": "E-6",
+								"note": "E-4",
 								"instrument": 0
 							}
 						],
@@ -61501,7 +64346,7 @@
 						"row": 62,
 						"columns": [
 							{
-								"note": "E-6",
+								"note": "E-4",
 								"instrument": 0
 							}
 						],
@@ -61511,7 +64356,7 @@
 						"row": 64,
 						"columns": [
 							{
-								"note": "A-6",
+								"note": "A-4",
 								"instrument": 0
 							}
 						],
@@ -61531,7 +64376,7 @@
 						"row": 76,
 						"columns": [
 							{
-								"note": "G-6",
+								"note": "G-4",
 								"instrument": 0
 							}
 						],
@@ -61541,7 +64386,7 @@
 						"row": 80,
 						"columns": [
 							{
-								"note": "B-6",
+								"note": "B-4",
 								"instrument": 0
 							}
 						],
@@ -61561,7 +64406,7 @@
 						"row": 87,
 						"columns": [
 							{
-								"note": "B-6",
+								"note": "B-4",
 								"instrument": 0
 							}
 						],
@@ -61571,7 +64416,7 @@
 						"row": 89,
 						"columns": [
 							{
-								"note": "C-7",
+								"note": "C-5",
 								"instrument": 0
 							}
 						],
@@ -61581,7 +64426,7 @@
 						"row": 92,
 						"columns": [
 							{
-								"note": "D-7",
+								"note": "D-5",
 								"instrument": 0
 							}
 						],
@@ -61591,7 +64436,7 @@
 						"row": 94,
 						"columns": [
 							{
-								"note": "C-7",
+								"note": "C-5",
 								"instrument": 0
 							}
 						],
@@ -61601,7 +64446,7 @@
 						"row": 96,
 						"columns": [
 							{
-								"note": "B-6",
+								"note": "B-4",
 								"instrument": 0
 							}
 						],
@@ -61621,7 +64466,7 @@
 						"row": 105,
 						"columns": [
 							{
-								"note": "A-6",
+								"note": "A-4",
 								"instrument": 0
 							}
 						],
@@ -61631,7 +64476,7 @@
 						"row": 107,
 						"columns": [
 							{
-								"note": "B-6",
+								"note": "B-4",
 								"instrument": 0
 							}
 						],
@@ -61641,7 +64486,7 @@
 						"row": 110,
 						"columns": [
 							{
-								"note": "A-6",
+								"note": "A-4",
 								"instrument": 0
 							}
 						],
@@ -61651,7 +64496,7 @@
 						"row": 112,
 						"columns": [
 							{
-								"note": "F-6",
+								"note": "F-4",
 								"instrument": 0
 							}
 						],
@@ -64394,7 +67239,7 @@
 						"row": 0,
 						"columns": [
 							{
-								"note": "E-7",
+								"note": "E-5",
 								"instrument": 0
 							}
 						],
@@ -64414,7 +67259,7 @@
 						"row": 12,
 						"columns": [
 							{
-								"note": "C-7",
+								"note": "C-5",
 								"instrument": 0
 							}
 						],
@@ -64424,7 +67269,7 @@
 						"row": 16,
 						"columns": [
 							{
-								"note": "B-6",
+								"note": "B-4",
 								"instrument": 0
 							}
 						],
@@ -64444,7 +67289,7 @@
 						"row": 24,
 						"columns": [
 							{
-								"note": "A-6",
+								"note": "A-4",
 								"instrument": 0
 							}
 						],
@@ -64464,7 +67309,7 @@
 						"row": 28,
 						"columns": [
 							{
-								"note": "G-6",
+								"note": "G-4",
 								"instrument": 0
 							}
 						],
@@ -64484,7 +67329,7 @@
 						"row": 32,
 						"columns": [
 							{
-								"note": "E-7",
+								"note": "E-5",
 								"instrument": 0
 							}
 						],
@@ -64504,7 +67349,7 @@
 						"row": 40,
 						"columns": [
 							{
-								"note": "E-7",
+								"note": "E-5",
 								"instrument": 0
 							}
 						],
@@ -64514,7 +67359,7 @@
 						"row": 41,
 						"columns": [
 							{
-								"note": "D-7",
+								"note": "D-5",
 								"instrument": 0
 							}
 						],
@@ -64524,7 +67369,7 @@
 						"row": 43,
 						"columns": [
 							{
-								"note": "C-7",
+								"note": "C-5",
 								"instrument": 0
 							}
 						],
@@ -64534,7 +67379,7 @@
 						"row": 44,
 						"columns": [
 							{
-								"note": "B-6",
+								"note": "B-4",
 								"instrument": 0
 							}
 						],
@@ -64544,7 +67389,7 @@
 						"row": 46,
 						"columns": [
 							{
-								"note": "G-6",
+								"note": "G-4",
 								"instrument": 0
 							}
 						],
@@ -64554,7 +67399,7 @@
 						"row": 48,
 						"columns": [
 							{
-								"note": "A-6",
+								"note": "A-4",
 								"instrument": 0
 							}
 						],
@@ -64574,7 +67419,7 @@
 						"row": 58,
 						"columns": [
 							{
-								"note": "A-6",
+								"note": "A-4",
 								"instrument": 0
 							}
 						],
@@ -64584,7 +67429,7 @@
 						"row": 59,
 						"columns": [
 							{
-								"note": "E-7",
+								"note": "E-5",
 								"instrument": 0
 							}
 						],
@@ -64594,7 +67439,7 @@
 						"row": 61,
 						"columns": [
 							{
-								"note": "C-7",
+								"note": "C-5",
 								"instrument": 0
 							}
 						],
@@ -64604,7 +67449,7 @@
 						"row": 62,
 						"columns": [
 							{
-								"note": "D-7",
+								"note": "D-5",
 								"instrument": 0
 							}
 						],
@@ -64624,7 +67469,17 @@
 						"row": 64,
 						"columns": [
 							{
-								"note": "D-7",
+								"note": "D-5",
+								"instrument": 0
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 66,
+						"columns": [
+							{
+								"note": "E-5",
 								"instrument": 0
 							}
 						],
@@ -64634,7 +67489,37 @@
 						"row": 67,
 						"columns": [
 							{
-								"note": "C-7",
+								"note": "D-5",
+								"instrument": 0
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 68,
+						"columns": [
+							{
+								"note": "E-5",
+								"instrument": 0
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 70,
+						"columns": [
+							{
+								"note": "C-5",
+								"instrument": 0
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 72,
+						"columns": [
+							{
+								"note": "A-4",
 								"instrument": 0
 							}
 						],
@@ -64654,7 +67539,7 @@
 						"row": 83,
 						"columns": [
 							{
-								"note": "B-6",
+								"note": "A-4",
 								"instrument": 0
 							}
 						],
@@ -64664,7 +67549,7 @@
 						"row": 85,
 						"columns": [
 							{
-								"note": "C-7",
+								"note": "D-5",
 								"instrument": 0
 							}
 						],
@@ -64674,7 +67559,7 @@
 						"row": 88,
 						"columns": [
 							{
-								"note": "D-7",
+								"note": "B-4",
 								"instrument": 0
 							}
 						],
@@ -64684,7 +67569,7 @@
 						"row": 90,
 						"columns": [
 							{
-								"note": "C-7",
+								"note": "D-5",
 								"instrument": 0
 							}
 						],
@@ -64694,7 +67579,7 @@
 						"row": 92,
 						"columns": [
 							{
-								"note": "B-6",
+								"note": "G-4",
 								"instrument": 0
 							}
 						],
@@ -64714,7 +67599,7 @@
 						"row": 101,
 						"columns": [
 							{
-								"note": "A-6",
+								"note": "A-4",
 								"instrument": 0
 							}
 						],
@@ -64724,7 +67609,7 @@
 						"row": 103,
 						"columns": [
 							{
-								"note": "B-6",
+								"note": "B-4",
 								"instrument": 0
 							}
 						],
@@ -64734,7 +67619,7 @@
 						"row": 106,
 						"columns": [
 							{
-								"note": "A-6",
+								"note": "A-4",
 								"instrument": 0
 							}
 						],
@@ -64744,7 +67629,17 @@
 						"row": 108,
 						"columns": [
 							{
-								"note": "F-6",
+								"note": "F-4",
+								"instrument": 0
+							}
+						],
+						"effects": []
+					},
+					{
+						"row": 112,
+						"columns": [
+							{
+								"note": "A-5",
 								"instrument": 0
 							}
 						],
@@ -67487,7 +70382,7 @@
 						"row": 0,
 						"columns": [
 							{
-								"note": "A-5",
+								"note": "A-4",
 								"instrument": 0
 							}
 						],
@@ -67497,7 +70392,7 @@
 						"row": 16,
 						"columns": [
 							{
-								"note": "B-5",
+								"note": "B-4",
 								"instrument": 0
 							}
 						],
@@ -67507,7 +70402,7 @@
 						"row": 32,
 						"columns": [
 							{
-								"note": "C-6",
+								"note": "C-5",
 								"instrument": 0
 							}
 						],
@@ -67517,7 +70412,7 @@
 						"row": 48,
 						"columns": [
 							{
-								"note": "A-6",
+								"note": "A-5",
 								"instrument": 0
 							}
 						],
@@ -67527,7 +70422,7 @@
 						"row": 64,
 						"columns": [
 							{
-								"note": "C-7",
+								"note": "C-6",
 								"instrument": 0
 							}
 						],
@@ -67537,7 +70432,7 @@
 						"row": 80,
 						"columns": [
 							{
-								"note": "B-6",
+								"note": "B-5",
 								"instrument": 0
 							}
 						],
@@ -67547,7 +70442,7 @@
 						"row": 96,
 						"columns": [
 							{
-								"note": "G-6",
+								"note": "G-5",
 								"instrument": 0
 							}
 						],
@@ -67557,7 +70452,7 @@
 						"row": 112,
 						"columns": [
 							{
-								"note": "A-6",
+								"note": "A-5",
 								"instrument": 0
 							}
 						],
