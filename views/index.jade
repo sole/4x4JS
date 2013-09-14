@@ -7,16 +7,22 @@ block content
 	x-deck(transition-type="fade")
 		
 		x-card.opaque
-			h1 Hello JSConfEU!
+			div
+				h1 Hello JSConfEU!
+				p How is it going?
 	
 		x-card.opaque
-			h1 How is it going?
+			h1 Four to the floor JS 
 	
 		x-card.opaque
-			h1 How did yesterday's party go?
+			div
+				h1 Soledad Penadés
+				p Apps Engineer at Mozilla (by day)
 
 		x-card.opaque
-			h1 I hope you're not hungover
+			div
+				h1 @supersole
+				p Noise maker (by night)
 		
 
 		x-card.opaque
@@ -94,7 +100,7 @@ block content
 			h1 Trackers!
 
 		x-card.opaque
-			h1 Sample based
+			h1 I made lots of music
 
 
 		x-card.opaque
@@ -171,14 +177,14 @@ block content
 			h1 QuNeo &harr; node.js:<br />OSCBridge
 
 		x-card.opaque
+			h1 UDP<br />with node-osc
+
+		x-card.opaque
 			h1 Touch events ===<br />our server gets messages
 
 		x-card.opaque
 			h1 LED Control ===<br />we send messages
-
-		x-card.opaque
-			h1 UDP<br />with node-osc
-		
+			
 
 
 		x-card.opaque
@@ -263,18 +269,18 @@ block content
 		
 
 		
-		x-card.opaque
+		x-card
 			h1 Video gear
 
-		x-card.opaque
+		x-card
 			h1 WebGL via three.js
 
-		x-card.opaque
+		x-card
 			div
 				h1 Composite rendering
 				p One renderer, many scenes
 
-		x-card.opaque
+		x-card
 			div
 				h1 Procedural scenes
 				p Because I'm not a 3D artist
@@ -282,138 +288,177 @@ block content
 
 
 
-		x-card.opaque
+		x-card
 			h1 So what's the three.js composite "trick"?
 
-		x-card.opaque
+		x-card
 			div
 				h1 renderer configuration
 				p <code>renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });</code>
 				p <code>renderer.autoClear = false;</code>
 			
-		x-card.opaque
+		x-card
 			div
 				h1 when rendering...
 				p <code>renderer.clear()</code> once
 				p repeat <code>renderer.render(scene, camera)</code> per scene
 		
-		x-card.opaque
+		x-card
 			h1 That's it.
 		
 	
 
-		x-card.opaque
+		x-card
 			h1 Playing live
 
-		x-card.opaque
+		x-card
 			h1 Song skeleton sequenced in Renoise
 
-		x-card.opaque
+		x-card
 			h1 It's a tracker
 
-		x-card.opaque
-			h1 In the future, web editor
+		x-card
+			h1 In the future,<br />own web editor
 
 
 
-		x-card.opaque
+		x-card
 			div
 				h1 Renoise song format
 				p XML based
 
-		x-card.opaque
+		x-card
 			h1 Export to JSON
 
-		x-card.opaque
+		x-card
 			div
 				h1 Tracker concepts
 				p Patterns, tracks, rows
 				p "Like Excel, but funnier"
 
-		x-card.opaque
+		x-card
 			div
 				h1 Plus the order list
 				p List of patterns to be played in order
 	
 
 
-		x-card.opaque
+		x-card
 			h1 Build a list of events
 
-		x-card.opaque
+		x-card
 			div
 				h1 Example
-				p <code>{<br />type: NOTE_ON,<br />timestamp: 0.00032,<br />order: 1, pattern: 3, row: 4<br />instrument: 3, volume: 0.5<br />}</code>
+				p <code>{<br />type: NOTE_ON, note_number: 40,<br />timestamp: 0.00032,<br />order: 1, pattern: 3, row: 4<br />instrument: 3, volume: 0.5<br />}</code>
 
-		x-card.opaque
+		x-card
 			h1 Extra values for synchronising visuals
 
-		x-card.opaque
+		x-card
 			h1 Sort by timestamp
 
 
 
 
-		x-card.opaque
+		x-card
 			h1 Schedule audio events at precise times
 
-		x-card.opaque
+		x-card
 			div
 				h1 But audio events can't be cancelled
 				p Can't schedule an entire song and change your mind later
 
-		x-card.opaque
+		x-card
 			div
 				h1 requestAuditionFrame
 				p Periodically fire bursts of events
 				p Whatever fits in the audio buffer
 
-		x-card.opaque
+		x-card
 			div
 				h1 Can be off
 				p Deal with it
-	
-
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
 		x-card
+			h1 Making the most of note data
+
+		x-card
 			div
-				h1 I dunno
-				p I'm an skeptic
+				h1 Initially they are in Note-Octave format
+				p E.g. <code>C-4</code>
+
+		x-card
+			div
+				h1 Convert them to MIDI note numbers
+				p E.g. <code>C-4</code> is <code>40</code>
+
+		x-card
+			div
+				h1 Then you can
+				p Transpose them
+				p Build arpeggios, chords
+				p Use them visually
+
+
+		x-card
+			h1 But why bother, when there's Dancer.js?
+
+		x-card
+			div
+				h1 Note data is more detailed than FFT
+				p An FFT can't tell from multiple instruments at once in the same frequency band
+
+		x-card
+			div
+				h1 React to <em>very</em> specific events
+				p E.g. on bass <strong>drum</strong> beats,
+				p but <strong>not</strong> on bass line notes
+
+		x-card
+			div
+				h1 Else,
+				p deal with thresholds,
+				p attack and decay times...
+				p (this is not a haiku).
+
+
+
+		x-card
+			h1 Gotchas
+
+		x-card
+			div
+				h1 Careful with clipping
+				p Usually horrible&mdash;unless you're into noise music
+
+		x-card
+			div
+				h1 Limit and compress
+				p AudioGain and DynamicCompressor nodes are your friends
+
+		x-card
+			div
+				h1 Technology in flux
+				p It can break, leak, change or explode in your face
+
+
+
+		x-card
+			h1 But that is part of the fun
+
+		x-card
+			h1 Right?
+
+		x-card
+			h1 Let's see if it breaks
+
+		x-card
+			h1 Remember about "brace, brace"
+				
+
+
 
 	#transport.hidden
 		button#rew ❚◀◀

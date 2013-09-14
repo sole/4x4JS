@@ -1650,11 +1650,13 @@ function initialiseGraphics() {
 	sequencer = new (require('./gfx/Sequencer').Sequencer)();
 
 	var EffectClear = require('./gfx/EffectClear');
+	var EffectCube = require('./gfx/EffectCube');
 	var EffectBallsScene = require('./gfx/EffectBallsScene');
 
 	var sequence = [
-		[ EffectClear, { start: 0 } ], // no end == until the end
-		[ EffectBallsScene, { start: 0 } ]
+		[ EffectClear, { start: 68 } ], // no end == until the end
+		[ EffectCube, { start: 68 } ],
+		[ EffectBallsScene, { start: 76 } ]
 	];
 
 	var layerNumber = 0;
@@ -1697,9 +1699,14 @@ function onWindowResize() {
 	renderer.setSize(width, height);
 }
 
+function updateSequencer() {
+	sequencer.update(player.timePosition);
+}
+
 function render() {
 	rendererAnimationId = requestAnimationFrame(render);
-	sequencer.update(player.timePosition);
+	//sequencer.update(player.timePosition);
+	updateSequencer();
 }
 
 function setupGearPlayerListeners(gear, player) {
@@ -1942,6 +1949,7 @@ function playerJumpTo(offset) {
 	}
 
 	player.jumpToOrder(newOrder, 0);
+	updateSequencer();
 
 }
 
@@ -2010,7 +2018,7 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":8,"./gear/Bajotron":18,"./gear/Colchonator":20,"./gear/Mixer":21,"./gear/Porrompom":24,"./gear/gui/GUI":31,"./gfx/EffectBallsScene":38,"./gfx/EffectClear":39,"./gfx/Sequencer":40,"./quneo.js":42,"stringformat.js":5}],16:[function(require,module,exports){
+},{"./Orxatron/":8,"./gear/Bajotron":18,"./gear/Colchonator":20,"./gear/Mixer":21,"./gear/Porrompom":24,"./gear/gui/GUI":31,"./gfx/EffectBallsScene":38,"./gfx/EffectClear":39,"./gfx/EffectCube":40,"./gfx/Sequencer":41,"./quneo.js":43,"stringformat.js":5}],16:[function(require,module,exports){
 var EventDispatcher = require('EventDispatcher');
 
 function ADSR(audioContext, param, attack, decay, sustain, release) {
@@ -4409,7 +4417,7 @@ Effect.prototype.setSize = function( width, height ) {
 
 module.exports = Effect;
 
-},{"./Sequencer":40}],38:[function(require,module,exports){
+},{"./Sequencer":41}],38:[function(require,module,exports){
 var Effect = require('./Effect');
 
 // TODO extract away
@@ -4506,6 +4514,70 @@ EffectClear.prototype.constructor = EffectClear;
 module.exports = EffectClear;
 
 },{"./Effect":37}],40:[function(require,module,exports){
+var Effect = require('./Effect');
+
+// TODO extract away
+function r(radius) {
+	return (Math.random() - 0.5) * radius;
+}
+
+var EffectCube = function ( renderer ) {
+
+	Effect.call( this );
+
+	var scene,
+		camera,
+		cameraTarget,
+		mesh;
+
+	this.init = function() {
+
+		scene = new THREE.Scene();
+		camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 1, 100000);
+		cameraTarget = new THREE.Vector3();
+
+		this.setSize(window.innerWidth, window.innerHeight);
+
+		var material = new THREE.MeshBasicMaterial({ wireframe: true, wireframeLinewidth: 2, color: 0x000000 });
+		var geometry = new THREE.CubeGeometry(10, 10, 10);
+
+		mesh = new THREE.Mesh(geometry, material);
+		scene.add(mesh);
+
+		camera.position.set(15, 0, 15);
+		camera.lookAt(cameraTarget);
+
+	};
+
+	this.setSize = function(w, h) {
+
+		if(camera) {
+			camera.aspect = w / h;
+			camera.updateProjectionMatrix();
+		}
+
+	};
+	
+	this.update = function ( time ) {
+		//var dist = 15;
+		//var t = time * 300;
+
+		mesh.rotation.y = Date.now() * 0.001;
+
+		camera.lookAt(cameraTarget);
+		renderer.render(scene, camera);
+	};
+
+};
+
+EffectCube.prototype = new Effect();
+EffectCube.prototype.constructor = EffectCube;
+
+module.exports = EffectCube;
+
+
+
+},{"./Effect":37}],41:[function(require,module,exports){
 // sequencer by @mrdoob
 // this is old code. Del año de la carraca, y tal.
 /**
@@ -4661,7 +4733,7 @@ module.exports = {
 	SequencerItem: SequencerItem
 };
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -4669,7 +4741,7 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":15}],42:[function(require,module,exports){
+},{"./app":15}],43:[function(require,module,exports){
 var i, j;
 var leds = {};
 var columnLeds = {};
@@ -4751,5 +4823,5 @@ module.exports = {
 	getStopLedPath: getStopLedPath
 };
 
-},{}]},{},[41])
+},{}]},{},[42])
 ;

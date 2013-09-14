@@ -203,11 +203,13 @@ function initialiseGraphics() {
 	sequencer = new (require('./gfx/Sequencer').Sequencer)();
 
 	var EffectClear = require('./gfx/EffectClear');
+	var EffectCube = require('./gfx/EffectCube');
 	var EffectBallsScene = require('./gfx/EffectBallsScene');
 
 	var sequence = [
-		[ EffectClear, { start: 0 } ], // no end == until the end
-		[ EffectBallsScene, { start: 0 } ]
+		[ EffectClear, { start: 68 } ], // no end == until the end
+		[ EffectCube, { start: 68 } ],
+		[ EffectBallsScene, { start: 76 } ]
 	];
 
 	var layerNumber = 0;
@@ -250,9 +252,14 @@ function onWindowResize() {
 	renderer.setSize(width, height);
 }
 
+function updateSequencer() {
+	sequencer.update(player.timePosition);
+}
+
 function render() {
 	rendererAnimationId = requestAnimationFrame(render);
-	sequencer.update(player.timePosition);
+	//sequencer.update(player.timePosition);
+	updateSequencer();
 }
 
 function setupGearPlayerListeners(gear, player) {
@@ -495,6 +502,7 @@ function playerJumpTo(offset) {
 	}
 
 	player.jumpToOrder(newOrder, 0);
+	updateSequencer();
 
 }
 
