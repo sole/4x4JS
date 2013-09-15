@@ -12,7 +12,7 @@ var audioContext,
 	transportOrder;
 
 var Orxatron = require('./Orxatron/'),
-	Quneo = require('./quneo.js'),
+	Quneo = require('quneo'),
 	gearGUI = require('./gear/gui/GUI'),
 	gear,
 	rack;

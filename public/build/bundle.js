@@ -289,6 +289,88 @@ try {
 
 
 },{}],5:[function(require,module,exports){
+var i, j;
+var leds = {};
+var columnLeds = {};
+var rowPads = {};
+var basePadPath = '/quneo/leds/pads/';
+
+for(i = 0; i < 4; i++) {
+	for(j = 0; j < 4; j++) {
+		var base = j * 2 + i * 16;
+		var padNumber = i * 4 + j;
+		var path = getBasePadPath(padNumber);
+		leds[base] = path + 'SW/';
+		leds[base + 1] = path + 'SE/';
+		leds[base + 8] = path + 'NW/';
+		leds[base + 9] = path + 'NE/';
+	}
+}
+
+for(i = 0; i < 8; i++) {
+	var column = [];
+	for(j = 0; j < 8; j++) {
+		column.push(i + j * 8);
+	}
+	columnLeds[i] = column;
+}
+
+for(i = 0; i < 4; i++) {
+	var row = [];
+	for(j = 0; j < 4; j++) {
+		row.push(i * 4 + j);
+	}
+	rowPads[i] = row;
+}
+
+// path for controlling an individual led out of the 4 leds in each pad
+// type = 'green' or 'red'
+function getLedPath(ledIndex, type) {
+	if(type === undefined) {
+		type = '';
+	}
+	return leds[ledIndex] + type;
+}
+
+function getColumnLeds(col) {
+	return columnLeds[col];
+}
+
+function getBasePadPath(padNumber) {
+	return basePadPath + padNumber + '/';
+}
+
+// Path for controlling the 4 leds altogether
+// padNumber: 0..15
+function getPadLedsPath(padNumber, type) {
+	if(type === 'undefined') {
+		type = 'red';
+	}
+	return getBasePadPath(padNumber) + '*/' + type;
+}
+
+function getRowPads(row) {
+	return rowPads[row];
+}
+
+function getPlayLedPath() {
+	return '/quneo/leds/transportButtons/2';
+}
+
+function getStopLedPath() {
+	return '/quneo/leds/transportButtons/1';
+}
+
+module.exports = {
+	getLedPath: getLedPath,
+	getColumnLeds: getColumnLeds,
+	getPadLedsPath: getPadLedsPath,
+	getRowPads: getRowPads,
+	getPlayLedPath: getPlayLedPath,
+	getStopLedPath: getStopLedPath
+};
+
+},{}],6:[function(require,module,exports){
 // StringFormat.js r3 - http://github.com/sole/StringFormat.js
 var StringFormat = {
 
@@ -348,7 +430,7 @@ try {
 }
 
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 // Extract relevant information for our purposes only
 function renoiseToOrxatron(json) {
 	var j = {};
@@ -514,7 +596,7 @@ module.exports = {
 	renoiseToOrxatron: renoiseToOrxatron
 };
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 module.exports = function() {
 	var socket;
 	var listeners = [];
@@ -592,7 +674,7 @@ module.exports = function() {
 	
 };
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 module.exports = {
 	DataUtils: require('./DataUtils'),
 	Player: require('./Player'),
@@ -600,7 +682,7 @@ module.exports = {
 	Rack: require('./Rack')
 };
 
-},{"./DataUtils":6,"./OSC":7,"./Player":11,"./Rack":12}],9:[function(require,module,exports){
+},{"./DataUtils":7,"./OSC":8,"./Player":12,"./Rack":13}],10:[function(require,module,exports){
 var Line = require('./TrackLine');
 var StringFormat = require('stringformat.js');
 
@@ -679,7 +761,7 @@ function Pattern(rows, tracksConfig) {
 
 module.exports = Pattern;
 
-},{"./TrackLine":13,"stringformat.js":5}],10:[function(require,module,exports){
+},{"./TrackLine":14,"stringformat.js":6}],11:[function(require,module,exports){
 var StringFormat = require('stringformat.js');
 var MIDIUtils = require('midiutils');
 
@@ -744,7 +826,7 @@ function PatternCell(data) {
 
 module.exports = PatternCell;
 
-},{"midiutils":4,"stringformat.js":5}],11:[function(require,module,exports){
+},{"midiutils":4,"stringformat.js":6}],12:[function(require,module,exports){
 // TODO many things don't need to be 'public' as for example eventsList
 var EventDispatcher = require('./libs/EventDispatcher');
 var Pattern = require('./Pattern');
@@ -1248,7 +1330,7 @@ EVENT_VOLUME_CHANGE = 'volume_change';
 
 module.exports = Player;
 
-},{"./Pattern":9,"./libs/EventDispatcher":14,"MIDIUtils":2}],12:[function(require,module,exports){
+},{"./Pattern":10,"./libs/EventDispatcher":15,"MIDIUtils":2}],13:[function(require,module,exports){
 // very simple 'rack' to represent a uhm... rack of 'machines'
 function Rack() {
 	var machines = [];
@@ -1329,7 +1411,7 @@ function Rack() {
 
 module.exports = Rack;
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 var Cell = require('./PatternCell');
 
 function TrackLine(numColumns) {
@@ -1346,7 +1428,7 @@ function TrackLine(numColumns) {
 
 module.exports = TrackLine;
 
-},{"./PatternCell":10}],14:[function(require,module,exports){
+},{"./PatternCell":11}],15:[function(require,module,exports){
 /**
  * @author mrdoob / http://mrdoob.com/
  */
@@ -1444,7 +1526,7 @@ module.exports = EventDispatcher;
 	// muettttte!! *_*
 }
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 var StringFormat = require('stringformat.js');
 
 var audioContext,
@@ -1459,7 +1541,7 @@ var audioContext,
 	transportOrder;
 
 var Orxatron = require('./Orxatron/'),
-	Quneo = require('./quneo.js'),
+	Quneo = require('quneo'),
 	gearGUI = require('./gear/gui/GUI'),
 	gear,
 	rack;
@@ -2019,7 +2101,7 @@ module.exports = {
 	start: start
 };
 
-},{"./Orxatron/":8,"./gear/Bajotron":18,"./gear/Colchonator":20,"./gear/Mixer":21,"./gear/Porrompom":24,"./gear/gui/GUI":31,"./gfx/EffectBallsScene":38,"./gfx/EffectClear":39,"./gfx/EffectCube":40,"./gfx/Sequencer":41,"./quneo.js":43,"stringformat.js":5}],16:[function(require,module,exports){
+},{"./Orxatron/":9,"./gear/Bajotron":19,"./gear/Colchonator":21,"./gear/Mixer":22,"./gear/Porrompom":25,"./gear/gui/GUI":32,"./gfx/EffectBallsScene":39,"./gfx/EffectClear":40,"./gfx/EffectCube":41,"./gfx/Sequencer":42,"quneo":5,"stringformat.js":6}],17:[function(require,module,exports){
 var EventDispatcher = require('EventDispatcher');
 
 function ADSR(audioContext, param, attack, decay, sustain, release) {
@@ -2099,7 +2181,7 @@ function ADSR(audioContext, param, attack, decay, sustain, release) {
 
 module.exports = ADSR;
 
-},{"EventDispatcher":1}],17:[function(require,module,exports){
+},{"EventDispatcher":1}],18:[function(require,module,exports){
 var EventDispatcher = require('EventDispatcher');
 
 function ArithmeticMixer(audioContext) {
@@ -2182,7 +2264,7 @@ function ArithmeticMixer(audioContext) {
 
 module.exports = ArithmeticMixer;
 
-},{"EventDispatcher":1}],18:[function(require,module,exports){
+},{"EventDispatcher":1}],19:[function(require,module,exports){
 var EventDispatcher = require('EventDispatcher');
 var OscillatorVoice = require('./OscillatorVoice');
 var NoiseGenerator = require('./NoiseGenerator');
@@ -2476,7 +2558,7 @@ function Bajotron(audioContext, options) {
 
 module.exports = Bajotron;
 
-},{"./ADSR.js":16,"./ArithmeticMixer":17,"./NoiseGenerator":22,"./OscillatorVoice":23,"EventDispatcher":1}],19:[function(require,module,exports){
+},{"./ADSR.js":17,"./ArithmeticMixer":18,"./NoiseGenerator":23,"./OscillatorVoice":24,"EventDispatcher":1}],20:[function(require,module,exports){
 function BufferLoader(audioContext) {
 
 	function voidCallback() {
@@ -2509,7 +2591,7 @@ function BufferLoader(audioContext) {
 
 module.exports = BufferLoader;
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 var EventDispatcher = require('EventDispatcher');
 var MIDIUtils = require('midiutils');
 var OscillatorVoice = require('./OscillatorVoice');
@@ -2817,7 +2899,7 @@ function Colchonator(audioContext, options) {
 
 module.exports = Colchonator;
 
-},{"./ADSR.js":16,"./Bajotron":18,"./NoiseGenerator":22,"./OscillatorVoice":23,"./Reverbetron":25,"EventDispatcher":1,"midiutils":4}],21:[function(require,module,exports){
+},{"./ADSR.js":17,"./Bajotron":19,"./NoiseGenerator":23,"./OscillatorVoice":24,"./Reverbetron":26,"EventDispatcher":1,"midiutils":4}],22:[function(require,module,exports){
 var EventDispatcher = require('eventdispatcher');
 
 // A simple mixer for avoiding early deafness
@@ -2925,7 +3007,7 @@ function Fader(audioContext, options) {
 
 module.exports = Mixer;
 
-},{"eventdispatcher":3}],22:[function(require,module,exports){
+},{"eventdispatcher":3}],23:[function(require,module,exports){
 var SampleVoice = require('./SampleVoice');
 var EventDispatcher = require('EventDispatcher');
 
@@ -3098,7 +3180,7 @@ function NoiseGenerator(audioContext, options) {
 
 module.exports = NoiseGenerator;
 
-},{"./SampleVoice":26,"EventDispatcher":1}],23:[function(require,module,exports){
+},{"./SampleVoice":27,"EventDispatcher":1}],24:[function(require,module,exports){
 var MIDIUtils = require('midiutils');
 var EventDispatcher = require('EventDispatcher');
 
@@ -3230,7 +3312,7 @@ OscillatorVoice.WAVE_TYPE_TRIANGLE = 'triangle';
 
 module.exports = OscillatorVoice;
 
-},{"EventDispatcher":1,"midiutils":4}],24:[function(require,module,exports){
+},{"EventDispatcher":1,"midiutils":4}],25:[function(require,module,exports){
 var BufferLoader = require('./BufferLoader');
 var SampleVoice = require('./SampleVoice');
 var MIDIUtils = require('MIDIUtils');
@@ -3380,7 +3462,7 @@ function Porrompom(audioContext, options) {
 
 module.exports = Porrompom;
 
-},{"./BufferLoader":19,"./SampleVoice":26,"MIDIUtils":2}],25:[function(require,module,exports){
+},{"./BufferLoader":20,"./SampleVoice":27,"MIDIUtils":2}],26:[function(require,module,exports){
 var EventDispatcher = require('EventDispatcher');
 
 function Reverbetron(audioContext) {
@@ -3484,7 +3566,7 @@ module.exports = Reverbetron;
 
 
 
-},{"EventDispatcher":1}],26:[function(require,module,exports){
+},{"EventDispatcher":1}],27:[function(require,module,exports){
 // This voice plays a buffer / sample, and it's capable of regenerating the buffer source once noteOff has been called
 // TODO set a base note and use it + noteOn note to play relatively pitched notes
 
@@ -3571,7 +3653,7 @@ function SampleVoice(audioContext, options) {
 
 module.exports = SampleVoice;
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 
 var adsrProps = ['attack', 'decay', 'sustain', 'release'];
 
@@ -3637,7 +3719,7 @@ module.exports = {
 	register: register
 };
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 function register() {
 	
 	'use strict';
@@ -3688,7 +3770,7 @@ module.exports = {
 	register: register
 };
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 function register() {
 	var bajotronTemplate = '<label>portamento <input type="checkbox" /></label><br/>' +
 		'<div class="numVoicesContainer"></div>' +
@@ -3821,7 +3903,7 @@ module.exports = {
 };
 
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 var template = '<header>Colchonator</header><div class="numVoicesContainer"></div>' + 
 	'<div class="bajotronContainer"></div>' +
 	'<div class="reverbContainer"></div>';
@@ -3884,7 +3966,7 @@ module.exports = {
 	register: register
 };
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 var Slider = require('./Slider');
 var ADSRGUI = require('./ADSRGUI');
 var MixerGUI = require('./MixerGUI');
@@ -3918,7 +4000,7 @@ module.exports = {
 	init: init
 };
 
-},{"./ADSRGUI":27,"./ArithmeticMixerGUI":28,"./BajotronGUI":29,"./ColchonatorGUI":30,"./MixerGUI":32,"./NoiseGeneratorGUI":33,"./OscillatorVoiceGUI":34,"./ReverbetronGUI":35,"./Slider":36}],32:[function(require,module,exports){
+},{"./ADSRGUI":28,"./ArithmeticMixerGUI":29,"./BajotronGUI":30,"./ColchonatorGUI":31,"./MixerGUI":33,"./NoiseGeneratorGUI":34,"./OscillatorVoiceGUI":35,"./ReverbetronGUI":36,"./Slider":37}],33:[function(require,module,exports){
 var template = '<div class="master"></div>' +
 	'<div class="sliders"></div>';
 
@@ -4005,7 +4087,7 @@ module.exports = {
 	register: register
 };
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 var template = '<label>colour <select><option value="white">white</option><option value="pink">pink</option><option value="brown">brown</option></select></label><br />';
 
 function register() {
@@ -4069,7 +4151,7 @@ module.exports = {
 	register: register
 };
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 var template = '<label>octave <input type="number" min="0" max="10" step="1" value="5" /></label><br />' +
 	'<select><option value="sine">sine</option><option value="square">square</option><option value="sawtooth">sawtooth</option><option value="triangle">triangle</option></select>';
 
@@ -4137,7 +4219,7 @@ module.exports = {
 	register: register
 };
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 var template = '<header>Reverbetron</header><div class="wetContainer"></div>' + 
 	'<div><label>Impulse response<select></select><br /><canvas width="200" height="100"></canvas></label></div>';
 
@@ -4277,7 +4359,7 @@ module.exports = {
 
 
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 var template = '<label><span class="label"></span> <input type="range" min="0" max="100" step="0.0001" /> <span class="valueDisplay">0</span></label>';
 
 function register() {
@@ -4403,7 +4485,7 @@ module.exports = {
 	register: register
 };
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 var SequencerItem = require('./Sequencer').SequencerItem;
 
 var Effect = function( renderer ) { };
@@ -4418,7 +4500,7 @@ Effect.prototype.setSize = function( width, height ) {
 
 module.exports = Effect;
 
-},{"./Sequencer":41}],38:[function(require,module,exports){
+},{"./Sequencer":42}],39:[function(require,module,exports){
 var Effect = require('./Effect');
 
 // TODO extract away
@@ -4495,7 +4577,7 @@ EffectBallsScene.prototype.constructor = EffectBallsScene;
 module.exports = EffectBallsScene;
 
 
-},{"./Effect":37}],39:[function(require,module,exports){
+},{"./Effect":38}],40:[function(require,module,exports){
 var Effect = require('./Effect');
 
 var EffectClear = function ( renderer ) {
@@ -4514,7 +4596,7 @@ EffectClear.prototype.constructor = EffectClear;
 
 module.exports = EffectClear;
 
-},{"./Effect":37}],40:[function(require,module,exports){
+},{"./Effect":38}],41:[function(require,module,exports){
 var Effect = require('./Effect');
 
 // TODO extract away
@@ -4578,7 +4660,7 @@ module.exports = EffectCube;
 
 
 
-},{"./Effect":37}],41:[function(require,module,exports){
+},{"./Effect":38}],42:[function(require,module,exports){
 // sequencer by @mrdoob
 // this is old code. Del año de la carraca, y tal.
 /**
@@ -4734,7 +4816,7 @@ module.exports = {
 	SequencerItem: SequencerItem
 };
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 window.addEventListener('DOMComponentsLoaded', function() {
 
 	var app = require('./app');
@@ -4742,87 +4824,5 @@ window.addEventListener('DOMComponentsLoaded', function() {
 
 }, false);
 
-},{"./app":15}],43:[function(require,module,exports){
-var i, j;
-var leds = {};
-var columnLeds = {};
-var rowPads = {};
-var basePadPath = '/quneo/leds/pads/';
-
-for(i = 0; i < 4; i++) {
-	for(j = 0; j < 4; j++) {
-		var base = j * 2 + i * 16;
-		var padNumber = i * 4 + j;
-		var path = getBasePadPath(padNumber);
-		leds[base] = path + 'SW/';
-		leds[base + 1] = path + 'SE/';
-		leds[base + 8] = path + 'NW/';
-		leds[base + 9] = path + 'NE/';
-	}
-}
-
-for(i = 0; i < 8; i++) {
-	var column = [];
-	for(j = 0; j < 8; j++) {
-		column.push(i + j * 8);
-	}
-	columnLeds[i] = column;
-}
-
-for(i = 0; i < 4; i++) {
-	var row = [];
-	for(j = 0; j < 4; j++) {
-		row.push(i * 4 + j);
-	}
-	rowPads[i] = row;
-}
-
-// path for controlling an individual led out of the 4 leds in each pad
-// type = 'green' or 'red'
-function getLedPath(ledIndex, type) {
-	if(type === undefined) {
-		type = '';
-	}
-	return leds[ledIndex] + type;
-}
-
-function getColumnLeds(col) {
-	return columnLeds[col];
-}
-
-function getBasePadPath(padNumber) {
-	return basePadPath + padNumber + '/';
-}
-
-// Path for controlling the 4 leds altogether
-// padNumber: 0..15
-function getPadLedsPath(padNumber, type) {
-	if(type === 'undefined') {
-		type = 'red';
-	}
-	return getBasePadPath(padNumber) + '*/' + type;
-}
-
-function getRowPads(row) {
-	return rowPads[row];
-}
-
-function getPlayLedPath() {
-	return '/quneo/leds/transportButtons/2';
-}
-
-function getStopLedPath() {
-	return '/quneo/leds/transportButtons/1';
-}
-
-module.exports = {
-	getLedPath: getLedPath,
-	getColumnLeds: getColumnLeds,
-	getPadLedsPath: getPadLedsPath,
-	getRowPads: getRowPads,
-	getPlayLedPath: getPlayLedPath,
-	getStopLedPath: getStopLedPath
-};
-
-},{}]},{},[42])
+},{"./app":16}]},{},[43])
 ;
