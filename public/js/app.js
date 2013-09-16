@@ -258,7 +258,6 @@ function updateSequencer() {
 
 function render() {
 	rendererAnimationId = requestAnimationFrame(render);
-	//sequencer.update(player.timePosition);
 	updateSequencer();
 }
 
