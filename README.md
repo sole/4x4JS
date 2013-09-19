@@ -9,7 +9,7 @@ This is the software I used for my JSConf.eu talk. To run it you need to fire up
 * clone
 * cd to the dir
 * npm install
-* cp local.json-dir local.json
+* cp local.json-dist local.json
 * node app.js
 
 In another tab:
