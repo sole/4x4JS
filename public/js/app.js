@@ -13,7 +13,7 @@ var audioContext,
 
 var Orxatron = require('./Orxatron/'),
 	Quneo = require('quneo'),
-	gearGUI = require('./gear/gui/GUI'),
+	gearGUI = require('supergear').GUI,
 	gear,
 	rack;
 
@@ -78,13 +78,13 @@ function initialiseGear(audioContext) {
 	
 	rack = new Orxatron.Rack();
 
-	var Mixer = require('./gear/Mixer');
+	var Mixer = require('supergear').Mixer;
 	var mixer = new Mixer(audioContext);
 	mixer.output.connect(audioContext.destination);
 	mixer.gain = 0.25;
 	
 	// 0 / BASS 
-	var Bajotron = require('./gear/Bajotron');
+	var Bajotron = require('supergear').Bajotron;
 	var bass = new Bajotron(audioContext, {
 		portamento: false,
 		waveType: ['square', 'triangle'],
@@ -93,7 +93,7 @@ function initialiseGear(audioContext) {
 	g.push(bass);
 
 	// 1 / PAD
-	var Colchonator = require('./gear/Colchonator');
+	var Colchonator = require('supergear').Colchonator;
 	var pad = new Colchonator(audioContext);
 	pad.numVoices = 3;
 	pad.bajotron.noiseAmount = 1;
@@ -107,7 +107,7 @@ function initialiseGear(audioContext) {
 	g.push(pad);
 	
 	// 2 / DRUM MACHINE
-	var Porrompom = require('./gear/Porrompom');
+	var Porrompom = require('supergear').Porrompom;
 	var p808 = 'data/samples/808/';
 	var dm808 = new Porrompom(audioContext, {
 		mappings: {

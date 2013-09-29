@@ -21,6 +21,8 @@
     "pretty-data": "~0.40.0",
     "twitter-oauth": "0.0.6",
     "request": "~2.27.0",
-    "quneo": "0.0.1"
+    "quneo": "0.0.1",
+    "eventdispatcher.js": "0.0.1",
+    "supergear": "0.0.1"
   }
 }
